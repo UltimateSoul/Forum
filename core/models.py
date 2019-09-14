@@ -25,7 +25,6 @@ class Topic(models.Model):
                              null=True)
     likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='topic')
     description = models.CharField(max_length=255)
-    tags = models.ManyToManyField('.Tag', blank=True, null=True)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
     rating = models.IntegerField(default=0)
     section = models.CharField(max_length=13, choices=SECTION_CHOICES,
@@ -73,10 +72,3 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.body[:10]
-
-
-class Tag(models.Model):
-    name = models.CharField(max_length=255)
-
-    def __str__(self):
-        return self.name
