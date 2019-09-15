@@ -1,5 +1,8 @@
 from django.contrib import admin
-from .models import Topic
+
+from core.models import MiniChatMessage, Topic, Comment, Post
+
+
 # Register your models here.
 
 
@@ -11,3 +14,38 @@ class TopicAdmin(admin.ModelAdmin):
     @staticmethod
     def preview(obj):
         return obj.body[:40]
+
+
+@admin.register(MiniChatMessage)
+class MiniChatMessageAdmin(admin.ModelAdmin):
+    list_display = ('author', 'body', 'created_date')
+
+    @staticmethod
+    def body(obj):
+        return obj.body[:35]
+
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('topic', 'body', 'author')
+
+    @staticmethod
+    def body(obj):
+        return obj.body[:35]
+
+    @staticmethod
+    def topic(obj):
+        return obj.post.topic.title
+
+
+@admin.register(Post)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('topic', 'body', 'author', 'published_date')
+
+    @staticmethod
+    def body(obj):
+        return obj.body[:35]
+
+    @staticmethod
+    def topic(obj):
+        return obj.topic.title

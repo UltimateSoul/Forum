@@ -29,8 +29,10 @@ class MiniChatMessagesView(APIView):
 class PostsView(APIView):
     """Mini Chat Messages Get View"""
 
-    def get(self, request):
-        posts = Post.objects.all()
+    @staticmethod
+    def get(request):
+        topic = request.GET.get('topic')
+        posts = Post.objects.filter(topic=topic)
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
 
@@ -38,8 +40,10 @@ class PostsView(APIView):
 class CommentsView(APIView):
     """Mini Chat Messages Get View"""
 
-    def get(self, request):
-        comments = Comment.objects.all()
+    @staticmethod
+    def get(request):
+        post = request.GET.get('post')
+        comments = Comment.objects.filter(post=post)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
 
