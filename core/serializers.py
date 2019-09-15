@@ -13,6 +13,14 @@ class TopicSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CreateTopicSerializer(serializers.ModelSerializer):
+    """Topic Serializer"""
+
+    class Meta:
+        model = Topic
+        fields = ['title', 'body', 'icon', 'description', 'section']
+
+
 class MiniChatMessageSerializer(serializers.ModelSerializer):
     """Home page minichat messages"""
     author = UserSerializer()
@@ -20,6 +28,14 @@ class MiniChatMessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = MiniChatMessage
         fields = '__all__'
+
+
+class CreateMiniChatMessageSerializer(serializers.ModelSerializer):
+    """Home page minichat messages"""
+
+    class Meta:
+        model = MiniChatMessage
+        fields = ['body']
 
 
 class PostSerializer(serializers.ModelSerializer):
@@ -31,6 +47,14 @@ class PostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class CreatePostSerializer(serializers.ModelSerializer):
+    """Topic's post serializer"""
+
+    class Meta:
+        model = Post
+        fields = ['topic', 'body']
+
+
 class CommentSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
     author = UserSerializer()
@@ -38,3 +62,11 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
+
+
+class CreateCommentSerializer(serializers.ModelSerializer):
+    """Topic's post serializer"""
+
+    class Meta:
+        model = Comment
+        fields = ['post', 'body']
