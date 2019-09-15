@@ -1,6 +1,6 @@
-# tbw2-froum
+# tbw2-frontend
 
-> The Blood Way Forum
+> TBW 2 Forum front-end
 
 ## Build Setup
 
