@@ -19,7 +19,6 @@ from django.contrib.auth.views import LoginView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('login/', LoginView.as_view(), name='login'),
     path('api/conversation/', include(("core.urls", "core"), namespace="core")),
-    path('registration/', include(("users.urls", "users"), namespace="users")),
+    path('login/', include(("users.urls", "users"), namespace="users")),
 ]
