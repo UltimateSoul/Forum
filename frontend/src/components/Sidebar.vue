@@ -4,24 +4,38 @@
 <!--    <main id="page-wrap">-->
       <Slide>
         <a id="home" @click="homeClick">
-          <span>Home</span>
+          <span>
+            Home
+          </span>
         </a>
         <a id="login" @click="loginClick">
-          <span>Login</span>
+          <span>
+            Login
+          </span>
         </a>
         <a id="conversation" href="#">
-          <span>Conversation</span>
+          <span>
+            Conversation
+          </span>
         </a>
         <a id="shop" href="#">
-          <span>Shop</span>
+          <span>
+            Shop
+          </span>
         </a>
+        <a id="Get Started" href="#">
+          <span>
+            Get Started
+          </span>
+        </a>
+
       </Slide>
 <!--    </main>-->
   </div>
 </template>
 
 <script>
-  import {Slide} from 'vue-burger-menu'
+  import { Slide } from 'vue-burger-menu'
   // import the CSS transitions you wish to use, in this case we are using `Slide`
 
   export default {
