@@ -14,9 +14,15 @@ class TopicView(APIView):
 
     @staticmethod
     def get(request):
-        topics = Topic.objects.all()
-        serializer = TopicSerializer(topics, many=True)
-        return Response(serializer.data)
+        section = request.GET.get('section')
+        if section:
+            topics = Topic.objects.filter(section=request.GET.get('section'))
+            serializer = TopicSerializer(topics, many=True)
+            return Response(serializer.data)
+        else:
+            topics = Topic.objects.all()
+            serializer = TopicSerializer(topics, many=True)
+            return Response(serializer.data)
 
     def post(self, request):
         topic = CreateTopicSerializer(data=request.data)

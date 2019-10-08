@@ -7,6 +7,10 @@ from users.serializers import UserSerializer
 class TopicSerializer(serializers.ModelSerializer):
     """Topic Serializer"""
     author = UserSerializer()
+    posts_quantity = serializers.SerializerMethodField()
+
+    def get_posts_quantity(self, topic):
+        return Post.objects.filter(topic=topic).count()
 
     class Meta:
         model = Topic
@@ -14,7 +18,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
 
 class CreateTopicSerializer(serializers.ModelSerializer):
-    """Topic Serializer"""
+    """Create Topic Serializer"""
 
     class Meta:
         model = Topic

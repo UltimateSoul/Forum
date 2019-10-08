@@ -33,6 +33,10 @@ class Topic(models.Model):
     def get_absolute_url(self):
         return f"sections/{self.section}/{self.id}-1/"
 
+    @property
+    def posts_quantity(self):
+        return Post.objects.filter(topic=self).count()
+
     def __str__(self):
         return self.title
 

@@ -13,7 +13,7 @@
             Login
           </span>
         </a>
-        <a id="conversation" href="#">
+        <a id="conversation" @click="conversationClick">
           <span>
             Conversation
           </span>
@@ -49,6 +49,9 @@
       },
       homeClick() {
         this.$router.push('home')
+      },
+      conversationClick() {
+        this.$router.push('conversation')
       }
     }
   }
