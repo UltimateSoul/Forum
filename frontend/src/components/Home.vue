@@ -1,21 +1,48 @@
 <template>
   <div>
-    <h1>The Blood Way ORPG 2</h1>
     <div class="row">
-      <div class="col-lg-4">
-        <div class="card" style="width: 18rem;" v-for="user in users">
-          <img :src="user.imageURL" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">{{ user.name }}</h5>
-            <p class="card-text">Your level is {{ user.level }}</p>
-            <a href="#" class="btn btn-primary">Your Hero: {{ user.hero }}</a>
+      <div class="col-lg-12">
+        <h1>The Blood Way ORPG 2</h1>
+        <button @click="show = !show" class="btn btn-lg btn-success">
+          slide Animation
+        </button>
+        <transition name="slide" mode="out-in" appear>
+          <div class="card auto-margin" style="width: 18rem;" v-if="show" key="soul">
+            <img :src="users[2].imageURL" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{ users[2].name }}</h5>
+              <p class="card-text">Your level is {{ users[2].level }}</p>
+              <a href="#" class="btn btn-primary">Your Hero: {{ users[2].hero }}</a>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="col-lg-8">
 
+          <div class="card auto-margin" style="width: 18rem;" v-else key="misha">
+            <img :src="users[1].imageURL" class="card-img-top" alt="...">
+            <div class="card-body">
+              <h5 class="card-title">{{ users[1].name }}</h5>
+              <p class="card-text">Your level is {{ users[1].level }}</p>
+              <a href="#" class="btn btn-primary">Your Hero: {{ users[1].hero }}</a>
+            </div>
+          </div>
+        </transition>
       </div>
     </div>
+
+    <!--    <div class="row">-->
+    <!--      <div class="col-lg-4">-->
+    <!--        <div class="card" style="width: 18rem;" v-for="user in users">-->
+    <!--          <img :src="user.imageURL" class="card-img-top" alt="...">-->
+    <!--          <div class="card-body">-->
+    <!--            <h5 class="card-title">{{ user.name }}</h5>-->
+    <!--            <p class="card-text">Your level is {{ user.level }}</p>-->
+    <!--            <a href="#" class="btn btn-primary">Your Hero: {{ user.hero }}</a>-->
+    <!--          </div>-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--      <div class="col-lg-8">-->
+
+    <!--      </div>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -24,6 +51,7 @@
     name: "Home",
     data() {
       return {
+        show: false,
         users: [{
           name: 'Pasha',
           level: 1,
@@ -43,9 +71,14 @@
             imageURL: 'https://www.interfax.ru/ftproot/textphotos/2018/07/20/md700.jpg'
           }
         ],
-  }}}
+      }
+    }
+  }
 </script>
 
 <style scoped>
 
+  .auto-margin {
+    margin: 30px auto 30px auto;
+  }
 </style>

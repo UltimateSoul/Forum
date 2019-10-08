@@ -2,10 +2,7 @@
   <div>
     <div class="col-lg-10 col-md-6 col-sm-3">
       <div class="alert alert-success" role="alert" v-if="isLogged">
-        You`ve already logged in! Click <a @click="homePageClick">here</a> to go to the Home page!
-        <button type="button" class="close"  aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <a @click="homePageClick">You`ve already logged in! Click here to go to the Home page!</a>
       </div>
       <form v-if="!isLogged">
         <div class="form-group">
