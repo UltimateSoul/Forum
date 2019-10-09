@@ -1,17 +1,20 @@
 <template>
   <div id="app">
     <sidebar></sidebar>
-<!--    <main id="page-wrap">-->
-<!--      <router-view/>-->
-<!--    </main>-->
-    <div class="container">
-      <router-view/>
-    </div>
+    <main id="page-wrap">
+      <div class="container">
+        <router-view/>
+      </div>
+    </main>
+    <!--    <div class="container">-->
+    <!--      <router-view/>-->
+    <!--    </div>-->
   </div>
 </template>
 
 <script>
   import Sidebar from './components/Sidebar'
+
   export default {
     name: 'App',
     components: {
@@ -22,6 +25,7 @@
 
 <style>
   @import url('https://fonts.googleapis.com/css?family=Comfortaa:400,700&display=swap');
+
   #app {
     font-family: 'Comfortaa', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
@@ -30,7 +34,8 @@
     color: #2c3e50;
     margin-top: 60px;
   }
-    .slide-enter {
+
+  .slide-enter {
     opacity: 0;
   }
 
@@ -57,6 +62,7 @@
       transform: translateY(0);
     }
   }
+
   @keyframes slide-out {
     from {
       transform: translateY(0);

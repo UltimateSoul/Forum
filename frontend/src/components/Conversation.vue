@@ -22,9 +22,8 @@
             <th></th>
           </tr>
           </thead>
-          <tbody>
-          <transition-group name="slide" mode="out-in" appear>
-            <tr v-for="(topic, index) in topics" :key="index">
+          <tbody name="slide" is="transition-group">
+            <tr v-for="(topic, index) in topics" :key="topic.posts_quantity">
               <th>{{ topic.title }}</th>
               <td>{{ topic.posts_quantity }}</td>
               <td>{{ topic.author.username }}</td>
@@ -50,7 +49,6 @@
 </svg>
               </td>
             </tr>
-          </transition-group>
           </tbody>
         </table>
       </div>
@@ -69,7 +67,8 @@
     data() {
       return {
         loading: false,
-        topics: []
+        topics: [],
+        testQuantity: 2
       }
     },
     created() {
@@ -91,12 +90,13 @@
         // this.$router.push('topic-creation')
         this.topics.push({
           title: 'Test Topic',
-          posts_quantity: 1000,
+          posts_quantity: this.testQuantity,
           author: {
             username: 'Test'
           },
           created_date: '2019-09-14T22:27:18Z'
-        })
+        });
+        this.testQuantity++
 
       },
       remove(index) {

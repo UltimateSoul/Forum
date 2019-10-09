@@ -1,47 +1,37 @@
 <template>
   <div>
-<!--  <Menu/>-->
-<!--    <main id="page-wrap">-->
-      <Slide>
-        <a id="home" @click="homeClick">
-          <span>
-            Home
-          </span>
-        </a>
-        <a id="login" @click="loginClick">
-          <span>
-            Login
-          </span>
-        </a>
-        <a id="conversation" @click="conversationClick">
-          <span>
-            Conversation
-          </span>
-        </a>
-        <a id="shop" href="#">
-          <span>
-            Shop
-          </span>
-        </a>
-        <a id="Get Started" href="#">
-          <span>
-            Get Started
-          </span>
-        </a>
+    <!--  <Menu/>-->
+    <!--    <main id="page-wrap">-->
+    <Reveal>
+      <router-link to="/">
+        <span> Home </span>
+      </router-link>
+      <router-link to="/login">
+        <span> Login </span>
+      </router-link>
+      <router-link to="/conversation">
+        <span> Conversation </span>
+      </router-link>
 
-      </Slide>
-<!--    </main>-->
+      <router-link to="/shop">
+        <span> Shop </span>
+      </router-link>
+      <router-link to="/get-started">
+        <span> Get Started </span>
+      </router-link>
+    </Reveal>
+    <!--    </main>-->
   </div>
 </template>
 
 <script>
-  import { Slide } from 'vue-burger-menu'
+  import {Reveal} from 'vue-burger-menu'
   // import the CSS transitions you wish to use, in this case we are using `Slide`
 
   export default {
     name: "Sidebar",
     components: {
-      Slide // Register your component
+      Reveal // Register your component
     },
     methods: {
       loginClick() {
@@ -58,7 +48,11 @@
 
 </script>
 
-<style>
+<style scoped>
+  a {
+    text-decoration: none;
+  }
+
   .bm-burger-button {
     position: fixed;
     width: 36px;

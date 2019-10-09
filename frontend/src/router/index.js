@@ -4,13 +4,15 @@ import Home from '@/components/Home'
 import Login from '@/components/Login'
 import Conversation from '@/components/Conversation'
 import TopicCreation from '@/components/TopicCreation'
+import Shop from '@/components/Shop'
+import GetStarted from '@/components/GetStarted'
 
 Vue.use(Router);
 
 export default new Router({
   routes: [
     {
-      path: '/home',
+      path: '',
       name: 'home',
       component: Home
     },
@@ -28,6 +30,17 @@ export default new Router({
       path: '/topic-creation',
       name: 'topic-creation',
       component: TopicCreation
+    },
+    {
+      path: '/shop',
+      name: 'shop',
+      component: Shop
+    },
+    {
+      path: '/get-started',
+      name: 'Get Started',
+      component: GetStarted
     }
-  ]
+  ],
+  mode: 'history'
 })

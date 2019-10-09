@@ -61,7 +61,7 @@
           })
       },
       homePageClick() {
-        this.$router.push('home');
+        this.$router.push({name: 'home'});
       }
     },
     computed: {
