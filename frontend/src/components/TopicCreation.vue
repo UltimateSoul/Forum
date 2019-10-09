@@ -11,9 +11,20 @@
 </template>
 
 <script>
-    export default {
-        name: "TopicCreation"
+  import Vue from 'vue'
+  import axios from 'axios'
+  import VueAxios from 'vue-axios'
+
+  Vue.use(VueAxios, axios);
+  export default {
+    name: "TopicCreation",
+
+    methods: {
+      createTopic() {
+        Vue.axios.post('')
+      }
     }
+  }
 </script>
 
 <style scoped>

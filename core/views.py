@@ -5,6 +5,8 @@ from rest_framework import permissions
 from core.models import MiniChatMessage, Post, Comment
 from core.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
+from users.models import User
+from users.serializers import UserSerializer
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -93,3 +95,22 @@ class CommentsView(APIView):
                              'errors': comment.error_messages})
 
 
+class UserProfileView(APIView):
+    """User Profile View"""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        user_id = kwargs.get('id')
+        user = User.objects.filter(id=user_id)
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data)
+
+
+class UsersView(APIView):
+    """All Users View"""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)

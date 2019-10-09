@@ -6,6 +6,7 @@ import Conversation from '@/components/Conversation'
 import TopicCreation from '@/components/TopicCreation'
 import Shop from '@/components/Shop'
 import GetStarted from '@/components/GetStarted'
+import UserProfile from '@/components/UserProfile'
 
 Vue.use(Router);
 
@@ -38,9 +39,13 @@ export default new Router({
     },
     {
       path: '/get-started',
-      name: 'Get Started',
+      name: 'get-started',
       component: GetStarted
+    },
+    {
+      path: '/user-profile/:id',
+      name: 'user-profile',
+      component: UserProfile
     }
-  ],
-  mode: 'history'
+  ]
 })

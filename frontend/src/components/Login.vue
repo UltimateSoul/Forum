@@ -1,8 +1,9 @@
 <template>
   <div>
     <div class="col-lg-10 col-md-6 col-sm-3">
-      <div class="alert alert-success" role="alert" v-if="isLogged">
-        <a @click="homePageClick">You`ve already logged in! Click here to go to the Home page!</a>
+      <div class="alert alert-danger"
+           role="alert" v-if="dangerShow">
+       An error occurred during the authentication process. Try again!
       </div>
       <form v-if="!isLogged">
         <div class="form-group">
@@ -40,7 +41,8 @@
     data() {
       return {
         username: '',
-        password: ''
+        password: '',
+        dangerShow: false,
       }
     },
     methods: {
@@ -51,13 +53,12 @@
         };
         Vue.axios.post('http://127.0.0.1:8000/login/api-token-auth/', data)
           .then((response) => {
-            debugger;
             console.log(response);
-            sessionStorage.setItem('auth_token', response.data.token)
+            sessionStorage.setItem('auth_token', response.data.token);
+            this.homePageClick()
           })
           .catch((response) => {
-            debugger;
-            console.log(response)
+            this.dangerShow = true;
           })
       },
       homePageClick() {
