@@ -5,6 +5,10 @@
            role="alert" v-if="dangerShow">
        An error occurred during the authentication process. Try again!
       </div>
+      <div class="alert alert-success"
+           role="alert" v-if="isLogged">
+       You've successfully logged in!
+      </div>
       <form v-if="!isLogged">
         <div class="form-group">
           <label for="exampleInputEmail1">Username</label>
@@ -34,6 +38,7 @@
   import Vue from 'vue'
   import axios from 'axios'
   import VueAxios from 'vue-axios'
+  import { mapMutations, mapGetters } from 'vuex';
 
   Vue.use(VueAxios, axios);
   export default {
@@ -46,6 +51,9 @@
       }
     },
     methods: {
+      ...mapMutations([
+        'loginAndLogout'
+      ]),
       loginClick() {
         let data = {
           username: this.username,
@@ -66,9 +74,9 @@
       }
     },
     computed: {
-      isLogged() {
-        return Boolean(sessionStorage.getItem('auth_token'))
-      }
+      ...mapGetters([
+        'isLogged'
+      ])
     }
   }
 </script>

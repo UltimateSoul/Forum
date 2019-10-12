@@ -1,16 +1,50 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/Home'
-import Login from '@/components/Login'
-import Conversation from '@/components/Conversation'
-import TopicCreation from '@/components/TopicCreation'
-import Shop from '@/components/Shop'
-import GetStarted from '@/components/GetStarted'
-import UserProfile from '@/components/UserProfile'
+const Login = resolve => {
+  require.ensure(['@/components/Login'], () => {
+    resolve(require('@/components/Login'))
+  })
+};
+const Conversation = resolve => {
+  require.ensure(['@/components/Conversation'], () => {
+    resolve(require('@/components/Conversation'))
+  })
+};
+const TopicCreation = resolve => {
+  require.ensure(['@/components/TopicCreation'], () => {
+    resolve(require('@/components/TopicCreation'))
+  })
+};
+const Shop = resolve => {
+  require.ensure(['@/components/Shop'], () => {
+    resolve(require('@/components/Shop'))
+  })
+};
+const GetStarted = resolve => {
+  require.ensure(['@/components/GetStarted'], () => {
+    resolve(require('@/components/GetStarted'))
+  })
+};
+const UserProfile = resolve => {
+  require.ensure(['@/components/UserProfile'], () => {
+    resolve(require('@/components/UserProfile'))
+  })
+};
 
 Vue.use(Router);
 
 export default new Router({
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition;
+    }
+    if (to.hash) {
+      return {selector: to.hash};
+    }
+    return {x: 0,
+            y: 0}
+  },
   routes: [
     {
       path: '',
@@ -46,6 +80,11 @@ export default new Router({
       path: '/user-profile/:id',
       name: 'user-profile',
       component: UserProfile
+    },
+    {
+      path: '*',
+      redirect: {name: 'home'}
     }
-  ]
+  ],
+  mode: 'history'
 })

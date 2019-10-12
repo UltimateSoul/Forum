@@ -3,7 +3,9 @@
     <sidebar></sidebar>
     <main id="page-wrap">
       <div class="container">
-        <router-view/>
+        <transition name="slide" mode="out-in">
+          <router-view/>
+        </transition>
       </div>
     </main>
     <!--    <div class="container">-->
