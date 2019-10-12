@@ -3,28 +3,19 @@
     <div class="row">
       <div class="col-lg-12">
         <h1>The Blood Way ORPG 2</h1>
-        <button @click="show = !show" class="btn btn-lg btn-success">
-          slide Animation
-        </button>
-        <transition name="slide" mode="out-in" appear>
-          <div class="card auto-margin" style="width: 18rem;" v-if="show" key="soul">
-            <img :src="users[2].imageURL" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">{{ users[2].name }}</h5>
-              <p class="card-text">Your level is {{ users[2].level }}</p>
-              <a href="#" class="btn btn-primary">Your Hero: {{ users[2].hero }}</a>
-            </div>
+        <div class="card text-center">
+          <div class="card-header">
+            Hy
           </div>
-
-          <div class="card auto-margin" style="width: 18rem;" v-else key="misha">
-            <img :src="users[1].imageURL" class="card-img-top" alt="...">
-            <div class="card-body">
-              <h5 class="card-title">{{ users[1].name }}</h5>
-              <p class="card-text">Your level is {{ users[1].level }}</p>
-              <a href="#" class="btn btn-primary">Your Hero: {{ users[1].hero }}</a>
-            </div>
+          <div class="card-body">
+            <h5 class="card-title">Special title treatment</h5>
+            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+            <a href="#" class="btn btn-primary">Go somewhere</a>
           </div>
-        </transition>
+          <div class="card-footer text-muted">
+            2 days ago
+          </div>
+        </div>
       </div>
     </div>
 
@@ -47,32 +38,30 @@
 </template>
 
 <script>
+  import mapGetters from 'vuex'
   export default {
     name: "Home",
     data() {
       return {
         show: false,
-        users: [{
-          name: 'Pasha',
-          level: 1,
-          hero: 'Forest Witch',
-          imageURL: 'https://i.pinimg.com/originals/96/b9/46/96b946b0f017d8a2681acbe6acbcb50e.jpg'
-        },
-          {
-            name: 'Misha',
-            level: 13,
-            hero: 'Tree',
-            imageURL: 'https://pbs.twimg.com/profile_images/2457288600/dp1ib4f8oefespdd4esy_400x400.jpeg'
-          },
-          {
-            name: 'Soul',
-            level: 150,
-            hero: 'Bear',
-            imageURL: 'https://www.interfax.ru/ftproot/textphotos/2018/07/20/md700.jpg'
-          }
-        ],
+        user: null
       }
-    }
+    },
+    created() {
+      debugger;
+      if (this.$store.getters.isLogged) {
+        debugger;
+        this.$store.dispatch('fetchUser', sessionStorage.getItem('auth_token'))
+          .then((resp) => {
+            debugger;
+          })
+      }
+    },
+    // computed: {
+    //   ...mapGetters([
+    //     'isLogged'
+    //   ])
+    // }
   }
 </script>
 

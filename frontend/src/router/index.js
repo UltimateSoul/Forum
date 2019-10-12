@@ -36,6 +36,11 @@ const Sections = resolve => {
     resolve(require('@/components/pages/Sections'))
   })
 };
+const Registration = resolve => {
+  require.ensure(['@/components/pages/Registration'], () => {
+    resolve(require('@/components/pages/Registration'))
+  })
+};
 
 Vue.use(Router);
 
@@ -92,9 +97,14 @@ export default new Router({
       component: Sections
     },
     {
-      path: '*',
-      redirect: {name: 'home'}
-    }
+      path: '/registration',
+      name: 'registration',
+      component: Registration
+    },
+    // {
+    //   path: '*',
+    //   redirect: {name: 'home'}
+    // }
   ],
-  mode: 'history'
+  // mode: 'history'
 })

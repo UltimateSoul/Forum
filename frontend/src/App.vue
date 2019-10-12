@@ -2,7 +2,7 @@
   <div id="app">
     <sidebar></sidebar>
     <main id="page-wrap">
-      <div class="container">
+      <div class="container-fluid">
         <transition name="slide" mode="out-in">
           <router-view/>
         </transition>

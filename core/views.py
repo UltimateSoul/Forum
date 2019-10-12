@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 from rest_framework import permissions
 
 from core.models import MiniChatMessage, Post, Comment
@@ -105,6 +106,16 @@ class UserProfileView(APIView):
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
 
+
+class GetUserView(APIView):
+    """Fetch user view"""
+
+    @staticmethod
+    def get(request, *args, **kwargs):
+        token = Token.objects.get(key=request.GET.get('auth_token'))
+        user = User.objects.filter(auth_token=token)
+        serializer = UserSerializer(user, many=True)
+        return Response(serializer.data)
 
 class UsersView(APIView):
     """All Users View"""
