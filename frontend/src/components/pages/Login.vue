@@ -41,6 +41,7 @@
   import { mapMutations, mapGetters } from 'vuex';
 
   Vue.use(VueAxios, axios);
+
   export default {
     name: "Login",
     data() {

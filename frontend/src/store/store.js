@@ -1,7 +1,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-
+import axios from 'axios'
+import VueAxios from 'vue-axios'
+import {mapMutations, mapGetters} from 'vuex';
+Vue.use(VueAxios, axios);
 Vue.use(Vuex);
+const SERVER_URL = '';
 
 export const store = new Vuex.Store({
   state: {
@@ -14,7 +18,9 @@ export const store = new Vuex.Store({
     }
   },
   actions: {
+    getSectionData(section) {
 
+    }
   },
   mutations: {
 

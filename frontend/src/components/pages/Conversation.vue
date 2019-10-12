@@ -77,8 +77,9 @@
     },
     methods: {
       getData() {
-        let data = {section: 'IDEAS'};
-        Vue.axios.get('http://127.0.0.1:8000/api/conversation/topics/', {params: data})
+        let data = {section:  this.$route.params.section.toUpperCase()};
+
+        Vue.axios.get('http://127.0.0.1:8000/api/topics/', {params: data})
           .then((resp) => {
             this.topics = resp.data;
           })
@@ -87,17 +88,7 @@
           })
       },
       createTopic() {
-        // this.$router.push('topic-creation')
-        this.topics.push({
-          title: 'Test Topic',
-          posts_quantity: this.testQuantity,
-          author: {
-            username: 'Test'
-          },
-          created_date: '2019-09-14T22:27:18Z'
-        });
-        this.testQuantity++
-
+        this.$router.push({name: 'topic-creation'})
       },
       remove(index) {
         this.topics.splice(index, 1)

@@ -9,8 +9,8 @@
       <router-link to="/login">
         <span> Login </span>
       </router-link>
-      <router-link to="/conversation">
-        <span> Conversation </span>
+      <router-link to="/sections">
+        <span> Sections </span>
       </router-link>
 
       <router-link to="/shop">
@@ -34,15 +34,7 @@
       Reveal // Register your component
     },
     methods: {
-      loginClick() {
-        this.$router.push('login')
-      },
-      homeClick() {
-        this.$router.push('home')
-      },
-      conversationClick() {
-        this.$router.push('conversation')
-      }
+
     }
   }
 

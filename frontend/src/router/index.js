@@ -1,34 +1,39 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Home from '@/components/Home'
+import Home from '@/components/pages/Home'
 const Login = resolve => {
-  require.ensure(['@/components/Login'], () => {
-    resolve(require('@/components/Login'))
+  require.ensure(['@/components/pages/Login'], () => {
+    resolve(require('@/components/pages/Login'))
   })
 };
 const Conversation = resolve => {
-  require.ensure(['@/components/Conversation'], () => {
-    resolve(require('@/components/Conversation'))
+  require.ensure(['@/components/pages/Conversation'], () => {
+    resolve(require('@/components/pages/Conversation'))
   })
 };
 const TopicCreation = resolve => {
-  require.ensure(['@/components/TopicCreation'], () => {
-    resolve(require('@/components/TopicCreation'))
+  require.ensure(['@/components/pages/TopicCreation'], () => {
+    resolve(require('@/components/pages/TopicCreation'))
   })
 };
 const Shop = resolve => {
-  require.ensure(['@/components/Shop'], () => {
-    resolve(require('@/components/Shop'))
+  require.ensure(['@/components/pages/Shop'], () => {
+    resolve(require('@/components/pages/Shop'))
   })
 };
 const GetStarted = resolve => {
-  require.ensure(['@/components/GetStarted'], () => {
-    resolve(require('@/components/GetStarted'))
+  require.ensure(['@/components/pages/GetStarted'], () => {
+    resolve(require('@/components/pages/GetStarted'))
   })
 };
 const UserProfile = resolve => {
-  require.ensure(['@/components/UserProfile'], () => {
-    resolve(require('@/components/UserProfile'))
+  require.ensure(['@/components/pages/UserProfile'], () => {
+    resolve(require('@/components/pages/UserProfile'))
+  })
+};
+const Sections = resolve => {
+  require.ensure(['@/components/pages/Sections'], () => {
+    resolve(require('@/components/pages/Sections'))
   })
 };
 
@@ -57,12 +62,12 @@ export default new Router({
       component: Login
     },
     {
-      path: '/conversation',
+      path: '/conversation/:section',
       name: 'conversation',
       component: Conversation
     },
     {
-      path: '/topic-creation',
+      path: '/topic-creation/:section',
       name: 'topic-creation',
       component: TopicCreation
     },
@@ -80,6 +85,11 @@ export default new Router({
       path: '/user-profile/:id',
       name: 'user-profile',
       component: UserProfile
+    },
+    {
+      path: '/sections',
+      name: 'sections',
+      component: Sections
     },
     {
       path: '*',
