@@ -62,8 +62,7 @@
         this.$store.dispatch('login', data)
           .then(() => {
             if (vueInstance.isLogged) {
-              this.showProgress = true;
-              this.homePageClick();
+              setTimeout(this.homePageClick, 3500)
             }
           })
           .catch((response) => {

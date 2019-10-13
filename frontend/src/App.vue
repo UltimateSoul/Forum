@@ -8,14 +8,13 @@
         </transition>
       </div>
     </main>
-    <!--    <div class="container">-->
-    <!--      <router-view/>-->
-    <!--    </div>-->
   </div>
 </template>
 
 <script>
   import Sidebar from './components/Sidebar'
+  // import Header from './components/Header'
+  // import Footer from './components/Footer'
 
   export default {
     name: 'App',
@@ -27,7 +26,9 @@
       }
     },
     components: {
-      sidebar: Sidebar
+      sidebar: Sidebar,
+      // headerComponent: Header,
+      // footerComponent: Footer
     }
   }
 </script>

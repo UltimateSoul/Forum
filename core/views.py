@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+from django.views import View
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -117,6 +119,7 @@ class GetUserView(APIView):
         serializer = UserSerializer(user, many=True)
         return Response(serializer.data)
 
+
 class UsersView(APIView):
     """All Users View"""
 
@@ -125,3 +128,11 @@ class UsersView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+
+
+class RegistrationView(View):
+
+    @staticmethod
+    def post(request, *args, **kwargs):
+        data = request.data
+        return JsonResponse(data={'auth_token': True})

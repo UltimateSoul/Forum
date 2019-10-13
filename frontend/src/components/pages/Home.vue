@@ -1,8 +1,7 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-lg-12 col-md-8 col-xs-5">
-        <h1>The Blood Way ORPG 2</h1>
+      <div class="col-lg-12 col-md-8 col-xs-5 m-md-4">
         <div class="card text-center">
           <div class="card-header">
             Hy {{ user.username }}

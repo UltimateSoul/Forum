@@ -54,6 +54,10 @@ const actions = {
       .catch((error) => {
         console.log(error)
       })
+  },
+  register({commit}, registrationData) {
+    return axios.post('/register/', registrationData)
+      .then()
   }
 };
 

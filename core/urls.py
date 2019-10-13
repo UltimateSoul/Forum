@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path
 
-from core.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, GetUserView
+from core.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, \
+    GetUserView, RegistrationView
 
 urlpatterns = [
     path('topics/', TopicView.as_view()),
@@ -11,4 +12,7 @@ urlpatterns = [
     path('user/<int:id>', UserProfileView.as_view()),
     path('get-user/', GetUserView.as_view()),
     path('users/', UsersView.as_view()),
+
+    # Registration
+    path('register/', RegistrationView.as_view())
 ]
