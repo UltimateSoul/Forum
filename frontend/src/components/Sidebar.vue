@@ -6,9 +6,9 @@
       <router-link to="/">
         <span> Home </span>
       </router-link>
-      <router-link to="/login">
-        <span> Login </span>
-      </router-link>
+      <a @click="loginClick">
+        <span> {{ logText }} </span>
+      </a>
       <router-link to="/sections">
         <span> Sections </span>
       </router-link>
@@ -25,7 +25,8 @@
 </template>
 
 <script>
-  import {Reveal} from 'vue-burger-menu'
+  import { mapMutations, mapGetters } from 'vuex';
+  import { Reveal } from 'vue-burger-menu'
   // import the CSS transitions you wish to use, in this case we are using `Slide`
 
   export default {
@@ -34,7 +35,26 @@
       Reveal // Register your component
     },
     methods: {
+      loginClick() {
+        if (this.isLogged) {
+          this.$router.push({name: 'login'});
+          this.$store.commit('logout');
 
+        } else {
+          this.$router.push({name: 'login'})
+        }
+      }
+    },
+    computed: {
+      ...mapGetters([
+        'isLogged'
+      ]),
+      ...mapMutations([
+        'logout',
+      ]),
+      logText() {
+        return this.isLogged ? 'Logout' : 'Login'
+      }
     }
   }
 
@@ -114,6 +134,6 @@
   .bm-item-list > * > span {
     margin-left: 10px;
     font-weight: 700;
-    color: #da6868;
+    color: #C1F4FC;
   }
 </style>

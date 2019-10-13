@@ -45,7 +45,7 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
 
 class Team(models.Model):
     name = models.CharField(max_length=255)
-    description = models.TextField(max_length=255)
+    description = models.TextField()
     avatar = models.ImageField(blank=True, null=True, upload_to=team_directory_path)
     member = models.ForeignKey(User, null=True, blank=True, related_name='team', on_delete=models.SET_NULL)
 

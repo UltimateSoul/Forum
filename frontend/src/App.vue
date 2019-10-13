@@ -19,6 +19,13 @@
 
   export default {
     name: 'App',
+    created() {
+      let token = sessionStorage.getItem('auth_token');
+      if (Boolean(token)) {
+        this.$store.commit('setAuthToken', token);
+        this.$store.dispatch('fetchUser', token)
+      }
+    },
     components: {
       sidebar: Sidebar
     }

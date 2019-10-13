@@ -1,11 +1,11 @@
 <template>
   <div>
     <div class="row">
-      <div class="col-lg-12">
+      <div class="col-lg-12 col-md-8 col-xs-5">
         <h1>The Blood Way ORPG 2</h1>
         <div class="card text-center">
           <div class="card-header">
-            Hy
+            Hy {{ user.username }}
           </div>
           <div class="card-body">
             <h5 class="card-title">Special title treatment</h5>
@@ -38,30 +38,20 @@
 </template>
 
 <script>
-  import mapGetters from 'vuex'
+  import { mapGetters } from 'vuex'
   export default {
     name: "Home",
     data() {
       return {
-        show: false,
-        user: null
+        show: false
       }
     },
-    created() {
-      debugger;
-      if (this.$store.getters.isLogged) {
-        debugger;
-        this.$store.dispatch('fetchUser', sessionStorage.getItem('auth_token'))
-          .then((resp) => {
-            debugger;
-          })
-      }
-    },
-    // computed: {
-    //   ...mapGetters([
-    //     'isLogged'
-    //   ])
-    // }
+    computed: {
+      ...mapGetters({
+        isLogged: 'isLogged',
+        user: 'getUserData'
+      })
+    }
   }
 </script>
 
