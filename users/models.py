@@ -23,7 +23,6 @@ class User(AbstractUser):
     avatar = models.ImageField(blank=True, null=True, upload_to=user_directory_path)
     popularity = models.PositiveIntegerField(default=0)
     blood_coins = models.PositiveIntegerField(default=0)
-    city = models.CharField(blank=True, null=True, max_length=100)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10, default="Male")
     game_nickname = models.CharField(blank=True, null=True, max_length=50)
     birth_date = models.DateTimeField(blank=True, null=True)

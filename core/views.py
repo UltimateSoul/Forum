@@ -125,9 +125,14 @@ class UsersView(APIView):
 
     @staticmethod
     def get(request, *args, **kwargs):
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
-        return Response(serializer.data)
+        if request.GET:
+            users = User.objects.filter(email=request.GET.get('email'))
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
+        else:
+            users = User.objects.all()
+            serializer = UserSerializer(users, many=True)
+            return Response(serializer.data)
 
 
 class RegistrationView(View):

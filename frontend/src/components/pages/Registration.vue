@@ -9,7 +9,7 @@
                  class="form-control text-center"
                  id="usernameInput"
                  aria-describedby="emailHelp"
-                 v-model="registrationForm.username"
+                 v-model="username"
                  placeholder="Enter Username">
           <small id="usernameHelp" class="form-text text-muted">Your site nickname.</small>
         </div>
@@ -18,7 +18,7 @@
           <input type="password"
                  class="form-control text-center"
                  id="passwordInput"
-                 v-model="registrationForm.password"
+                 v-model="password"
                  placeholder="Enter your password">
           <small id="passwordHelp" class="form-text text-muted">We'll never share your password with anyone else.
           </small>
@@ -28,7 +28,8 @@
           <input type="password"
                  class="form-control text-center"
                  id="confirmPasswordInput"
-                 v-model="registrationForm.confirmPassword"
+                 @blur="$v.confirmPassword.$touch()"
+                 v-model="confirmPassword"
                  placeholder="Enter your confirm password">
           <small id="confirmPasswordHelp" class="form-text text-muted">We'll never share your password with anyone else.
           </small>
@@ -39,7 +40,8 @@
                  class="form-control text-center"
                  id="emailInput"
                  aria-describedby="emailHelp"
-                 v-model="registrationForm.email"
+                 @blur="$v.email.$touch()"
+                 v-model="email"
                  placeholder="awesome@gmail.com">
           <small id="emailHelp" class="form-text text-muted">You can customize special setting using this email.</small>
         </div>
@@ -49,27 +51,26 @@
                  class="form-control text-center"
                  id="gameNickNameInput"
                  aria-describedby="gameNickNameHelp"
-                 v-model="registrationForm.gameNickName"
+                 v-model="gameNickName"
                  placeholder="Enter Game Nickname">
           <small id="gameNickNameHelp" class="form-text text-muted">Your in-game nickname.</small>
         </div>
         <div class="form-group">
-          <label for="cityInput">City</label>
-          <input type="text"
-                 class="form-control text-center"
-                 id="cityInput"
-                 aria-describedby="cityHelp"
-                 v-model="registrationForm.city"
-                 placeholder="Enter your City">
-          <small id="cityHelp" class="form-text text-muted">Your City.</small>
-        </div>
-        <div class="form-group">
           <label for="inputGender">Gender</label>
-          <select id="inputGender" class="form-control text-center" v-model="registrationForm.gender">
+          <select id="inputGender" class="form-control text-center" v-model="gender">
             <option v-for="gender in genderChoices" :value="gender.value">{{ gender.text }}</option>
           </select>
         </div>
-        <button class="btn btn-primary btn-lg" @click="prepareToSubmit">Submit</button>
+
+        <button type="button"
+                class="btn btn-primary btn-lg"
+                v-if="$v.invalid"
+                disabled>Submit</button>
+        <button type="button"
+                class="btn btn-primary btn-lg"
+                v-else
+                @click="prepareToSubmit"
+                disabled>Submit</button>
       </form>
     </div>
 
@@ -77,26 +78,48 @@
 </template>
 
 <script>
-
+  import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+  import axios from 'axios';
   export default {
     name: "Registration",
     data() {
       return {
-        registrationForm: {
-          username: '',
-          password: '',
-          confirmPassword: '',
-          email: '',
-          gameNickName: '',
-          city: '',
-          gender: '',
-          avatar: ''
-        },
+        username: '',
+        password: '',
+        confirmPassword: '',
+        email: '',
+        gameNickName: '',
+        gender: '',
+        avatar: '',
         genderChoices: [
           {text: 'Male', value: 'male'},
           {text: 'Female', value: 'female'},
           {text: '-----', value: ''}
         ]
+      }
+    },
+    validations: {
+      email: {
+        required,
+        email,
+        unique: val => {
+          if (val === '') {
+            return true;
+          }
+          return axios.get('users/?email=' + val)
+            .then(res => {
+              console.log('Unique: ', Object.keys(res.data).length === 0);
+              return Object.keys(res.data).length === 0
+            })
+        }
+      },
+      password: {
+        required,
+        minLen: minLength(6)
+      },
+      confirmPassword: {
+        required,
+        sameAs: sameAs('password')
       }
     },
     methods: {
@@ -105,12 +128,11 @@
         this.register()
       },
       register() {
-        this.$store.dispatch('register', this.registrationForm)
+        let data = null;
+        this.$store.dispatch('register', data)
       }
     },
-    computed: {
-
-    }
+    computed: {}
   }
 </script>
 

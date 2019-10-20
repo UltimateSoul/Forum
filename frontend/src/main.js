@@ -8,7 +8,9 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 import router from './router'
 import { store } from './store/store'
 import axios from 'axios'
+import Vuelidate from 'vuelidate';
 
+Vue.use(Vuelidate);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;
 
