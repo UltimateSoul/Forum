@@ -2,9 +2,10 @@ from django.contrib import admin
 from django.urls import path
 
 from core.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, \
-    GetUserView, RegistrationView
+    GetUserView, RegistrationView, HomeView
 
 urlpatterns = [
+    # REST API
     path('topics/', TopicView.as_view()),
     path('minichat-messages/', MiniChatMessagesView.as_view()),
     path('posts/', PostsView.as_view()),
