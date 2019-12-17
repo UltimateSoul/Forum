@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.shortcuts import render
 from django.views import View
-from django.views.generic import TemplateView
+from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -142,7 +142,9 @@ class UsersView(APIView):
             return Response(serializer.data)
 
 
-class RegistrationView(View):
+class RegistrationView(APIView):
+
+    permission_classes = [AllowAny]
 
     @staticmethod
     def post(request, *args, **kwargs):

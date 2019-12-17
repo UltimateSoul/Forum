@@ -65,12 +65,14 @@
         <button type="button"
                 class="btn btn-primary btn-lg"
                 v-if="$v.invalid"
-                disabled>Submit</button>
+                disabled>Submit
+        </button>
         <button type="button"
                 class="btn btn-primary btn-lg"
                 v-else
                 @click="prepareToSubmit"
-                disabled>Submit</button>
+        >Submit
+        </button>
       </form>
     </div>
 
@@ -78,8 +80,9 @@
 </template>
 
 <script>
-  import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+  import {required, email, minLength, sameAs} from 'vuelidate/lib/validators'
   import axios from 'axios';
+
   export default {
     name: "Registration",
     data() {
@@ -128,7 +131,15 @@
         this.register()
       },
       register() {
-        let data = null;
+        let data = {
+          username: this.username,
+          password: this.password,
+          email: this.email,
+          gameNickName: this.gameNickName,
+          gender: this.gender,
+          avatar: this.avatar,
+        };
+        debugger;
         this.$store.dispatch('register', data)
       }
     },

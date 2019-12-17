@@ -56,7 +56,7 @@ const actions = {
       })
   },
   register({commit}, registrationData) {
-    return axios.post('/register/', registrationData)
+    return axios.post('/register/', registrationData, )
       .then()
   }
 };
