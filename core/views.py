@@ -149,4 +149,5 @@ class RegistrationView(APIView):
     @staticmethod
     def post(request, *args, **kwargs):
         data = request.data
+        # ToDo: create and authenticate user here
         return JsonResponse(data={'auth_token': True})
