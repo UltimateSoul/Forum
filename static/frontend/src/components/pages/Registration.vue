@@ -64,7 +64,7 @@
 
         <button type="button"
                 class="btn btn-primary btn-lg"
-                v-if="$v.invalid"
+                v-if="$v.$invalid"
                 disabled>Submit
         </button>
         <button type="button"
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-  import {required, email, minLength, sameAs} from 'vuelidate/lib/validators'
+  import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
   import axios from 'axios';
 
   export default {
@@ -95,9 +95,9 @@
         gender: '',
         avatar: '',
         genderChoices: [
-          {text: 'Male', value: 'male'},
-          {text: 'Female', value: 'female'},
-          {text: '-----', value: ''}
+          {text: 'Male', value: 'MALE'},
+          {text: 'Female', value: 'FEMALE'},
+          {text: '-----', value: 'OTHER'}
         ]
       }
     },

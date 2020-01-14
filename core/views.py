@@ -133,6 +133,7 @@ class UsersView(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         if request.GET:
+            # Uses in registration process. Checks if email is unique
             users = User.objects.filter(email=request.GET.get('email'))
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
@@ -149,5 +150,16 @@ class RegistrationView(APIView):
     @staticmethod
     def post(request, *args, **kwargs):
         data = request.data
-        # ToDo: create and authenticate user here
-        return JsonResponse(data={'auth_token': True})
+        if not User.objects.filter(email=request.GET.get('email')):
+            user = User.objects.create_user(
+                username=data['username'],
+                gender=data['gender'],
+                game_nickname=data['gameNickName'],
+                email=data['email'],
+                password=data['password']
+            )
+            token = Token.objects.get(user=user)
+            return JsonResponse(data={'auth_token': token.key})
+        else:
+            return JsonResponse(data={'auth_token': False,
+                                      'error': 'User with this email already exists!'})

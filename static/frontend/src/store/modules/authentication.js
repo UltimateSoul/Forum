@@ -57,7 +57,12 @@ const actions = {
   },
   register({commit}, registrationData) {
     return axios.post('/register/', registrationData, )
-      .then()
+      .then((response) => {
+        debugger
+        let auth_token = response.data.auth_token;
+        sessionStorage.setItem('auth_token', auth_token)
+
+      })
   }
 };
 

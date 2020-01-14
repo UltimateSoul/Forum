@@ -26,7 +26,7 @@
       }
     },
     components: {
-      sidebar: Sidebar,
+      sidebar: Sidebar
       // headerComponent: Header,
       // footerComponent: Footer
     }
