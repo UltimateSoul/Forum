@@ -43,7 +43,8 @@
                  @blur="$v.email.$touch()"
                  v-model="email"
                  placeholder="awesome@gmail.com">
-          <small id="emailHelp" class="form-text text-muted">You can customize special setting using this email.</small>
+          <small id="emailHelp" class="form-text text-muted"
+                 :class="{'danger-email-text': !$v.email.unique}">{{ emailSmallText }}</small>
         </div>
         <div class="form-group">
           <label for="gameNickNameInput">Game Nickname</label>
@@ -139,11 +140,20 @@
           gender: this.gender,
           avatar: this.avatar,
         };
-        debugger;
         this.$store.dispatch('register', data)
       }
     },
-    computed: {}
+    computed: {
+      emailSmallText() {
+        if (this.email) {
+          if (this.$v.email.unique) {
+          return 'Your email is unique'
+        } else {
+          return 'Your email is not unique, please enter unique one'
+        }
+        }
+      }
+    }
   }
 </script>
 
@@ -159,5 +169,8 @@
     margin-left: auto;
     margin-right: auto;
     width: 50vw;
+  }
+  .danger-email-text {
+    color: #FF4C33 !important;
   }
 </style>

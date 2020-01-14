@@ -10,7 +10,6 @@ const state = {
     bloodCoins: 0,
     avatarImage: '',
     gameNickName: '',
-    city: '',
     gender: ''
   },
 };
@@ -55,12 +54,13 @@ const actions = {
         console.log(error)
       })
   },
-  register({commit}, registrationData) {
+  register(context, registrationData) {
     return axios.post('/register/', registrationData, )
       .then((response) => {
-        debugger
         let auth_token = response.data.auth_token;
-        sessionStorage.setItem('auth_token', auth_token)
+        sessionStorage.setItem('auth_token', auth_token);
+        context.commit('setAuthToken', auth_token);
+        context.dispatch('fetchUser', auth_token)
 
       })
   }
@@ -76,7 +76,6 @@ const mutations = {
     state.user.username = userData.username;
     state.user.email = userData.email;
     state.user.avatarImage = userData.avatar;
-    state.user.city = userData.city;
     state.user.gender = userData.gender;
     state.user.gameNickName = userData.game_nickname;
   },
