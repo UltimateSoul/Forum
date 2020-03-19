@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path
 
-from core.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, \
+from api.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, \
     GetUserView, RegistrationView
 
 urlpatterns = [

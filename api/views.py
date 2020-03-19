@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from core.models import MiniChatMessage, Post, Comment
-from core.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
+from api.models import MiniChatMessage, Post, Comment
+from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
 from users.models import User
 from users.serializers import UserSerializer
@@ -15,7 +15,7 @@ from .serializers import TopicSerializer
 
 
 class HomeView(TemplateView):
-    template_name = 'home.html'
+    template_name = 'api/home.html'
 
 
 class TopicView(APIView):

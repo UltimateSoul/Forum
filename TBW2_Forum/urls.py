@@ -18,11 +18,11 @@ from django.contrib import admin
 from django.urls import path, include
 
 from TBW2_Forum import settings
-from core.views import HomeView
+from api.views import HomeView
 
 urlpatterns = [
     path('', HomeView.as_view()),
     path('admin/', admin.site.urls),
-    path('api/', include(("core.urls", "core"), namespace="core")),
+    path('api/', include(("api.urls", "api"), namespace="api")),
     path('login/', include(("users.urls", "users"), namespace="users")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
