@@ -40,6 +40,10 @@ class Topic(models.Model):
     def __str__(self):
         return self.title
 
+    class Meta:
+        verbose_name = 'Topic'
+        verbose_name_plural = 'Topics'
+
 
 class MiniChatMessage(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
@@ -51,6 +55,10 @@ class MiniChatMessage(models.Model):
         if self.__class__.objects.count() > 100:
             self.objects.first().delete()
         super(MiniChatMessage, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Mini-Chat Message'
+        verbose_name_plural = 'Mini-Chat Messages'
 
 
 class Post(models.Model):
@@ -65,6 +73,10 @@ class Post(models.Model):
     def __str__(self):
         return ' '.join(self.body.split()[:4])
 
+    class Meta:
+        verbose_name = 'Post'
+        verbose_name_plural = 'Posts'
+
 
 class Comment(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE,
@@ -76,3 +88,7 @@ class Comment(models.Model):
 
     def __str__(self):
         return self.body[:10]
+
+    class Meta:
+        verbose_name = 'Comment'
+        verbose_name_plural = 'Comments'

@@ -2,7 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 # Create your models here.
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
@@ -31,8 +31,8 @@ class User(AbstractUser):
     violations = models.PositiveIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
 
-    def __str___(self):
-        return self.first_name + self.last_name
+    def __repr___(self):
+        return f'User({self.username})'
 
     def get_age(self):
         return timezone.now() - self.birth_date
@@ -40,8 +40,15 @@ class User(AbstractUser):
 
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
+    import pdb; pdb.set_trace()
     if created:
         Token.objects.create(user=instance)
+
+
+@receiver(post_delete, sender=User)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    if created:
+        Token.objects.get(user=instance).delete()
 
 
 class Team(models.Model):

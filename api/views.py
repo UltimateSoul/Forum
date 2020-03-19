@@ -1,5 +1,7 @@
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from rest_framework import status
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -28,10 +30,9 @@ class TopicView(APIView):
             topics = Topic.objects.filter(section=request.GET.get('section'))
             serializer = TopicSerializer(topics, many=True)
             return Response(serializer.data)
-        else:
-            topics = Topic.objects.all()
-            serializer = TopicSerializer(topics, many=True)
-            return Response(serializer.data)
+        topics = Topic.objects.all()
+        serializer = TopicSerializer(topics, many=True)
+        return Response(serializer.data)
 
     def post(self, request):
         topic = CreateTopicSerializer(data=request.data)
@@ -126,6 +127,7 @@ class GetUserView(APIView):
 
 class UsersView(APIView):
     """All Users View"""
+    authentication_classes = [TokenAuthentication]
 
     @staticmethod
     def get(request, *args, **kwargs):
@@ -147,16 +149,12 @@ class RegistrationView(APIView):
     @staticmethod
     def post(request, *args, **kwargs):
         data = request.data
-        if not User.objects.filter(email=request.GET.get('email')):
+        user_serializer = UserSerializer(data=data)
+        if user_serializer.is_valid():
             user = User.objects.create_user(
-                username=data['username'],
-                gender=data['gender'],
-                game_nickname=data['gameNickName'],
-                email=data['email'],
-                password=data['password']
+                **user_serializer.data
             )
             token = Token.objects.get(user=user)
             return JsonResponse(data={'auth_token': token.key})
-        else:
-            return JsonResponse(data={'auth_token': False,
-                                      'error': 'User with this email already exists!'})
+        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
+                            data={'error': user_serializer.errors})

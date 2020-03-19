@@ -16,6 +16,14 @@ class TopicSerializer(serializers.ModelSerializer):
         model = Topic
         fields = '__all__'
 
+    def validate_body(self, value):
+        if not value:
+            raise serializers.ValidationError("Text body is empty!")
+
+    def validate_title(self, value):
+        if not value:
+            raise serializers.ValidationError("Title is empty!")
+
 
 class CreateTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
