@@ -1,11 +1,9 @@
 from django.http import JsonResponse
-from django.shortcuts import render
-from django.views import View
+from django.views.generic import TemplateView
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework import permissions
 
 from core.models import MiniChatMessage, Post, Comment
 from core.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
@@ -16,9 +14,8 @@ from .models import Topic
 from .serializers import TopicSerializer
 
 
-class HomeView(View):
-    def get(self, *args, **kwargs):
-        return render(self.request, 'home.html')
+class HomeView(TemplateView):
+    template_name = 'home.html'
 
 
 class TopicView(APIView):

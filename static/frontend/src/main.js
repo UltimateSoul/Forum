@@ -9,7 +9,9 @@ import router from './router'
 import { store } from './store/store'
 import axios from 'axios'
 import Vuelidate from 'vuelidate';
+import PortalVue from 'portal-vue'
 
+Vue.use(PortalVue);
 Vue.use(Vuelidate);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;

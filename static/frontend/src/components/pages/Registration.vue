@@ -2,60 +2,67 @@
   <div class="registration-container">
     <h1>Registration</h1>
     <div class="form-container">
-      <form>
-        <div class="form-group">
-          <label for="usernameInput">Username</label>
-          <input type="text"
-                 class="form-control text-center"
-                 id="usernameInput"
-                 aria-describedby="emailHelp"
-                 v-model="username"
-                 placeholder="Enter Username">
+
+      <b-form>
+        <b-form-group label="Username" label-for="usernameInput">
+          <b-form-input type="text"
+                        class="form-control text-center"
+                        id="usernameInput"
+                        aria-describedby="emailHelp"
+                        v-model="username"
+                        placeholder="Enter Username">
+
+          </b-form-input>
           <small id="usernameHelp" class="form-text text-muted">Your site nickname.</small>
-        </div>
-        <div class="form-group">
-          <label for="passwordInput">Password</label>
-          <input type="password"
-                 class="form-control text-center"
-                 id="passwordInput"
-                 v-model="password"
-                 placeholder="Enter your password">
-          <small id="passwordHelp" class="form-text text-muted">We'll never share your password with anyone else.
+        </b-form-group>
+        <b-form-group label="Password" label-for="passwordInput">
+          <b-form-input type="password"
+                        class="form-control text-center"
+                        id="passwordInput"
+                        v-model="$v.password.$model"
+                        :state="validateState('password')"
+                        placeholder="Enter your password"></b-form-input>
+          <small id="passwordHelp" class="form-text text-muted">
+            We'll never share your password with anyone else.
           </small>
-        </div>
-        <div class="form-group">
-          <label for="confirmPasswordInput">Confirm Password</label>
-          <input type="password"
-                 class="form-control text-center"
-                 id="confirmPasswordInput"
-                 @blur="$v.confirmPassword.$touch()"
-                 v-model="confirmPassword"
-                 placeholder="Enter your confirm password">
-          <small id="confirmPasswordHelp" class="form-text text-muted">We'll never share your password with anyone else.
+        </b-form-group>
+        <b-form-group label="Confirm Password" label-for="confirmPasswordInput">
+          <b-form-input type="password"
+                        class="form-control text-center"
+                        id="confirmPasswordInput"
+                        :state="validateState('confirmPassword')"
+                        @blur="$v.confirmPassword.$touch()"
+                        v-model="$v.confirmPassword.$model"
+                        placeholder="Enter your confirm password"></b-form-input>
+          <small id="confirmPasswordHelp" class="form-text text-muted">
+            We'll never share your password with anyone else.
           </small>
-        </div>
-        <div class="form-group">
-          <label for="emailInput">Email</label>
-          <input type="text"
-                 class="form-control text-center"
-                 id="emailInput"
-                 aria-describedby="emailHelp"
-                 @blur="$v.email.$touch()"
-                 v-model="email"
-                 placeholder="awesome@gmail.com">
+        </b-form-group>
+        <b-form-group label="Email" label-for="emailInput">
+          <b-form-input type="text"
+                        class="form-control text-center"
+                        id="emailInput"
+                        aria-describedby="emailHelp"
+                        :state="validateState('email')"
+                        @blur="$v.email.$touch()"
+                        v-model="$v.email.$model"
+                        placeholder="awesome@gmail.com"></b-form-input>
           <small id="emailHelp" class="form-text text-muted"
-                 :class="{'danger-email-text': !$v.email.unique}">{{ emailSmallText }}</small>
-        </div>
-        <div class="form-group">
-          <label for="gameNickNameInput">Game Nickname</label>
-          <input type="text"
-                 class="form-control text-center"
-                 id="gameNickNameInput"
-                 aria-describedby="gameNickNameHelp"
-                 v-model="gameNickName"
-                 placeholder="Enter Game Nickname">
-          <small id="gameNickNameHelp" class="form-text text-muted">Your in-game nickname.</small>
-        </div>
+                 :class="{'danger-email-text': !$v.email.unique}">
+            {{ emailSmallText }}
+          </small>
+        </b-form-group>
+        <b-form-group label="Username" label-for="usernameInput">
+          <b-form-input type="text"
+                        class="form-control text-center"
+                        id="gamenicknameInput"
+                        aria-describedby="GameNickNameHelp"
+                        v-model="username"
+                        placeholder="Enter Game nickname">
+
+          </b-form-input>
+          <small id="GameNickNameHelp" class="form-text text-muted">Your in-game nickname.</small>
+        </b-form-group>
         <div class="form-group">
           <label for="inputGender">Gender</label>
           <select id="inputGender" class="form-control text-center" v-model="gender">
@@ -74,14 +81,14 @@
                 @click="prepareToSubmit"
         >Submit
         </button>
-      </form>
+      </b-form>
     </div>
 
   </div>
 </template>
 
 <script>
-  import { required, email, minLength, sameAs } from 'vuelidate/lib/validators'
+  import {required, email, minLength, sameAs} from 'vuelidate/lib/validators'
   import axios from 'axios';
 
   export default {
@@ -103,6 +110,19 @@
       }
     },
     validations: {
+      username: {
+        required,
+        unique: val => {
+          if (val === '') {
+            return true;
+          }
+          return axios.get('users/?email=' + val)
+            .then(res => {
+              console.log('Unique: ', Object.keys(res.data).length === 0);
+              return Object.keys(res.data).length === 0
+            })
+        }
+      },
       email: {
         required,
         email,
@@ -141,16 +161,20 @@
           avatar: this.avatar,
         };
         this.$store.dispatch('register', data)
-      }
+      },
+      validateState(name) {
+        const {$dirty, $error} = this.$v[name];
+        return $dirty ? !$error : null;
+      },
     },
     computed: {
       emailSmallText() {
         if (this.email) {
           if (this.$v.email.unique) {
-          return 'Your email is unique'
-        } else {
-          return 'Your email is not unique, please enter unique one'
-        }
+            return 'Your email is unique'
+          } else {
+            return 'Your email is not unique, please enter unique one'
+          }
         }
       }
     }
@@ -170,6 +194,7 @@
     margin-right: auto;
     width: 50vw;
   }
+
   .danger-email-text {
     color: #FF4C33 !important;
   }
