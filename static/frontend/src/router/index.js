@@ -106,5 +106,5 @@ export default new Router({
     //   redirect: {name: 'home'}
     // }
   ],
-  // mode: 'history'
+  mode: 'history'
 })

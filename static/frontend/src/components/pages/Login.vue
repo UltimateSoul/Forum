@@ -28,7 +28,7 @@
                  v-model="password"
                  placeholder="Password">
         </div>
-        <button class="btn btn-primary" @click="loginClick">Login</button>
+        <button class="btn btn-primary" pre @click.submit.prevent="loginClick">Login</button>
         <router-link :to="{name: 'registration'}">
           <button class="btn btn-primary">
             Register

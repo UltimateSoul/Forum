@@ -11,7 +11,7 @@ from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
 from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import UserSerializer, RegisterUserSerializer
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -131,15 +131,18 @@ class UsersView(APIView):
 
     @staticmethod
     def get(request, *args, **kwargs):
-        if request.GET:
+        if request.GET.get('email'):
             # Uses in registration process. Checks if email is unique
             users = User.objects.filter(email=request.GET.get('email'))
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
-        else:
-            users = User.objects.all()
+        elif request.GET.get('username'):
+            users = User.objects.filter(username=request.GET.get('username'))
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 class RegistrationView(APIView):
@@ -149,7 +152,7 @@ class RegistrationView(APIView):
     @staticmethod
     def post(request, *args, **kwargs):
         data = request.data
-        user_serializer = UserSerializer(data=data)
+        user_serializer = RegisterUserSerializer(data=data)
         if user_serializer.is_valid():
             user = User.objects.create_user(
                 **user_serializer.data

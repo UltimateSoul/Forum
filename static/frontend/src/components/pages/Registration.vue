@@ -9,11 +9,12 @@
                         class="form-control text-center"
                         id="usernameInput"
                         aria-describedby="emailHelp"
-                        v-model="username"
+                        v-model="$v.username.$model"
+                        :state="validateState('username')"
                         placeholder="Enter Username">
 
           </b-form-input>
-          <small id="usernameHelp" class="form-text text-muted">Your site nickname.</small>
+          <small id="usernameHelp" class="form-text text-muted">{{usernameSmallText}}</small>
         </b-form-group>
         <b-form-group label="Password" label-for="passwordInput">
           <b-form-input type="password"
@@ -52,12 +53,12 @@
             {{ emailSmallText }}
           </small>
         </b-form-group>
-        <b-form-group label="Username" label-for="usernameInput">
+        <b-form-group label="Game Nickname" label-for="usernameInput">
           <b-form-input type="text"
                         class="form-control text-center"
                         id="gamenicknameInput"
                         aria-describedby="GameNickNameHelp"
-                        v-model="username"
+                        v-model="gameNickName"
                         placeholder="Enter Game nickname">
 
           </b-form-input>
@@ -78,7 +79,7 @@
         <button type="button"
                 class="btn btn-primary btn-lg"
                 v-else
-                @click="prepareToSubmit"
+                @click="register"
         >Submit
         </button>
       </b-form>
@@ -101,7 +102,7 @@
         email: '',
         gameNickName: '',
         gender: '',
-        avatar: '',
+        avatar: null,
         genderChoices: [
           {text: 'Male', value: 'MALE'},
           {text: 'Female', value: 'FEMALE'},
@@ -112,11 +113,12 @@
     validations: {
       username: {
         required,
+        minLen: minLength(2),
         unique: val => {
           if (val === '') {
             return true;
           }
-          return axios.get('users/?email=' + val)
+          return axios.get('users/?username=' + val)
             .then(res => {
               console.log('Unique: ', Object.keys(res.data).length === 0);
               return Object.keys(res.data).length === 0
@@ -147,16 +149,12 @@
       }
     },
     methods: {
-      prepareToSubmit() {
-        // ToDo: add validation logic to the registration flow
-        this.register()
-      },
       register() {
         let data = {
           username: this.username,
           password: this.password,
           email: this.email,
-          gameNickName: this.gameNickName,
+          game_nickname: this.gameNickName,
           gender: this.gender,
           avatar: this.avatar,
         };
@@ -175,6 +173,21 @@
           } else {
             return 'Your email is not unique, please enter unique one'
           }
+        }
+      },
+      usernameSmallText() {
+        if (this.username) {
+          if (this.$v.username.unique) {
+            if (this.$v.username.minLen)
+              return 'Your username is unique';
+            else {
+              return 'Your username is too short'
+            }
+          } else {
+            return 'Your username is not unique, please enter unique one'
+          }
+        } else {
+          return "Your site nickname."
         }
       }
     }
