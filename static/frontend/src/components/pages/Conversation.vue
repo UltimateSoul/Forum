@@ -5,7 +5,7 @@
         <h1>Conversation</h1>
       </div>
       <div class="col-lg-4">
-        <button class="btn btn-dark" @click="createTopic">
+        <button class="btn btn-dark" v-if="$store.getters.isLogged" @click="createTopic">
           Create Topic
         </button>
       </div>
@@ -22,12 +22,16 @@
           </tr>
           </thead>
           <tbody name="slide" is="transition-group">
-            <tr v-for="(topic, index) in topics" :key="index">
-              <th>{{ topic.title }}</th>
-              <td>{{ topic.posts_quantity }}</td>
-              <td>{{ topic.author.username }}</td>
-              <td>{{ topic.created_date | getDateFormat }}</td>
-            </tr>
+          <tr v-for="(topic, index) in topics" :key="index"
+              @click="moveToTopic(topic.id)" class="clickable">
+
+            <th>
+                {{ topic.title }}
+            </th>
+            <td>{{ topic.posts_quantity }}</td>
+            <td>{{ topic.author.username }}</td>
+            <td>{{ topic.created_date | getDateFormat }}</td>
+          </tr>
           </tbody>
         </table>
       </div>
@@ -47,7 +51,8 @@
       return {
         loading: false,
         topics: [],
-        testQuantity: 2
+        testQuantity: 2,
+        section: this.$route.params.section
       }
     },
     created() {
@@ -56,7 +61,7 @@
     },
     methods: {
       getData() {
-        this.$store.dispatch('getSectionData', {section: this.$route.params.section.toUpperCase()})
+        this.$store.dispatch('getSectionData', {section: this.section.toUpperCase()})
           .then((resp) => {
             this.topics = resp.data;
           })
@@ -66,6 +71,15 @@
       },
       createTopic() {
         this.$router.push({name: 'topic-creation'})
+      },
+      moveToTopic(topicID) {
+        this.$router.push({
+          name: 'topic',
+          params: {
+            section: this.section,
+            topicID: topicID
+          }
+        })
       }
     },
     filters: {
@@ -78,5 +92,7 @@
 </script>
 
 <style scoped>
-
+  .clickable {
+    cursor: pointer;
+  }
 </style>

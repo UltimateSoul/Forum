@@ -41,6 +41,11 @@ const Registration = resolve => {
     resolve(require('@/components/pages/Registration'))
   })
 };
+const Topic = resolve => {
+  require.ensure(['@/components/pages/Topic'], () => {
+    resolve(require('@/components/pages/Topic'))
+  })
+};
 
 Vue.use(Router);
 
@@ -72,6 +77,11 @@ export default new Router({
       component: Conversation
     },
     {
+      path: '/conversation/:section/topic/:topicID',
+      name: 'topic',
+      component: Topic
+    },
+    {
       path: '/topic-creation/:section',
       name: 'topic-creation',
       component: TopicCreation
@@ -91,6 +101,7 @@ export default new Router({
       name: 'user-profile',
       component: UserProfile
     },
+
     {
       path: '/sections',
       name: 'sections',

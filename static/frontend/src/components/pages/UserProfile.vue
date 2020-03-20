@@ -41,7 +41,7 @@
     },
     methods: {
       getUserProfile(id) {
-        Vue.axios.get(`http://127.0.0.1:8000/api/conversation/user/${id}`)
+        Vue.axios.get(`conversation/user/${id}`)
           .then((resp) => {
             let data = resp.data[0];
             this.username = data.first_name + ' ' + data.last_name;
@@ -51,6 +51,13 @@
           .catch((resp) => {
             console.log('An error occurred')
           })
+      }
+    },
+    computed: {
+      isMainUser() {
+        const mainUser = this.$store.getters.getUserData;
+        const mainUserID = mainUser.userID;
+        return mainUserID === parseInt(this.$route.params.id)
       }
     }
   }

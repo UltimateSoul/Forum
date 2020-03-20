@@ -23,11 +23,13 @@ class HomeView(TemplateView):
 class TopicView(APIView):
     """Topics"""
 
-    @staticmethod
-    def get(request):
+    def get(self, request):
         section = request.GET.get('section')
+        topic_id = request.GET.get('topicID')
+        if request.GET.get('searchBy'):
+            return self.search_logic()
         if section:
-            topics = Topic.objects.filter(section=request.GET.get('section'))
+            topics = Topic.objects.filter(section=section)
             serializer = TopicSerializer(topics, many=True)
             return Response(serializer.data)
         topics = Topic.objects.all()
@@ -37,11 +39,34 @@ class TopicView(APIView):
     def post(self, request):
         topic = CreateTopicSerializer(data=request.data)
         if topic.is_valid():
-            topic.save(author=request.user)
-            return Response({'success': True})
+            topic = topic.save(author=request.user)
+            return Response({'success': True,
+                             'topic_id': topic.id},
+                            status=status.HTTP_201_CREATED)
         else:
             return Response({'success': False,
                              'errors': topic.error_messages})
+
+    def search_logic(self):
+        search_data = self.request.GET
+        search_by = search_data['searchBy']
+        if search_by == 'title':
+            topic_exists = Topic.objects.filter(title=search_data['value'],
+                                                section=search_data['section']).exists()
+            return Response(data={'topic_exists': topic_exists})
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetTopicView(APIView):
+    """Get topic by id"""
+
+    def get(self, request, *args, **kwargs):
+        topic_id = kwargs.get('topic_id')
+        if topic_id:
+            topic = Topic.objects.get(id=topic_id)
+            topic = TopicSerializer(topic)
+            return Response(data=topic.data)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class MiniChatMessagesView(APIView):
@@ -120,8 +145,8 @@ class GetUserView(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         token = Token.objects.get(key=request.GET.get('auth_token'))
-        user = User.objects.filter(auth_token=token)
-        serializer = UserSerializer(user, many=True)
+        user = User.objects.get(auth_token=token)
+        serializer = UserSerializer(user)
         return Response(serializer.data)
 
 
