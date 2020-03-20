@@ -9,12 +9,4 @@ User = get_user_model()
 @receiver(post_save, sender=User)
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
-        print('INSIDE THE SIGNAL. CREATING TOKEN...')
         Token.objects.create(user=instance)
-
-
-@receiver(post_delete, sender=User)
-def delete_auth_token(sender, **kwargs):
-    # ToDo: RESOLVE SIGNALS ISSUE
-    print('INSIDE THE SIGNAL. DELETING TOKEN...')
-    Token.objects.get(user=kwargs.get('instance')).delete()

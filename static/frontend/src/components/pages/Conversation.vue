@@ -22,7 +22,7 @@
           </tr>
           </thead>
           <tbody name="slide" is="transition-group">
-            <tr v-for="(topic, index) in topics" :key="topic.posts_quantity">
+            <tr v-for="(topic, index) in topics" :key="index">
               <th>{{ topic.title }}</th>
               <td>{{ topic.posts_quantity }}</td>
               <td>{{ topic.author.username }}</td>

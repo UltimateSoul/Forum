@@ -2,7 +2,6 @@
   <div class="registration-container">
     <h1>Registration</h1>
     <div class="form-container">
-
       <b-form>
         <b-form-group label="Username" label-for="usernameInput">
           <b-form-input type="text"
@@ -158,7 +157,13 @@
           gender: this.gender,
           avatar: this.avatar,
         };
-        this.$store.dispatch('register', data)
+        this.$store.dispatch('register', data).then(
+          () => {
+            if (this.$store.getters.isLogged) {
+              this.$router.push({name: 'home'});
+            }
+          }
+        )
       },
       validateState(name) {
         const {$dirty, $error} = this.$v[name];
