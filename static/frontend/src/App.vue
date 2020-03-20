@@ -45,6 +45,10 @@
     margin-top: 60px;
   }
 
+  .button-control {
+    margin: 15px;
+  }
+
   .slide-enter {
     opacity: 0;
   }

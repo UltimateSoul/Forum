@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.urls import path
 
-from api.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, UserProfileView, UsersView, \
-    GetUserView, RegistrationView
+from api.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, \
+    UserProfileView, UsersView, GetUserView, RegistrationView, GetTopicView
 
 urlpatterns = [
     # REST API
     path('topics/', TopicView.as_view()),
+    path('topics/<int:topic_id>/', GetTopicView.as_view()),
     path('minichat-messages/', MiniChatMessagesView.as_view()),
     path('posts/', PostsView.as_view()),
     path('comments/', CommentsView.as_view()),

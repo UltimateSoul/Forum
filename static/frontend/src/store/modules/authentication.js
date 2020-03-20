@@ -27,7 +27,6 @@ const getters = {
       bloodCoins: user.bloodCoins,
       avatar: user.avatarImage,
       gameNickName: user.gameNickName,
-      city: user.city,
       gender: user.gender
     };
   }
@@ -38,6 +37,7 @@ const actions = {
     return axios.post('http://127.0.0.1:8000/login/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
           sessionStorage.setItem('auth_token', response.data.token);
+          axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           context.commit('setAuthToken', response.data.token);
           context.dispatch('fetchUser', response.data.token)
         }
@@ -47,7 +47,7 @@ const actions = {
     let data = {auth_token: authToken};
     return axios.get('/get-user/', {params: data})
       .then((response) => {
-        let userData = response.data[0];
+        let userData = response.data;
         commit('setUserData', userData)
       })
       .catch((error) => {
@@ -72,7 +72,7 @@ const mutations = {
     state.user.authToken = authToken
   },
   setUserData(state, userData) {
-    state.user.userID = userData.id;
+    state.user.userID = userData.pk;
     state.user.username = userData.username;
     state.user.email = userData.email;
     state.user.avatarImage = userData.avatar;
