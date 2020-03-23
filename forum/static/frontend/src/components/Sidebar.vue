@@ -19,6 +19,9 @@
       <router-link to="/get-started">
         <span> Get Started </span>
       </router-link>
+      <a @click="profileClick" v-if="isLogged">
+        <span> Profile </span>
+      </a>
     </Reveal>
     <!--    </main>-->
   </div>
@@ -43,6 +46,13 @@
         } else {
           this.$router.push({name: 'login'})
         }
+      },
+      profileClick() {
+        const userData = this.$store.getters.getUserData;
+        this.$router.push({name: 'user-profile',
+                           params: {
+                              id: userData.userID
+                           }})
       }
     },
     computed: {
