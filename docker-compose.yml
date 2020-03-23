@@ -1,0 +1,55 @@
+version: "3"
+
+services:
+  redis:
+    image: "redis:alpine"
+    command: >
+      redis-server --port 6360
+  celery-beat:
+    build: .
+    command: celery beat --app movies_app.celery
+    volumes:
+      - /movies_app:/movies_app
+    depends_on:
+      - db
+      - redis
+  celery:
+    build: .
+    command: celery -A movies_app worker -l info
+    volumes:
+      - /movies_app:/movies_app
+    depends_on:
+      - db
+      - redis
+  backend:
+    build:
+      context: .
+    ports:
+    - "8000:8000"
+    volumes:
+    - ./forum:/forum
+    command: >
+      sh -c "python manage.py runserver 0.0.0.0:8000"
+    env_file:
+      - .env
+    depends_on:
+      - db
+      - celery-beat
+      - celery
+  frontend:
+    image: node:13.10.1-stretch
+    volumes:
+    - ./forum/static/frontend:/frontend
+    working_dir: /frontend
+    command:
+      - npm install
+      - npm run dev
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:12.1-alpine
+    environment:
+      - POSTGRES_DB=forum
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
