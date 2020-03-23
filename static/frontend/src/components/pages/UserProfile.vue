@@ -1,17 +1,33 @@
 <template>
   <div>
-    <div class="card text-center">
-      <div class="card-header">
-        {{ }}
-      </div>
-      <div class="card-body">
-        <h5 class="card-title">{{ username }}</h5>
-        <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-        <p class="card-text">Bloodcoins: {{ blood_coins }}</p>
-      </div>
-      <div class="card-footer text-muted">
-        2 days ago
-      </div>
+    <div>
+      <b-card
+        :title="user.username"
+        :img-src="user.avatar"
+        img-alt="Image"
+        img-top
+        tag="article"
+        class="mb-2"
+      >
+        <b-card-text>
+          Game Nickname: {{user.game_nickname}}
+        </b-card-text>
+        <hr>
+      <b-card-title>Additional information</b-card-title>
+      <hr>
+        <b-card-text v-show="user.birth_date">
+          Birthday: {{user.birth_date}}
+        </b-card-text>
+        <b-card-text v-if="isMainUser">
+          BloodConins: {{user.blood_coins}}
+        </b-card-text>
+        <b-card-text>
+          Gender: {{user.gender}}
+        </b-card-text>
+        <b-card-text>
+          Email: {{user.email}}
+        </b-card-text>
+      </b-card>
     </div>
   </div>
 </template>
@@ -26,8 +42,8 @@
     name: "UserProfile",
     data() {
       return {
-        username: '',
-        blood_coins: '',
+        user: {},
+        isEditing: false
 
       }
     },
@@ -41,12 +57,9 @@
     },
     methods: {
       getUserProfile(id) {
-        Vue.axios.get(`conversation/user/${id}`)
+        Vue.axios.get(`user/${id}`)
           .then((resp) => {
-            let data = resp.data[0];
-            this.username = data.first_name + ' ' + data.last_name;
-            this.blood_coins = data.blood_coins;
-            console.log(resp.data)
+            this.user = resp.data
           })
           .catch((resp) => {
             console.log('An error occurred')

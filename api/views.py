@@ -12,7 +12,7 @@ from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializer, RegisterUserSerializer
+from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -137,9 +137,16 @@ class UserProfileView(APIView):
     @staticmethod
     def get(request, *args, **kwargs):
         user_id = kwargs.get('id')
-        user = User.objects.filter(id=user_id)
-        serializer = UserSerializer(user, many=True)
-        return Response(serializer.data)
+        is_main_user = request.user.id == user_id
+        try:
+            user = User.objects.get(id=user_id)  # ToDo: add handling exception if user doesn't exists and write tests
+            if is_main_user:
+                serializer = UserSerializer(user)
+            else:
+                serializer = RestrictedUserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist as error:
+            return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
 
 
 class GetUserView(APIView):
