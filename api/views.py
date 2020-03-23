@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
@@ -10,14 +11,16 @@ from rest_framework.authtoken.models import Token
 from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
-from users.models import User
+from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, RegisterUserSerializer
 from .models import Topic
 from .serializers import TopicSerializer
 
+User = get_user_model()
+
 
 class HomeView(TemplateView):
-    template_name = 'api/home.html'
+    template_name = 'home.html'
 
 
 class TopicView(APIView):
@@ -182,6 +185,7 @@ class RegistrationView(APIView):
             user = User.objects.create_user(
                 **user_serializer.data
             )
+            # settings.BASE_DIR  ToDo: add default image (situated in static folder)
             token = Token.objects.get(user=user)
             return JsonResponse(data={'auth_token': token.key})
         return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
