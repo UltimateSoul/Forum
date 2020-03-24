@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -36,9 +37,11 @@ class User(AbstractUser):
 
 class Team(models.Model):
     name = models.CharField(max_length=255)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team',
+                              null=True, blank=True, on_delete=models.SET_NULL)
     description = models.TextField()
     avatar = models.ImageField(blank=True, null=True, upload_to=team_directory_path)
-    member = models.ForeignKey(User, null=True, blank=True, related_name='team', on_delete=models.SET_NULL)
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='team_member')
 
     def __str__(self):
         return self.name

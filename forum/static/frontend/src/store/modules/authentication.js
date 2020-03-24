@@ -39,6 +39,7 @@ const actions = {
           sessionStorage.setItem('auth_token', response.data.token);
           axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+          axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           context.commit('setAuthToken', response.data.token);
           context.dispatch('fetchUser', response.data.token)
         }

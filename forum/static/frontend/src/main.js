@@ -20,6 +20,7 @@ axios.defaults.baseURL = 'http://0.0.0.0:5000/api/';
 if (sessionStorage.getItem('auth_token')){
  axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
  axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+ axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
 }
 // router.beforeEach((to, from, next) =>{
 //   console.log('Before each');

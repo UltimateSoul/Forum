@@ -148,6 +148,19 @@ class UserProfileView(APIView):
         except User.DoesNotExist as error:
             return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
 
+    def patch(self, request, *args, **kwargs):
+        """Here user can change his profile data"""
+        user_id = kwargs.get('id')
+        user = request.user
+        is_main_user = request.user.id == user_id
+        if is_main_user:  # checks if it`s owner of profile
+            serializer = UserSerializer(user, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': 'Cheater!'})
+
 
 class GetUserView(APIView):
     """Fetch user view"""
