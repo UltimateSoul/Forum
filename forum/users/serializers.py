@@ -40,8 +40,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ["avatar",
                   "gender",
                   "game_nickname",
-                  "birth_date",
                   "description",
+                  "birth_date",
                   "email"]
 
     def validate_avatar(self, image):
@@ -49,9 +49,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if image.size > mb3:
             assert serializers.ValidationError(f"Your image size must be less than 3 mb")
         return image
-
-    def validate_birth_date(self, date):
-        return date
 
 
 class RestrictedUserSerializer(serializers.ModelSerializer):

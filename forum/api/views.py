@@ -12,7 +12,7 @@ from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer
+from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -154,7 +154,7 @@ class UserProfileView(APIView):
         user = request.user
         is_main_user = request.user.id == user_id
         if is_main_user:  # checks if it`s owner of profile
-            serializer = UserSerializer(user, data=request.data)
+            serializer = UserProfileSerializer(user, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)

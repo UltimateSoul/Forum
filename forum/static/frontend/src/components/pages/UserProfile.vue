@@ -3,7 +3,7 @@
     <b-container>
       <b-card
         :title="user.username"
-        :img-src="user.avatar"
+        :img-src="'http://0.0.0.0:5000' + user.avatar"
         img-alt="Image"
         img-top
         tag="article"
@@ -161,12 +161,16 @@
         const formData = new FormData();
         formData.append('avatar', this.editingUserData.avatar);
         formData.append('game_nickname', this.editingUserData.game_nickname);
-        formData.append('birth_date', this.editingUserData.birth_date);
+        if (this.editingUserData.birth_date) {
+          formData.append('birth_date', this.editingUserData.birth_date);
+        }
         formData.append('email', this.editingUserData.email);
         formData.append('gender', this.editingUserData.gender);
         axios.patch(`user/${this.$route.params.id}`, formData)
         .then( (response) => {
-
+          if (response.status === 200){
+            this.getUserProfile(this.$route.params.id)
+          }
         })
       },
       validateState(name) {

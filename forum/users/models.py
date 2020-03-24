@@ -24,7 +24,7 @@ class User(AbstractUser):
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10,
                               default="Male")
     game_nickname = models.CharField(blank=True, null=True, max_length=50)
-    birth_date = models.DateTimeField(blank=True, null=True)
+    birth_date = models.DateField(blank=True, null=True)
     violations = models.PositiveIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
 

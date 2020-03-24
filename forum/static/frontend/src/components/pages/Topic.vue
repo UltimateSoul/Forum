@@ -7,7 +7,7 @@
       <b-card no-body class="overflow-hidden">
         <b-row no-gutters>
           <b-col md="2">
-            <b-card-img :src="'http://127.0.0.1:8000' + author.avatar" class="rounded-0"></b-card-img>
+            <b-card-img :src="'http://0.0.0.0:5000' + author.avatar" class="rounded-0"></b-card-img>
             <h5>{{author.username}}</h5>
             <h5>{{author.game_nickname}}</h5>
           </b-col>
