@@ -34,7 +34,7 @@ const getters = {
 
 const actions = {
   login(context, data) {
-    return axios.post('http://127.0.0.1:8000/login/api-token-auth/', data)  // ToDo: change URL in production
+    return axios.post('http://0.0.0.0:5000/login/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
           sessionStorage.setItem('auth_token', response.data.token);
           axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
