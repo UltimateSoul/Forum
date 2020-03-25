@@ -19,8 +19,8 @@
         <b-card-text v-show="user.birth_date">
           Birthday: {{user.birth_date}}
         </b-card-text>
-        <b-card-text v-if="isMainUser">
-          BloodConins: {{user.blood_coins}}
+        <b-card-text v-if="isMainUser(user.pk)">
+          BloodCoins: {{user.blood_coins}}
         </b-card-text>
         <b-card-text>
           Gender: {{user.gender}}
@@ -78,7 +78,7 @@
             <option v-for="gender in genderChoices" :value="gender.value">{{ gender.text }}</option>
         </select>
       </b-form>
-      <div v-if="isMainUser" class="button-control">
+      <div v-if="isMainUser(user.pk)" class="button-control">
         <b-button @click="isEditing = !isEditing" variant="outline-primary">
           {{editingText}}
         </b-button>
@@ -97,6 +97,7 @@
 
 <script>
   import axios from 'axios'
+  import {mapGetters} from  'vuex'
   import {required, email} from 'vuelidate/lib/validators'
 
   export default {
@@ -181,14 +182,13 @@
       },
     },
     computed: {
-      isMainUser() {
-        const mainUser = this.$store.getters.getUserData;
-        const mainUserID = mainUser.userID;
-        return mainUserID === parseInt(this.$route.params.id)
-      },
+
       editingText() {
         return this.isEditing ? 'Done' : "Edit"
-      }
+      },
+      ...mapGetters([
+        'isMainUser',
+      ]),
     }
   }
 </script>

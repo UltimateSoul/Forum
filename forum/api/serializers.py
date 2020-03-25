@@ -31,7 +31,16 @@ class CreateTopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ['title', 'author', 'body', 'icon', 'description', 'section']
+        fields = ['title', 'author', 'body', 'icon', 'description', 'section', 'id']
+
+
+class EditTopicSerializer(serializers.ModelSerializer):
+    """Create Topic Serializer"""
+    author = UserSerializer(required=False)
+
+    class Meta:
+        model = Topic
+        fields = ['author', 'body', 'icon', 'description', 'section']
 
 
 class MiniChatMessageSerializer(serializers.ModelSerializer):

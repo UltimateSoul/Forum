@@ -9,10 +9,10 @@
           <b-col md="2">
             <b-card-img :src="'http://0.0.0.0:5000' + author.avatar" class="rounded-0"></b-card-img>
             <h5>{{author.username}}</h5>
-            <h5>{{author.game_nickname}}</h5>
+            <h5>{{author.gameNickName}}</h5>
           </b-col>
           <b-col md="10">
-            <b-card-body title="Horizontal Card">
+            <b-card-body>
               <b-card-text>
                 {{body}}
               </b-card-text>
@@ -20,12 +20,16 @@
           </b-col>
         </b-row>
       </b-card>
+      <div class="button-control" v-if="isMainUser(author.pk)">
+        <b-button @click="editTopic">Edit</b-button>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
   import axios from 'axios'
+  import {mapGetters} from 'vuex';
 
   export default {
     name: "Topic",
@@ -35,7 +39,12 @@
         title: "",
         description: "",
         body: "",
-        author: null
+        author: {
+          avatar: '',
+          gameNickName: '',
+          username: '',
+          pk: 0
+        }
       }
     },
     created() {
@@ -48,12 +57,28 @@
             this.title = response.data.title;
             this.description = response.data.description;
             this.body = response.data.body;
-            this.author = response.data.author;
-            this.title = response.data.title;
+            this.author.avatar = response.data.author.avatar;
+            this.author.gameNickName = response.data.author.game_nickname;
+            this.author.username = response.data.author.username;
+            this.author.pk = response.data.author.pk;
             this.title = response.data.title;
           }
         )
+      },
+      editTopic() {
+        this.$router.push({
+          name: 'topic-editing',
+          params: {
+            section: this.$route.params.section,
+            topicID: this.topicID
+          }
+        })
       }
+    },
+    computed: {
+      ...mapGetters([
+        'isMainUser'
+      ])
     }
   }
 </script>

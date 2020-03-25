@@ -57,7 +57,7 @@
     },
     computed: {
       ...mapGetters([
-        'isLogged'
+        'isLogged',
       ]),
       ...mapMutations([
         'logout',

@@ -18,6 +18,7 @@ const getters = {
   isLogged(state) {
     return state.user.isLogged;
   },
+
   getUserData(state) {
     let user = state.user;
     return {
@@ -29,7 +30,11 @@ const getters = {
       gameNickName: user.gameNickName,
       gender: user.gender
     };
+  },
+  isMainUser: state => idToCheck => {
+    return state.user.userID === idToCheck;
   }
+
 };
 
 const actions = {
@@ -57,7 +62,7 @@ const actions = {
       })
   },
   register(context, registrationData) {
-    return axios.post('/register/', registrationData, )
+    return axios.post('/register/', registrationData,)
       .then((response) => {
         let auth_token = response.data.auth_token;
         sessionStorage.setItem('auth_token', auth_token);

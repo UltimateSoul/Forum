@@ -16,6 +16,11 @@ const TopicCreation = resolve => {
     resolve(require('@/components/pages/TopicCreation'))
   })
 };
+const TopicEditing = resolve => {
+  require.ensure(['@/components/pages/TopicEditing'], () => {
+    resolve(require('@/components/pages/TopicEditing'))
+  })
+};
 const Shop = resolve => {
   require.ensure(['@/components/pages/Shop'], () => {
     resolve(require('@/components/pages/Shop'))
@@ -85,6 +90,11 @@ export default new Router({
       path: '/topic-creation/:section',
       name: 'topic-creation',
       component: TopicCreation
+    },
+    {
+      path: '/topic-editing/:section/:topicID',
+      name: 'topic-editing',
+      component: TopicEditing
     },
     {
       path: '/shop',

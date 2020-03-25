@@ -10,7 +10,7 @@ from rest_framework.authtoken.models import Token
 
 from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
-    CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer
+    CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
 from .models import Topic
@@ -28,7 +28,6 @@ class TopicView(APIView):
 
     def get(self, request):
         section = request.GET.get('section')
-        topic_id = request.GET.get('topicID')
         if request.GET.get('searchBy'):
             return self.search_logic()
         if section:
@@ -49,6 +48,21 @@ class TopicView(APIView):
         else:
             return Response({'success': False,
                              'errors': topic.error_messages})
+
+    def patch(self, request, *args, **kwargs):
+        try:
+            topic = Topic.objects.get(id=request.data.get('id'))
+            serializer = EditTopicSerializer(topic, data=request.data)
+            if serializer.is_valid():
+                topic = serializer.save()
+                return Response({'success': True,
+                                 'topic_id': topic.id},
+                                status=status.HTTP_200_OK)
+            else:
+                return Response({'success': False,
+                                 'errors': topic.error_messages})
+        except Topic.DoesNotExist as error:
+            return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
 
     def search_logic(self):
         search_data = self.request.GET
