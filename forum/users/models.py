@@ -34,6 +34,11 @@ class User(AbstractUser):
     def get_age(self):
         return timezone.now() - self.birth_date
 
+    def prepare_to_save(self):
+        if self.avatar:
+            self.avatar.delete()
+        return
+
 
 class Team(models.Model):
     name = models.CharField(max_length=255)
