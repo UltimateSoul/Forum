@@ -157,9 +157,11 @@
           })
       },
       saveUserProfile() {
-        this.editingUserData.avatar = this.file ? this.file : this.editingUserData.avatar;
+        this.editingUserData.avatar = this.file;
         const formData = new FormData();
-        formData.append('avatar', this.editingUserData.avatar);
+        if (this.editingUserData.avatar) {
+          formData.append('avatar', this.editingUserData.avatar);
+        }
         formData.append('game_nickname', this.editingUserData.game_nickname);
         if (this.editingUserData.birth_date) {
           formData.append('birth_date', this.editingUserData.birth_date);
