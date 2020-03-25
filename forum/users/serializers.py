@@ -33,6 +33,18 @@ class UserSerializer(serializers.ModelSerializer):
                   "pk"]
 
 
+class RestrictedUserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ["avatar",
+                  "username",
+                  "popularity",
+                  "game_nickname",
+                  "violations",
+                  "description"]
+
+
 class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:

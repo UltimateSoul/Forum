@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from api.models import MiniChatMessage, Topic, Post, Comment
-from users.serializers import UserSerializer
+from users.serializers import RestrictedUserSerializer
 
 
 class TopicSerializer(serializers.ModelSerializer):
     """Topic Serializer"""
-    author = UserSerializer()
+    author = RestrictedUserSerializer()
     posts_quantity = serializers.SerializerMethodField()
 
     def get_posts_quantity(self, topic):
@@ -27,7 +27,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
 class CreateTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
-    author = UserSerializer(required=False)
+    author = RestrictedUserSerializer(required=False)
 
     class Meta:
         model = Topic
@@ -36,7 +36,7 @@ class CreateTopicSerializer(serializers.ModelSerializer):
 
 class EditTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
-    author = UserSerializer(required=False)
+    author = RestrictedUserSerializer(required=False)
 
     class Meta:
         model = Topic
@@ -45,7 +45,7 @@ class EditTopicSerializer(serializers.ModelSerializer):
 
 class MiniChatMessageSerializer(serializers.ModelSerializer):
     """Home page minichat messages"""
-    author = UserSerializer()
+    author = RestrictedUserSerializer()
 
     class Meta:
         model = MiniChatMessage
@@ -62,11 +62,18 @@ class CreateMiniChatMessageSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
-    author = UserSerializer()
+    author = RestrictedUserSerializer()
+    topic = TopicSerializer()
+    comments = serializers.SerializerMethodField()
+
+    def get_comments(self, post):
+        comments = post.comments.all()
+        serializer = CommentSerializer(comments, many=True)
+        return serializer.data
 
     class Meta:
         model = Post
-        fields = '__all__'
+        fields = ['topic', 'author', 'body', 'rating', 'published_date', 'edited_date', 'comments', 'id']
 
 
 class CreatePostSerializer(serializers.ModelSerializer):
@@ -79,7 +86,7 @@ class CreatePostSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
-    author = UserSerializer()
+    author = RestrictedUserSerializer()
 
     class Meta:
         model = Comment

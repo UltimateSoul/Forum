@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -25,6 +26,7 @@ class HomeView(TemplateView):
 
 class TopicView(APIView):
     """Topics"""
+    paginator = LimitOffsetPagination()
 
     def get(self, request):
         section = request.GET.get('section')
@@ -32,10 +34,12 @@ class TopicView(APIView):
             return self.search_logic()
         if section:
             topics = Topic.objects.filter(section=section)
-            serializer = TopicSerializer(topics, many=True)
+            page_results = self.paginator.paginate_queryset(topics, request)
+            serializer = TopicSerializer(page_results, many=True)
             return Response(serializer.data)
         topics = Topic.objects.all()
-        serializer = TopicSerializer(topics, many=True)
+        page_results = self.paginator.paginate_queryset(topics, request)
+        serializer = TopicSerializer(page_results, many=True)
         return Response(serializer.data)
 
     def post(self, request):
@@ -108,21 +112,24 @@ class MiniChatMessagesView(APIView):
 class PostsView(APIView):
     """Mini Chat Messages Get View"""
 
-    @staticmethod
-    def get(request):
+    paginator = LimitOffsetPagination()
+
+    def get(self, request):
         topic = request.GET.get('topic')
         posts = Post.objects.filter(topic=topic)
-        serializer = PostSerializer(posts, many=True)
+        page_results = self.paginator.paginate_queryset(posts, request)
+        serializer = PostSerializer(page_results, many=True)
         return Response(serializer.data)
 
     def post(self, request):
         post = CreatePostSerializer(data=request.data)
         if post.is_valid():
             post.save(author=request.user)
-            return Response({'success': True})
+            return Response({'success': True}, status=status.HTTP_201_CREATED)
         else:
             return Response({'success': False,
-                             'errors': post.error_messages})
+                             'errors': post.error_messages},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class CommentsView(APIView):
@@ -133,16 +140,17 @@ class CommentsView(APIView):
         post = request.GET.get('post')
         comments = Comment.objects.filter(post=post)
         serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
         comment = CreateCommentSerializer(data=request.data)
         if comment.is_valid():
             comment.save(author=request.user)
-            return Response({'success': True})
+            return Response({'success': True}, status=status.HTTP_201_CREATED)
         else:
             return Response({'success': False,
-                             'errors': comment.error_messages})
+                             'errors': comment.error_messages},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserProfileView(APIView):
