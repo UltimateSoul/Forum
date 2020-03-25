@@ -113,7 +113,6 @@
     methods: {
       createTopic() {
         const data = {
-          authToken: sessionStorage.getItem('auth_token'),
           title: this.title,
           description: this.description,
           body: this.body,

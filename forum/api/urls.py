@@ -6,7 +6,7 @@ from api.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, 
 
 urlpatterns = [
     # REST API
-    path('topics/', TopicView.as_view(), name='topic'),
+    path('topics/', TopicView.as_view(), name='topics'),
     path('topics/<int:topic_id>/', GetTopicView.as_view(), name='get-topic'),
     path('minichat-messages/', MiniChatMessagesView.as_view(), name='minichat-messages'),
     path('posts/', PostsView.as_view(), name='posts'),

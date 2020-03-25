@@ -45,9 +45,9 @@ class TopicView(APIView):
             return Response({'success': True,
                              'topic_id': topic.id},
                             status=status.HTTP_201_CREATED)
-        else:
-            return Response({'success': False,
-                             'errors': topic.error_messages})
+        return Response(status=status.HTTP_400_BAD_REQUEST,
+                        data={'success': False,
+                              'errors': topic.error_messages})
 
     def patch(self, request, *args, **kwargs):
         try:
@@ -209,7 +209,6 @@ class UsersView(APIView):
 
 
 class RegistrationView(APIView):
-
     permission_classes = [AllowAny]
 
     @staticmethod
