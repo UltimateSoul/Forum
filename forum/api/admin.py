@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import MiniChatMessage, Topic, Comment, Post
+from api.models import MiniChatMessage, Topic, Comment, Post, Like
 
 
 # Register your models here.
@@ -49,3 +49,8 @@ class PostAdmin(admin.ModelAdmin):
     @staticmethod
     def topic(obj):
         return obj.topic.title
+
+
+@admin.register(Like)
+class PostAdmin(admin.ModelAdmin):
+    list_display = ('user', 'comment', 'post', 'created_at')

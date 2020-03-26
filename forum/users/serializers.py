@@ -61,17 +61,3 @@ class UserProfileSerializer(serializers.ModelSerializer):
         if image.size > mb3:
             assert serializers.ValidationError(f"Your image size must be less than 3 mb")
         return image
-
-
-class RestrictedUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ["avatar",
-                  "username",
-                  "popularity",
-                  "gender",
-                  "game_nickname",
-                  "violations",
-                  "description",
-                  "email"]

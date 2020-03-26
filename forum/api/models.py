@@ -23,10 +23,8 @@ class Topic(models.Model):
     edited_date = models.DateTimeField(auto_now=True)
     icon = models.ImageField(upload_to='static/images/icons', blank=True,
                              null=True)
-    likes = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='topic')
     description = models.CharField(max_length=255)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
-    rating = models.IntegerField(default=0)
     section = models.CharField(max_length=13, choices=SECTION_CHOICES,
                                default=CONVERSATION)
 
@@ -43,6 +41,7 @@ class Topic(models.Model):
     class Meta:
         verbose_name = 'Topic'
         verbose_name_plural = 'Topics'
+        ordering = ['-created_date']
 
 
 class MiniChatMessage(models.Model):
@@ -52,13 +51,14 @@ class MiniChatMessage(models.Model):
     edited_date = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        if self.__class__.objects.count() > 100:
+        if self.__class__.objects.count() > 1000:
             self.objects.first().delete()
         super(MiniChatMessage, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = 'Mini-Chat Message'
         verbose_name_plural = 'Mini-Chat Messages'
+        ordering = ['-created_date']
 
 
 class Post(models.Model):
@@ -66,7 +66,6 @@ class Post(models.Model):
                               related_name='posts')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField()
-    rating = models.IntegerField(default=0)
     published_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
 
@@ -76,6 +75,7 @@ class Post(models.Model):
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
+        ordering = ['-published_date']
 
 
 class Comment(models.Model):
@@ -83,7 +83,6 @@ class Comment(models.Model):
                              related_name='comments')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField()
-    rating = models.IntegerField(default=0)
     published_date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -92,3 +91,24 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
+        ordering = ['-published_date']
+
+
+class Like(models.Model):
+
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name='post_likes')
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True, related_name='comment_likes')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __rerp__(self):
+        return f'Like(post={self.post}, comment={self.comment}, user={self.user})'
+
+    def save(self, *args, **kwargs):
+
+        super(Like, self).save(*args, **kwargs)
+
+    class Meta:
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+        ordering = ['-created_at']

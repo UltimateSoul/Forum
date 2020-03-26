@@ -1,8 +1,8 @@
 <template>
   <div>
-    <h1>{{title}}</h1>
+    <h1>{{topic.title}}</h1>
     <hr>
-    <h5>{{description}}</h5>
+    <h5>{{topic.description}}</h5>
     <div>
       <b-card no-body class="overflow-hidden">
         <b-row no-gutters>
@@ -14,7 +14,7 @@
           <b-col md="10">
             <b-card-body>
               <b-card-text>
-                {{body}}
+                {{topic.body}}
               </b-card-text>
             </b-card-body>
           </b-col>
@@ -38,6 +38,7 @@
                 </b-card-text>
               </b-card-body>
             </b-col>
+            Likes: {{post.likes}}
           </b-row>
         </b-card>
         <div class="button-control">
@@ -46,25 +47,51 @@
                     :id="'button-' + post.id">
             {{ getCommentsButtonText('button-' + post.id) }}
           </b-button>
-          <div class="row" v-for="comment in post.comments" v-if="buttonsEngine['button-'+post.id].isOpen">
-            <div class="col-lg-10">
-              <b-card no-body class="overflow-hidden">
-                <b-row no-gutters>
-                  <b-col md="2">
-                    <b-card-img :src="'http://0.0.0.0:5000' + comment.author.avatar" class="rounded-1"></b-card-img>
-                  </b-col>
-                  <b-col md="10">
-                    <b-card-body :title="comment.author.username">
-                      <b-card-text>
-                        {{comment.body}}
-                      </b-card-text>
-                    </b-card-body>
-                  </b-col>
-                </b-row>
-              </b-card>
-            </div>
+        </div>
+        <div v-if="buttonsEngine['button-'+post.id].isOpen">
+          <div class="message-range" v-for="comment in post.comments">
+            <b-card no-body class="overflow-hidden">
+              <b-row no-gutters>
+                <b-col md="2">
+                  <b-card-img :src="'http://0.0.0.0:5000' + comment.author.avatar" class="rounded-1"></b-card-img>
+                </b-col>
+                <b-col md="10">
+                  <b-card-body :title="comment.author.username">
+                    <b-card-text>
+                      {{comment.body}}
+                    </b-card-text>
+                  </b-card-body>
+                </b-col>
+              </b-row>
+            </b-card>
+          </div>
+          <div class="message-range">
+            <b-form-textarea
+              id="textarea"
+              v-model="commentText"
+              placeholder="Enter comment..."
+              rows="3"
+              max-rows="6"
+            ></b-form-textarea>
+            <b-button variant="primary"
+                      @click="saveComment(post.id)"
+                      :id="'button-comment' + post.id">
+              Post
+            </b-button>
           </div>
         </div>
+      </div>
+      <div class="message-range">
+        <b-form-textarea
+          id="textarea"
+          v-model="postText"
+          placeholder="Enter post..."
+          rows="3"
+          max-rows="6"
+        ></b-form-textarea>
+        <b-button variant="primary">
+          Post
+        </b-button>
       </div>
     </div>
   </div>
@@ -79,9 +106,11 @@
     data() {
       return {
         topicID: this.$route.params.topicID,
-        title: "",
-        description: "",
-        body: "",
+        topic: {
+          title: "",
+          description: "",
+          body: ""
+        },
         author: {
           avatar: '',
           gameNickName: '',
@@ -89,7 +118,10 @@
           pk: 0
         },
         posts: [],
-        buttonsEngine: {}
+        buttonsEngine: {},
+        postText: '',
+        commentText: '',
+        currentPage: 1
       }
     },
     created() {
@@ -100,9 +132,9 @@
       getTopicData() {
         axios.get('topics/' + this.topicID + '/').then(
           (response) => {
-            this.title = response.data.title;
-            this.description = response.data.description;
-            this.body = response.data.body;
+            this.topic.title = response.data.title;
+            this.topic.description = response.data.description;
+            this.topic.body = response.data.body;
             this.author.avatar = response.data.author.avatar;
             this.author.gameNickName = response.data.author.game_nickname;
             this.author.username = response.data.author.username;
@@ -135,6 +167,23 @@
             topicID: this.topicID
           }
         })
+      },
+      saveComment(postID) {
+        const data = {
+          body: this.commentText,
+          post: postID
+        };
+        axios.post('comments/', data)
+        .then((response) => {
+          switch (response.status) {
+            case 201:
+              this.commentText = '';
+              this.getTopicPosts(this.currentPage);
+              break;
+            case 400:
+              break
+          }
+        })
       }
     },
     computed: {
@@ -145,7 +194,6 @@
         return buttonID => {
           console.log('getCommentsButtonText');
           let isOpen = this.buttonsEngine[buttonID].isOpen;
-          debugger;
           return isOpen ? 'Collapse' : 'Expand'
 
         }
@@ -155,5 +203,7 @@
 </script>
 
 <style scoped>
-
+  .message-range {
+    margin: 10px 15%;
+  }
 </style>

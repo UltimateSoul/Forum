@@ -65,15 +65,27 @@ class PostSerializer(serializers.ModelSerializer):
     author = RestrictedUserSerializer()
     topic = TopicSerializer()
     comments = serializers.SerializerMethodField()
+    likes = serializers.SerializerMethodField()
 
     def get_comments(self, post):
         comments = post.comments.all()
         serializer = CommentSerializer(comments, many=True)
         return serializer.data
 
+    def get_likes(self, post):
+        likes = post.post_likes.all().count()
+        return likes
+
     class Meta:
         model = Post
-        fields = ['topic', 'author', 'body', 'rating', 'published_date', 'edited_date', 'comments', 'id']
+        fields = ['topic',
+                  'likes',
+                  'author',
+                  'body',
+                  'published_date',
+                  'edited_date',
+                  'comments',
+                  'id']
 
 
 class CreatePostSerializer(serializers.ModelSerializer):
