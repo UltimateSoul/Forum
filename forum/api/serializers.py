@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from api.models import MiniChatMessage, Topic, Post, Comment
+from api.models import MiniChatMessage, Topic, Post, Comment, Like
 from users.serializers import RestrictedUserSerializer
 
 
@@ -99,10 +99,22 @@ class CreatePostSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
     author = RestrictedUserSerializer()
+    likes = serializers.SerializerMethodField()
+
+    def get_likes(self, comment):
+        likes = comment.comment_likes.all().count()
+        return likes
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = [
+            'id',
+            'post',
+            'author',
+            'body',
+            'likes',
+            'published_date'
+        ]
 
 
 class CreateCommentSerializer(serializers.ModelSerializer):
@@ -111,3 +123,11 @@ class CreateCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ['post', 'body']
+
+
+class CreateLikeSerializer(serializers.ModelSerializer):
+    """Create likes serializer"""
+
+    class Meta:
+        model = Like
+        fields = ['post', 'comment', 'user']

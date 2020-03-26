@@ -75,7 +75,7 @@ class Post(models.Model):
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
-        ordering = ['-published_date']
+        ordering = ['published_date']
 
 
 class Comment(models.Model):
@@ -91,7 +91,7 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
-        ordering = ['-published_date']
+        ordering = ['published_date']
 
 
 class Like(models.Model):

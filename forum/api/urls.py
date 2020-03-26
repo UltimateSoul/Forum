@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path
 
 from api.views import TopicView, MiniChatMessagesView, PostsView, CommentsView, \
-    UserProfileView, UsersView, GetUserView, RegistrationView, GetTopicView
+    UserProfileView, UsersView, GetUserView, RegistrationView, GetTopicView, LikesView
 
 urlpatterns = [
     # REST API
@@ -14,6 +14,7 @@ urlpatterns = [
     path('user/<int:id>', UserProfileView.as_view(), name='profile'),
     path('get-user/', GetUserView.as_view(), name='get-user'),
     path('users/', UsersView.as_view(), name='users'),
+    path('likes/', LikesView.as_view(), name='likes'),
 
     # Registration
     path('register/', RegistrationView.as_view(), name='registration')

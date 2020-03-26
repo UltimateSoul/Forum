@@ -1,17 +1,16 @@
-from django.conf import settings
 from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-
-from api.models import MiniChatMessage, Post, Comment
+from api.helpers import status as tbw_status
+from api.models import MiniChatMessage, Post, Comment, Like
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
-    CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer, EditTopicSerializer
+    CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer, EditTopicSerializer, \
+    CreateLikeSerializer
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
 from .models import Topic
@@ -198,7 +197,6 @@ class GetUserView(APIView):
 
 class UsersView(APIView):
     """All Users View"""
-    authentication_classes = [TokenAuthentication]
 
     @staticmethod
     def get(request, *args, **kwargs):
@@ -214,6 +212,29 @@ class UsersView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+
+
+class LikesView(APIView):
+    """LikesView"""
+
+    def post(self, request, *args, **kwargs):
+        serializer = CreateLikeSerializer(data=request.data)
+        if serializer.is_valid():
+            is_post_like = request.data.get('post')
+            if is_post_like:
+                is_already_exists = Like.objects.filter(post=request.data['post'],
+                                                        user=request.data['user']).first()
+                if is_already_exists:
+                    return Response(status=tbw_status.STATUS_220_ALREADY_LIKED)
+                serializer.save()
+                return Response(status=status.HTTP_201_CREATED)
+            is_already_exists = Like.objects.filter(comment=request.data['comment'],
+                                                    user=request.data['user']).first()
+            if is_already_exists:
+                return Response(status=tbw_status.STATUS_220_ALREADY_LIKED)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
 
 
 class RegistrationView(APIView):

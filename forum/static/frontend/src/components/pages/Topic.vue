@@ -40,6 +40,13 @@
             </b-col>
             Likes: {{post.likes}}
           </b-row>
+          <div class="button-control">
+          <b-button variant="primary"
+                    @click="likePostClick(post.id)"
+                    :id="'button-' + post.id">
+            Like
+          </b-button>
+        </div>
         </b-card>
         <div class="button-control">
           <b-button variant="primary"
@@ -63,6 +70,15 @@
                   </b-card-body>
                 </b-col>
               </b-row>
+              Likes: {{comment.likes}}
+              <div class="button-control">
+
+          <b-button variant="primary"
+                    @click="likeCommentClick(comment.id)"
+                    :id="'button-' + post.id">
+            Like
+          </b-button>
+        </div>
             </b-card>
           </div>
           <div class="message-range">
@@ -89,7 +105,7 @@
           rows="3"
           max-rows="6"
         ></b-form-textarea>
-        <b-button variant="primary">
+        <b-button @click="savePost" variant="primary">
           Post
         </b-button>
       </div>
@@ -184,11 +200,65 @@
               break
           }
         })
+      },
+      savePost() {
+        const data = {
+          body: this.postText,
+          topic: this.topicID
+        };
+        axios.post('posts/', data)
+        .then((response) => {
+          switch (response.status) {
+            case 201:
+              this.postText = '';
+              this.getTopicPosts(this.currentPage);
+              break;
+            case 400:
+              break
+          }
+        })
+      },
+      likePostClick(postID) {
+        const data = {
+          post: postID,
+          user: this.getUserData.userID
+        };
+        axios.post('likes/', data)
+        .then((response) => {
+          switch (response.status) {
+            case 201:
+              this.getTopicPosts(this.currentPage);
+              break;
+            case 220:
+              break;  // already liked this post by current user
+            case 400:
+              break  // errors during serializing
+          }
+        })
+      },
+      likeCommentClick(commentID) {
+        const data = {
+          comment: commentID,
+          user: this.getUserData.userID
+        };
+        axios.post('likes/', data)
+        .then((response) => {
+          switch (response.status) {
+            case 201:
+              this.getTopicPosts(this.currentPage);
+              break;
+            case 220:
+              break;  // already liked this post by current user
+            case 400:
+              break  // errors during serializing
+          }
+        })
       }
     },
     computed: {
       ...mapGetters([
-        'isMainUser'
+        'isMainUser',
+        'getUserData'
       ]),
       getCommentsButtonText() {
         return buttonID => {
