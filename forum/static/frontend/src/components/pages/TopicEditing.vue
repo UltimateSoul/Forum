@@ -119,10 +119,9 @@
         const data = {
           description: this.description,
           body: this.body,
-          id: this.$route.params.topicID,
           section: this.section.toUpperCase()
         };
-        axios.patch('topics/', data)
+        axios.patch(`topics/${this.$route.params.topicID}/`, data)
           .then((response) => {
             switch (response.status) {
               case 200:

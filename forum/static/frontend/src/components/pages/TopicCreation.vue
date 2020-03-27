@@ -91,10 +91,9 @@
           }
           const params = {
             searchBy: 'title',
-            value: val,
-            section: vueInstance.section
+            value: val
           };
-          return axios.get('topics/', {params: params})
+          return axios.get(`topics/${vueInstance.section}/search/`, {params: params})
             .then(res => {
               return !res.data.topic_exists
             })

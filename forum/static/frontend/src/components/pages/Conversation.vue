@@ -61,8 +61,7 @@
     },
     methods: {
       getData() {
-        this.$store.dispatch('getSectionData', {section: this.section.toUpperCase()})
-          .then((resp) => {
+        axios.get(`topics/${this.section.toUpperCase()}/`).then((resp) => {
             this.topics = resp.data;
           })
           .finally(() => {

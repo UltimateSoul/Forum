@@ -7,10 +7,6 @@ from users.serializers import RestrictedUserSerializer
 class TopicSerializer(serializers.ModelSerializer):
     """Topic Serializer"""
     author = RestrictedUserSerializer()
-    posts_quantity = serializers.SerializerMethodField()
-
-    def get_posts_quantity(self, topic):
-        return Post.objects.filter(topic=topic).count()
 
     class Meta:
         model = Topic

@@ -43,15 +43,15 @@ class TestViews(APITestCase):
         self.assertFalse(user_data.get('gender') == self.user.gender)
         self.assertFalse(user_data.get('birth_date') == self.user.birth_date)
 
-    def test_user_profile_view_user_doesnt_exists(self):
+    def test_user_profile_view_user_doesnt_exist(self):
         """Checks flow when user doesn`t exists in db"""
         params = {'id': 101}
         profile_response = self.client.get(reverse('api:profile', kwargs=params))
         self.assertTrue(profile_response.status_code == 404)
         self.assertEqual(profile_response.data.get('error'), 'User matching query does not exist.')
 
-    def test_get_topic_view(self):
-        """Testing TopicView get method functionality"""
+    def test_topic_viewset_list(self):
+        """Testing TopicViewSet list of topics by section functionality"""
         data = {'section': Topic.CONVERSATION}
         TopicFactory()
         TopicFactory(title='Test Title2',
@@ -62,16 +62,16 @@ class TestViews(APITestCase):
                      body='Test body',
                      description='Test description',
                      section=Topic.CONVERSATION)
-        response = self.client.get(reverse('api:topics'), data)
+        response = self.client.get(reverse('api:topics-section', kwargs=data))
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
         data = {'section': Topic.IDEAS}
-        response = self.client.get(reverse('api:topics'), data)
+        response = self.client.get(reverse('api:topics-section', kwargs=data), data)
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_post_topic_view(self):
-        """Testing TopicView post method functionality"""
+    def test_create_topic_viewset(self):
+        """Testing TopicViewSet create topic functionality"""
 
         data = {
             'title': 'Test Topic',
@@ -79,7 +79,7 @@ class TestViews(APITestCase):
             'body': 'Test topic body',
             'section': 'CONVERSATION'
         }
-        response = self.client.post(reverse('api:topics'), data)
+        response = self.client.post(reverse('api:create-topic'), data)
         self.assertTrue(response.status_code == status.HTTP_201_CREATED)
         created_topic = Topic.objects.last()
         self.assertTrue(created_topic)
@@ -88,26 +88,25 @@ class TestViews(APITestCase):
         self.assertEqual(created_topic.body, data['body'])
         self.assertEqual(created_topic.section, data['section'])
 
-    def test_patch_topic_view(self):
-        """Testing TopicView patch method functionality"""
+    def test_update_topic_viewset(self):
+        """Testing TopicViewSet patch method functionality"""
 
-        topic = TopicFactory()
+        topic = TopicFactory(author=self.user)
         data = {
             'description': 'Edited Description',
             'body': 'Edited body',
-            'id': topic.id,
             'section': topic.section
         }
-        response = self.client.patch(reverse('api:topics'), data)
+        response = self.client.patch(reverse('api:update-topic', kwargs={'topic_id': topic.id}), data)
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         topic = Topic.objects.get(id=topic.id)
         self.assertEqual(topic.description, data['description'])
         self.assertEqual(topic.body, data['body'])
 
-    def test_get_topic_view_by_id(self):
-        """Testings GetTopicView functionality"""
+    def test_retrieve_topic_viewset(self):
+        """Testings TopicViewSet retrieve functionality"""
 
-        topic = TopicFactory()
+        topic = TopicFactory(author=self.user)
         response = self.client.get(reverse('api:get-topic', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('title'), topic.title)

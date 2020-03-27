@@ -1,11 +1,16 @@
 from django.http import JsonResponse
 from django.views.generic import TemplateView
+from requests import request
 from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
+from rest_framework.viewsets import ModelViewSet, ViewSet
+
 from api.helpers import status as tbw_status
 from api.models import MiniChatMessage, Post, Comment, Like
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
@@ -13,6 +18,7 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
     CreateLikeSerializer
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
+from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -75,6 +81,69 @@ class TopicView(APIView):
                                                 section=search_data['section']).exists()
             return Response(data={'topic_exists': topic_exists})
         return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class TopicViewSet(ViewSet):
+    paginator = LimitOffsetPagination()
+
+    def list(self, request):
+        topics = Topic.objects.all()
+        queryset = self.paginator.paginate_queryset(topics, request)
+        serializer = TopicSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = CreateTopicSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(author=self.request.user)
+        return Response(status=status.HTTP_201_CREATED)
+
+    def retrieve(self, request, *args, **kwargs):
+        topic_id = kwargs.get('topic_id')
+        topic = Topic.objects.get(id=topic_id)
+        serializer = TopicSerializer(topic)
+        return Response(serializer.data)
+
+    def update(self, request, *args, **kwargs):
+        topic_id = kwargs.get('topic_id')
+        topic = Topic.objects.get(id=topic_id)
+        is_able_to_edit = check_ability_to_edit(user=self.request.user, obj=topic)
+        if is_able_to_edit:
+            serializer = EditTopicSerializer(topic, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    def partial_update(self, request, pk=None):
+        pass
+
+    def destroy(self, request, *args, **kwargs):
+        topic_id = kwargs.get('topic_id')
+        topic = Topic.objects.get(id=topic_id)
+        is_able_to_delete = check_ability_to_delete(user=self.request.user)
+        if is_able_to_delete:
+            topic.delete()
+            return Response()
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+    @action(methods=['GET'], detail=False)
+    def search(self, request, *args, **kwargs):
+        search_data = request.GET
+        search_by = search_data['searchBy']
+        if search_by == 'title':
+            topic_exists = Topic.objects.filter(title=search_data['value'],
+                                                section=kwargs['section']).exists()
+            return Response(data={'topic_exists': topic_exists})
+        return Response(status=status.HTTP_400_BAD_REQUEST)  # ToDo sync in front part
+
+    @action(methods=['GET'], detail=False)
+    def topics_by_section(self, request, *args, **kwargs):
+        section = kwargs.get('section')
+        topics = Topic.objects.filter(section=section.upper())
+        queryset = self.paginator.paginate_queryset(topics, request)
+        serializer = TopicSerializer(queryset, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GetTopicView(APIView):

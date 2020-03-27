@@ -15,9 +15,7 @@ export const store = new Vuex.Store({
 
   },
   actions: {
-    getSectionData(context, data) {
-        return axios.get('topics/', {params: data});
-    }
+
   },
   mutations: {
 
