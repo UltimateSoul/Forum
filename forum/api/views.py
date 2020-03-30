@@ -13,12 +13,12 @@ from rest_framework.viewsets import ModelViewSet, ViewSet
 
 from api.helpers import status as tbw_status
 from api.models import MiniChatMessage, Post, Comment, Like
-from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, CreateCommentSerializer, \
-    CreateTopicSerializer, CreateMiniChatMessageSerializer, CreatePostSerializer, EditTopicSerializer, \
-    CreateLikeSerializer
+from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, \
+    CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
+from .mixins import LikedMixin
 from .models import Topic
 from .serializers import TopicSerializer
 
@@ -29,84 +29,36 @@ class HomeView(TemplateView):
     template_name = 'home.html'
 
 
-class TopicView(APIView):
-    """Topics"""
+class TopicViewSet(ModelViewSet, LikedMixin):
     paginator = LimitOffsetPagination()
+    serializer_class = TopicSerializer
+    queryset = Topic.objects.all()
 
-    def get(self, request):
-        section = request.GET.get('section')
-        if request.GET.get('searchBy'):
-            return self.search_logic()
-        if section:
-            topics = Topic.objects.filter(section=section)
-            page_results = self.paginator.paginate_queryset(topics, request)
-            serializer = TopicSerializer(page_results, many=True)
-            return Response(serializer.data)
-        topics = Topic.objects.all()
-        page_results = self.paginator.paginate_queryset(topics, request)
-        serializer = TopicSerializer(page_results, many=True)
-        return Response(serializer.data)
+    def get_object(self):
+        topic_id = self.kwargs.get('topic_id')
+        queryset = Topic.objects.all()
+        obj = get_object_or_404(queryset, id=topic_id)
+        return obj
 
-    def post(self, request):
-        topic = CreateTopicSerializer(data=request.data)
-        if topic.is_valid():
-            topic = topic.save(author=request.user)
-            return Response({'success': True,
-                             'topic_id': topic.id},
-                            status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST,
-                        data={'success': False,
-                              'errors': topic.error_messages})
-
-    def patch(self, request, *args, **kwargs):
-        try:
-            topic = Topic.objects.get(id=request.data.get('id'))
-            serializer = EditTopicSerializer(topic, data=request.data)
-            if serializer.is_valid():
-                topic = serializer.save()
-                return Response({'success': True,
-                                 'topic_id': topic.id},
-                                status=status.HTTP_200_OK)
-            else:
-                return Response({'success': False,
-                                 'errors': topic.error_messages})
-        except Topic.DoesNotExist as error:
-            return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
-
-    def search_logic(self):
-        search_data = self.request.GET
-        search_by = search_data['searchBy']
-        if search_by == 'title':
-            topic_exists = Topic.objects.filter(title=search_data['value'],
-                                                section=search_data['section']).exists()
-            return Response(data={'topic_exists': topic_exists})
-        return Response(status=status.HTTP_400_BAD_REQUEST)
-
-
-class TopicViewSet(ViewSet):
-    paginator = LimitOffsetPagination()
-
-    def list(self, request):
+    def list(self, request, *args, **kwargs):
         topics = Topic.objects.all()
         queryset = self.paginator.paginate_queryset(topics, request)
-        serializer = TopicSerializer(queryset, many=True)
+        serializer = TopicSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
-    def create(self, request):
+    def create(self, request, *args, **kwargs):
         serializer = CreateTopicSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(author=self.request.user)
-        return Response(status=status.HTTP_201_CREATED)
+        topic = serializer.save(author=self.request.user)
+        return Response(status=status.HTTP_201_CREATED, data={'topic_id': topic.id})
 
     def retrieve(self, request, *args, **kwargs):
-        topic_id = kwargs.get('topic_id')
-        topic = Topic.objects.get(id=topic_id)
-        serializer = TopicSerializer(topic)
+        topic = self.get_object()
+        serializer = TopicSerializer(topic, context={'request': request})
         return Response(serializer.data)
 
-    def update(self, request, *args, **kwargs):
-        topic_id = kwargs.get('topic_id')
-        topic = Topic.objects.get(id=topic_id)
+    def partial_update(self, request, *args, **kwargs):
+        topic = self.get_object()
         is_able_to_edit = check_ability_to_edit(user=self.request.user, obj=topic)
         if is_able_to_edit:
             serializer = EditTopicSerializer(topic, data=request.data)
@@ -115,12 +67,8 @@ class TopicViewSet(ViewSet):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_403_FORBIDDEN)
 
-    def partial_update(self, request, pk=None):
-        pass
-
     def destroy(self, request, *args, **kwargs):
-        topic_id = kwargs.get('topic_id')
-        topic = Topic.objects.get(id=topic_id)
+        topic = self.get_object()
         is_able_to_delete = check_ability_to_delete(user=self.request.user)
         if is_able_to_delete:
             topic.delete()
@@ -130,32 +78,21 @@ class TopicViewSet(ViewSet):
     @action(methods=['GET'], detail=False)
     def search(self, request, *args, **kwargs):
         search_data = request.GET
+        section = kwargs['section'].upper()
         search_by = search_data['searchBy']
         if search_by == 'title':
             topic_exists = Topic.objects.filter(title=search_data['value'],
-                                                section=kwargs['section']).exists()
+                                                section=section).exists()
             return Response(data={'topic_exists': topic_exists})
-        return Response(status=status.HTTP_400_BAD_REQUEST)  # ToDo sync in front part
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['GET'], detail=False)
     def topics_by_section(self, request, *args, **kwargs):
         section = kwargs.get('section')
         topics = Topic.objects.filter(section=section.upper())
         queryset = self.paginator.paginate_queryset(topics, request)
-        serializer = TopicSerializer(queryset, many=True)
+        serializer = TopicSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-class GetTopicView(APIView):
-    """Get topic by id"""
-
-    def get(self, request, *args, **kwargs):
-        topic_id = kwargs.get('topic_id')
-        if topic_id:
-            topic = Topic.objects.get(id=topic_id)
-            topic = TopicSerializer(topic)
-            return Response(data=topic.data)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class MiniChatMessagesView(APIView):
@@ -177,48 +114,38 @@ class MiniChatMessagesView(APIView):
                              'errors': mini_chat_message.error_messages})
 
 
-class PostsView(APIView):
+class PostsViewSet(ModelViewSet, LikedMixin):
     """Mini Chat Messages Get View"""
 
-    paginator = LimitOffsetPagination()
+    serializer_class = PostSerializer
+    queryset = Post.objects.all()
+    # Add additional permission, posts can write only users with checked email
 
-    def get(self, request):
-        topic = request.GET.get('topic')
-        posts = Post.objects.filter(topic=topic)
-        page_results = self.paginator.paginate_queryset(posts, request)
-        serializer = PostSerializer(page_results, many=True)
-        return Response(serializer.data)
+    def get_queryset(self):
+        if self.request.GET.get('topic'):
+            return self.queryset.filter(topic=self.request.GET.get('topic'))
+        return self.queryset
 
-    def post(self, request):
-        post = CreatePostSerializer(data=request.data)
-        if post.is_valid():
-            post.save(author=request.user)
-            return Response({'success': True}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'success': False,
-                             'errors': post.error_messages},
-                            status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_context(self, *args, **kwargs):
+        return {'request': self.request}
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
-class CommentsView(APIView):
+class CommentsViewSet(ModelViewSet, LikedMixin):
     """Mini Chat Messages Get View"""
 
-    @staticmethod
-    def get(request):
-        post = request.GET.get('post')
-        comments = Comment.objects.filter(post=post)
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    serializer_class = CommentSerializer
+    queryset = Comment.objects.all()
 
-    def post(self, request):
-        comment = CreateCommentSerializer(data=request.data)
-        if comment.is_valid():
-            comment.save(author=request.user)
-            return Response({'success': True}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({'success': False,
-                             'errors': comment.error_messages},
-                            status=status.HTTP_400_BAD_REQUEST)
+    # Add additional permission, posts can write only users with checked email
+
+    def get_serializer_context(self, *args, **kwargs):
+        return {'request': self.request}
+
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
 
 
 class UserProfileView(APIView):
@@ -281,29 +208,6 @@ class UsersView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
-
-
-class LikesView(APIView):
-    """LikesView"""
-
-    def post(self, request, *args, **kwargs):
-        serializer = CreateLikeSerializer(data=request.data)
-        if serializer.is_valid():
-            is_post_like = request.data.get('post')
-            if is_post_like:
-                is_already_exists = Like.objects.filter(post=request.data['post'],
-                                                        user=request.data['user']).first()
-                if is_already_exists:
-                    return Response(status=tbw_status.STATUS_220_ALREADY_LIKED)
-                serializer.save()
-                return Response(status=status.HTTP_201_CREATED)
-            is_already_exists = Like.objects.filter(comment=request.data['comment'],
-                                                    user=request.data['user']).first()
-            if is_already_exists:
-                return Response(status=tbw_status.STATUS_220_ALREADY_LIKED)
-            serializer.save()
-            return Response(status=status.HTTP_201_CREATED)
-        return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
 
 
 class RegistrationView(APIView):

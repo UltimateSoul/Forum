@@ -103,7 +103,7 @@
     },
     methods: {
       getData() {
-        return axios.get('topics/' + this.topicID + '/').then(
+        return axios.get('topic/get/' + this.topicID + '/').then(
           (response) => {
             this.description = response.data.description;
             this.body = response.data.body;
@@ -121,7 +121,7 @@
           body: this.body,
           section: this.section.toUpperCase()
         };
-        axios.patch(`topics/${this.$route.params.topicID}/`, data)
+        axios.patch(`topic/edit/${this.$route.params.topicID}/`, data)
           .then((response) => {
             switch (response.status) {
               case 200:

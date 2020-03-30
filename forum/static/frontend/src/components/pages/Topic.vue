@@ -7,7 +7,7 @@
       <b-card no-body class="overflow-hidden">
         <b-row no-gutters>
           <b-col md="2">
-            <b-card-img :src="'http://0.0.0.0:5000' + author.avatar" class="rounded-1"></b-card-img>
+            <b-card-img :src="author.avatar" class="rounded-1"></b-card-img>
             <h5>{{author.username}}</h5>
             <h5>{{author.gameNickName}}</h5>
           </b-col>
@@ -19,6 +19,7 @@
             </b-card-body>
           </b-col>
         </b-row>
+        Likes: {{topic.totalLikes}}
       </b-card>
       <div class="button-control" v-if="isMainUser(author.pk)">
         <b-button @click="editTopic">Edit</b-button>
@@ -29,7 +30,7 @@
         <b-card no-body class="overflow-hidden">
           <b-row no-gutters>
             <b-col md="2">
-              <b-card-img :src="'http://0.0.0.0:5000' + post.author.avatar" class="rounded-1"></b-card-img>
+              <b-card-img :src="post.author.avatar" class="rounded-1"></b-card-img>
             </b-col>
             <b-col md="10">
               <b-card-body :title="post.author.username">
@@ -60,7 +61,7 @@
             <b-card no-body class="overflow-hidden">
               <b-row no-gutters>
                 <b-col md="2">
-                  <b-card-img :src="'http://0.0.0.0:5000' + comment.author.avatar" class="rounded-1"></b-card-img>
+                  <b-card-img :src="comment.author.avatar" class="rounded-1"></b-card-img>
                 </b-col>
                 <b-col md="10">
                   <b-card-body :title="comment.author.username">
@@ -70,12 +71,17 @@
                   </b-card-body>
                 </b-col>
               </b-row>
-              Likes: {{comment.likes}}
+              Likes: {{comment.total_likes}}
               <div class="button-control">
 
           <b-button variant="primary"
+                    v-if="comment.is_liked"
                     @click="likeCommentClick(comment.id)"
                     :id="'button-' + post.id">
+            Like
+          </b-button>
+          <b-button variant="primary"
+                    v-else disabled>
             Like
           </b-button>
         </div>
@@ -125,7 +131,9 @@
         topic: {
           title: "",
           description: "",
-          body: ""
+          body: "",
+          totalLikes: 0,
+          is_liked: false
         },
         author: {
           avatar: '',
@@ -146,11 +154,13 @@
     },
     methods: {
       getTopicData() {
-        axios.get('topics/' + this.topicID + '/').then(
+        axios.get('topic/get/' + this.topicID + '/').then(
           (response) => {
             this.topic.title = response.data.title;
             this.topic.description = response.data.description;
             this.topic.body = response.data.body;
+            this.topic.totalLikes = response.data.total_likes;
+            this.topic.isLiked = response.data.is_liked;
             this.author.avatar = response.data.author.avatar;
             this.author.gameNickName = response.data.author.game_nickname;
             this.author.username = response.data.author.username;
@@ -166,7 +176,7 @@
             page: page,
           }
         }).then((response) => {
-          this.posts = response.data;
+          this.posts = response.data.results;
           this.posts.forEach(post => {
             let buttonID = 'button-' + post.id;
             this.$set(this.buttonsEngine, buttonID, {
@@ -191,6 +201,7 @@
         };
         axios.post('comments/', data)
         .then((response) => {
+          debugger
           switch (response.status) {
             case 201:
               this.commentText = '';

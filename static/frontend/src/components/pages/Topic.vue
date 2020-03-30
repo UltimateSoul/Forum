@@ -43,7 +43,7 @@
     },
     methods: {
       getData() {
-        axios.get('topics/' + this.topicID + '/').then(
+        axios.get('topic/get/' + this.topicID + '/').then(
           (response) => {
             this.title = response.data.title;
             this.description = response.data.description;

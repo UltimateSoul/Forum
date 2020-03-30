@@ -1,7 +1,24 @@
 from django.conf import settings
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
-# Create your models here.
+
+class Like(models.Model):
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __rerp__(self):
+        return f'Like(user={self.user})'
+
+    class Meta:
+        verbose_name = 'Like'
+        verbose_name_plural = 'Likes'
+        ordering = ['-created_at']
 
 
 class Topic(models.Model):
@@ -27,6 +44,10 @@ class Topic(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
     section = models.CharField(max_length=13, choices=SECTION_CHOICES,
                                default=CONVERSATION)
+    likes = GenericRelation(Like)
+
+    def total_likes(self):
+        return self.likes.count()
 
     def get_absolute_url(self):
         return f"sections/{self.section}/{self.id}-1/"
@@ -69,6 +90,11 @@ class Post(models.Model):
     published_date = models.DateTimeField(auto_now_add=True)
     edited_date = models.DateTimeField(auto_now=True)
 
+    likes = GenericRelation(Like)
+
+    def total_likes(self):
+        return self.likes.count()
+
     def __str__(self):
         return ' '.join(self.body.split()[:4])
 
@@ -85,6 +111,11 @@ class Comment(models.Model):
     body = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
 
+    likes = GenericRelation(Like)
+
+    def total_likes(self):
+        return self.likes.count()
+
     def __str__(self):
         return self.body[:10]
 
@@ -92,23 +123,3 @@ class Comment(models.Model):
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
         ordering = ['published_date']
-
-
-class Like(models.Model):
-
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name='post_likes')
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True, related_name='comment_likes')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='user_likes')
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    def __rerp__(self):
-        return f'Like(post={self.post}, comment={self.comment}, user={self.user})'
-
-    def save(self, *args, **kwargs):
-
-        super(Like, self).save(*args, **kwargs)
-
-    class Meta:
-        verbose_name = 'Like'
-        verbose_name_plural = 'Likes'
-        ordering = ['-created_at']

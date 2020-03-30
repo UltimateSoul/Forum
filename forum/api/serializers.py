@@ -1,12 +1,18 @@
 from rest_framework import serializers
-
+from django.contrib.auth import get_user_model
+from api import services
 from api.models import MiniChatMessage, Topic, Post, Comment, Like
-from users.serializers import RestrictedUserSerializer
+from users.serializers import RestrictedUserSerializer, UserSerializer
+
+User = get_user_model()
 
 
 class TopicSerializer(serializers.ModelSerializer):
     """Topic Serializer"""
-    author = RestrictedUserSerializer()
+    author = UserSerializer()
+    posts_quantity = serializers.ReadOnlyField()
+    total_likes = serializers.ReadOnlyField()
+    is_liked = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Topic
@@ -20,10 +26,17 @@ class TopicSerializer(serializers.ModelSerializer):
         if not value:
             raise serializers.ValidationError("Title is empty!")
 
+    def get_is_liked(self, obj) -> bool:
+        """Checks if user have already liked object or not"""
+
+        user = self.context.get('request').user
+        return services.is_liked(obj, user)
+
 
 class CreateTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
+
 
     class Meta:
         model = Topic
@@ -58,25 +71,28 @@ class CreateMiniChatMessageSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
-    author = RestrictedUserSerializer()
-    topic = TopicSerializer()
+    author = RestrictedUserSerializer(required=False)
     comments = serializers.SerializerMethodField()
-    likes = serializers.SerializerMethodField()
+    is_liked = serializers.SerializerMethodField()
+    total_likes = serializers.ReadOnlyField()
+
+    def get_is_liked(self, obj) -> bool:
+        """Checks if user have already liked object or not"""
+
+        user = self.context.get('request').user
+        return services.is_liked(obj, user)
 
     def get_comments(self, post):
         comments = post.comments.all()
-        serializer = CommentSerializer(comments, many=True)
+        serializer = CommentSerializer(comments, many=True, context={'request': self.context.get('request')})
         return serializer.data
-
-    def get_likes(self, post):
-        likes = post.post_likes.all().count()
-        return likes
 
     class Meta:
         model = Post
         fields = ['topic',
-                  'likes',
+                  'is_liked',
                   'author',
+                  'total_likes',
                   'body',
                   'published_date',
                   'edited_date',
@@ -84,22 +100,18 @@ class PostSerializer(serializers.ModelSerializer):
                   'id']
 
 
-class CreatePostSerializer(serializers.ModelSerializer):
-    """Topic's post serializer"""
-
-    class Meta:
-        model = Post
-        fields = ['topic', 'body']
-
-
 class CommentSerializer(serializers.ModelSerializer):
     """Topic's post serializer"""
-    author = RestrictedUserSerializer()
-    likes = serializers.SerializerMethodField()
+    author = RestrictedUserSerializer(required=False)
+    is_liked = serializers.SerializerMethodField()
+    total_likes = serializers.ReadOnlyField()
 
-    def get_likes(self, comment):
-        likes = comment.comment_likes.all().count()
-        return likes
+
+    def get_is_liked(self, obj) -> bool:
+        """Checks if user have already liked object or not"""
+
+        user = self.context.get('request').user
+        return services.is_liked(obj, user)
 
     class Meta:
         model = Comment
@@ -108,22 +120,18 @@ class CommentSerializer(serializers.ModelSerializer):
             'post',
             'author',
             'body',
-            'likes',
+            'total_likes',
+            'is_liked',
             'published_date'
         ]
 
 
-class CreateCommentSerializer(serializers.ModelSerializer):
-    """Topic's post serializer"""
+class FanSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Comment
-        fields = ['post', 'body']
-
-
-class CreateLikeSerializer(serializers.ModelSerializer):
-    """Create likes serializer"""
-
-    class Meta:
-        model = Like
-        fields = ['post', 'comment', 'user']
+        model = User
+        fields = (
+            'avatar',
+            'username',
+            'game_nickname',
+        )

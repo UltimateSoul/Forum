@@ -104,9 +104,23 @@ class TestViews(APITestCase):
         self.assertEqual(topic.body, data['body'])
 
     def test_retrieve_topic_viewset(self):
-        """Testings TopicViewSet retrieve functionality"""
+        """Testing TopicViewSet retrieve functionality"""
 
         topic = TopicFactory(author=self.user)
         response = self.client.get(reverse('api:get-topic', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('title'), topic.title)
+
+    def test_delete_topic_viewset(self):
+        """Tests TopicViewSet destroy functionality"""
+
+        topic = TopicFactory(author=self.user)
+        response = self.client.delete(reverse('api:delete-topic', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        superuser = UserFactory(is_superuser=True, is_staff=True, username='superuser')
+        token = Token.objects.get(user=superuser)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = self.client.delete(reverse('api:delete-topic', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertFalse(Topic.objects.filter(id=topic.id).last())

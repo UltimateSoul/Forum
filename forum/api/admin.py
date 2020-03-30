@@ -52,5 +52,5 @@ class PostAdmin(admin.ModelAdmin):
 
 
 @admin.register(Like)
-class PostAdmin(admin.ModelAdmin):
-    list_display = ('user', 'comment', 'post', 'created_at')
+class LikeAdmin(admin.ModelAdmin):
+    list_display = ('user', 'created_at')
