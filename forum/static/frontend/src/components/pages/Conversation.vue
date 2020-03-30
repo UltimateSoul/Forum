@@ -61,7 +61,7 @@
     },
     methods: {
       getData() {
-        axios.get(`topics/${this.section.toUpperCase()}/`).then((resp) => {
+        axios.get(`topics/by-section/`, {params: {section: this.section.toUpperCase()}}).then((resp) => {
             this.topics = resp.data;
           })
           .finally(() => {

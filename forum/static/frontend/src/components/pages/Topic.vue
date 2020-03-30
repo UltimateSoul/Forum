@@ -157,7 +157,7 @@
     },
     methods: {
       getTopicData() {
-        axios.get('topic/get/' + this.topicID + '/').then(
+        axios.get('topics/' + this.topicID + '/').then(
           (response) => {
             this.topic.title = response.data.title;
             this.topic.description = response.data.description;
@@ -287,7 +287,7 @@
       },
       likeOrUnlikeTopicClick() {
         if (this.topic.isLiked) {
-          axios.post(`topic/unlike/${this.topicID}/`).then((response) => {
+          axios.post(`topics/${this.topicID}/unlike/`).then((response) => {
             switch (response.status) {
               case 200:
                 this.getTopicData();
@@ -297,7 +297,7 @@
             }
           })
         } else {
-          axios.post(`topic/like/${this.topicID}/`).then((response) => {
+          axios.post(`topics/${this.topicID}/like/`).then((response) => {
             switch (response.status) {
               case 201:
                 this.getTopicData();

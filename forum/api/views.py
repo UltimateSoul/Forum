@@ -33,6 +33,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
     paginator = LimitOffsetPagination()
     serializer_class = TopicSerializer
     queryset = Topic.objects.all()
+    lookup_url_kwarg = 'topic_id'
 
     def get_object(self):
         topic_id = self.kwargs.get('topic_id')
@@ -75,10 +76,10 @@ class TopicViewSet(ModelViewSet, LikedMixin):
             return Response()
         return Response(status=status.HTTP_403_FORBIDDEN)
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['GET'], detail=False, url_name='search', url_path='search')
     def search(self, request, *args, **kwargs):
         search_data = request.GET
-        section = kwargs['section'].upper()
+        section = search_data['section'].upper()
         search_by = search_data['searchBy']
         if search_by == 'title':
             topic_exists = Topic.objects.filter(title=search_data['value'],
@@ -86,9 +87,9 @@ class TopicViewSet(ModelViewSet, LikedMixin):
             return Response(data={'topic_exists': topic_exists})
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['GET'], detail=False, url_name='by-section', url_path='by-section')
     def topics_by_section(self, request, *args, **kwargs):
-        section = kwargs.get('section')
+        section = request.GET.get('section')
         topics = Topic.objects.filter(section=section.upper())
         queryset = self.paginator.paginate_queryset(topics, request)
         serializer = TopicSerializer(queryset, many=True, context={'request': request})
@@ -139,7 +140,10 @@ class CommentsViewSet(ModelViewSet, LikedMixin):
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
 
-    # Add additional permission, posts can write only users with checked email
+    def get_queryset(self):
+        if self.request.GET.get('post'):
+            return self.queryset.filter(post=self.request.GET.get('post'))
+        return self.queryset
 
     def get_serializer_context(self, *args, **kwargs):
         return {'request': self.request}

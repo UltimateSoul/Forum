@@ -3,13 +3,13 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from api.models import Topic, Like
-from api.tests.factories import TopicFactory
+from api.models import Topic, Like, Comment
+from api.tests.factories import TopicFactory, PostFactory, CommentFactory
 from users.tests.factories import UserFactory, AnotherUserFactory
 from django.urls import reverse
 
 
-class TestViews(APITestCase):
+class TestProfileView(APITestCase):
 
     def setUp(self) -> None:
         self.user = UserFactory()
@@ -51,6 +51,14 @@ class TestViews(APITestCase):
         self.assertTrue(profile_response.status_code == 404)
         self.assertEqual(profile_response.data.get('error'), 'User matching query does not exist.')
 
+
+class TestTopicViewSet(APITestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+
     def test_topic_viewset_list(self):
         """Testing TopicViewSet list of topics by section functionality"""
         data = {'section': Topic.CONVERSATION}
@@ -63,11 +71,12 @@ class TestViews(APITestCase):
                      body='Test body',
                      description='Test description',
                      section=Topic.CONVERSATION)
-        response = self.client.get(reverse('api:topics-section', kwargs=data))
+        data = {'section': Topic.CONVERSATION}
+        response = self.client.get(reverse('api:topics-by-section'), data=data)
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         self.assertEqual(len(response.data), 3)
         data = {'section': Topic.IDEAS}
-        response = self.client.get(reverse('api:topics-section', kwargs=data), data)
+        response = self.client.get(reverse('api:topics-by-section'), data)
         self.assertTrue(response.status_code == status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
@@ -80,7 +89,7 @@ class TestViews(APITestCase):
             'body': 'Test topic body',
             'section': 'CONVERSATION'
         }
-        response = self.client.post(reverse('api:create-topic'), data)
+        response = self.client.post(reverse('api:topics-list'), data)
         self.assertTrue(response.status_code == status.HTTP_201_CREATED)
         created_topic = Topic.objects.last()
         self.assertTrue(created_topic)
@@ -98,8 +107,8 @@ class TestViews(APITestCase):
             'body': 'Edited body',
             'section': topic.section
         }
-        response = self.client.patch(reverse('api:update-topic', kwargs={'topic_id': topic.id}), data)
-        self.assertTrue(response.status_code == status.HTTP_200_OK)
+        response = self.client.patch(reverse('api:topics-detail', kwargs={'topic_id': topic.id}), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         topic = Topic.objects.get(id=topic.id)
         self.assertEqual(topic.description, data['description'])
         self.assertEqual(topic.body, data['body'])
@@ -108,7 +117,7 @@ class TestViews(APITestCase):
         """Testing TopicViewSet retrieve functionality"""
 
         topic = TopicFactory(author=self.user)
-        response = self.client.get(reverse('api:get-topic', kwargs={'topic_id': topic.id}))
+        response = self.client.get(reverse('api:topics-detail', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('title'), topic.title)
 
@@ -116,13 +125,13 @@ class TestViews(APITestCase):
         """Tests TopicViewSet destroy functionality"""
 
         topic = TopicFactory(author=self.user)
-        response = self.client.delete(reverse('api:delete-topic', kwargs={'topic_id': topic.id}))
+        response = self.client.delete(reverse('api:topics-detail', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         superuser = UserFactory(is_superuser=True, is_staff=True, username='superuser')
         token = Token.objects.get(user=superuser)
         self.client.credentials(
             HTTP_AUTHORIZATION=f'Token {token.key}')
-        response = self.client.delete(reverse('api:delete-topic', kwargs={'topic_id': topic.id}))
+        response = self.client.delete(reverse('api:topics-detail', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(Topic.objects.filter(id=topic.id).last())
 
@@ -130,8 +139,8 @@ class TestViews(APITestCase):
         """Tests TopicViewSet like functionality"""
 
         topic = TopicFactory(author=self.user)
-        response = self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        response = self.client.post(reverse('api:topics-like', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         obj_type = ContentType.objects.get_for_model(topic)
         likes = Like.objects.filter(
             content_type=obj_type, object_id=topic.id, user=self.user)
@@ -141,8 +150,8 @@ class TestViews(APITestCase):
         """Tests TopicViewSet unlike functionality"""
 
         topic = TopicFactory(author=self.user)
-        self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
-        response = self.client.post(reverse('api:unlike-topic', kwargs={'topic_id': topic.id}))
+        self.client.post(reverse('api:topics-like', kwargs={'topic_id': topic.id}))
+        response = self.client.post(reverse('api:topics-unlike', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         obj_type = ContentType.objects.get_for_model(topic)
         likes = Like.objects.filter(
@@ -153,10 +162,60 @@ class TestViews(APITestCase):
         """Tests TopicViewSet fans functionality"""
 
         topic = TopicFactory(author=self.user)
-        self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
-        response = self.client.get(reverse('api:topic-get-fans', kwargs={'topic_id': topic.id}))
+        self.client.post(reverse('api:topics-like', kwargs={'topic_id': topic.id}))
+        response = self.client.get(reverse('api:topics-fans', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.data[0]
         self.assertEqual(data.get('username'), self.user.username)
         self.assertEqual(data.get('game_nickname'), self.user.game_nickname)
 
+
+class TestPostsViewSet(APITestCase):
+    """Tests all PostsViewSet functionality"""
+
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.topic = TopicFactory(author=self.user)
+        self.post1 = PostFactory(author=self.user, topic=self.topic)
+        self.post2 = PostFactory(author=self.user, topic=self.topic, body='Test post 2')
+
+    def test_get_posts_by_topic(self):
+        """Get all posts of particular topic"""
+        data = {'topic': self.topic.id}
+        response = self.client.get(reverse('api:posts-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get('results')), 2)
+
+
+class TestCommentsViewSet(APITestCase):
+    """Tests all CommentsViewSet functionality"""
+
+    def setUp(self) -> None:
+
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.topic = TopicFactory(author=self.user)
+        self.post = PostFactory(author=self.user, topic=self.topic)
+        self.comment1 = CommentFactory(author=self.user, post=self.post)
+
+    def test_get_comments_by_post(self):
+        """Get all comments of particular post"""
+
+        CommentFactory(author=self.user, body='Test comment 2', post=self.post)
+        data = {
+            'post': self.post.id,
+        }
+        response = self.client.get(reverse('api:comments-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get('results')), 2)
+
+    def test_delete_comment(self):
+        """Test deletion comments flow"""
+        response = self.client.delete(reverse('api:comments-detail', kwargs={'pk': self.comment1.id}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Comment.objects.all().exists())

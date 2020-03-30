@@ -91,9 +91,10 @@
           }
           const params = {
             searchBy: 'title',
-            value: val
+            value: val,
+            section: this.section.toUpperCase()
           };
-          return axios.get(`topics/${vueInstance.section.toUpperCase()}/search/`, {params: params})
+          return axios.get(`topics/search/`, {params: params})
             .then(res => {
               return !res.data.topic_exists
             })
