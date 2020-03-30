@@ -133,7 +133,7 @@
           description: "",
           body: "",
           totalLikes: 0,
-          is_liked: false
+          isLiked: false
         },
         author: {
           avatar: '',

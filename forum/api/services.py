@@ -4,7 +4,7 @@ from .models import Like
 User = get_user_model()
 
 
-def add_like(obj, user):
+def add_like(obj, user: User) -> Like:
     """Add like to object"""
     obj_type = ContentType.objects.get_for_model(obj)
     like, is_created = Like.objects.get_or_create(

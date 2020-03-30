@@ -64,7 +64,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
             serializer = EditTopicSerializer(topic, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_200_OK, data={'topic_id': topic.id})
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     def destroy(self, request, *args, **kwargs):
@@ -169,7 +169,7 @@ class UserProfileView(APIView):
         """Here user can change his profile data"""
         user_id = kwargs.get('id')
         user = request.user
-        is_main_user = request.user.id == user_id
+        is_main_user = user.id == user_id or user.is_staff or user.is_superuser
         if is_main_user:  # checks if it`s owner of profile
             serializer = UserProfileSerializer(user, data=request.data)
             if serializer.is_valid():

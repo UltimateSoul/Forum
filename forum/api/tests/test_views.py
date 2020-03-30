@@ -1,8 +1,9 @@
+from django.contrib.contenttypes.models import ContentType
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from api.models import Topic
+from api.models import Topic, Like
 from api.tests.factories import TopicFactory
 from users.tests.factories import UserFactory, AnotherUserFactory
 from django.urls import reverse
@@ -124,3 +125,38 @@ class TestViews(APITestCase):
         response = self.client.delete(reverse('api:delete-topic', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertFalse(Topic.objects.filter(id=topic.id).last())
+
+    def test_like_topic_viewset(self):
+        """Tests TopicViewSet like functionality"""
+
+        topic = TopicFactory(author=self.user)
+        response = self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        obj_type = ContentType.objects.get_for_model(topic)
+        likes = Like.objects.filter(
+            content_type=obj_type, object_id=topic.id, user=self.user)
+        self.assertTrue(likes.exists())
+
+    def test_unlike_topic_viewset(self):
+        """Tests TopicViewSet unlike functionality"""
+
+        topic = TopicFactory(author=self.user)
+        self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
+        response = self.client.post(reverse('api:unlike-topic', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        obj_type = ContentType.objects.get_for_model(topic)
+        likes = Like.objects.filter(
+            content_type=obj_type, object_id=topic.id, user=self.user)
+        self.assertFalse(likes.exists())
+
+    def test_is_liked_topic_viewset(self):
+        """Tests TopicViewSet fans functionality"""
+
+        topic = TopicFactory(author=self.user)
+        self.client.post(reverse('api:like-topic', kwargs={'topic_id': topic.id}))
+        response = self.client.get(reverse('api:topic-get-fans', kwargs={'topic_id': topic.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.data[0]
+        self.assertEqual(data.get('username'), self.user.username)
+        self.assertEqual(data.get('game_nickname'), self.user.game_nickname)
+

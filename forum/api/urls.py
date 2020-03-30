@@ -13,22 +13,19 @@ viewset_urlpatterns = [
     path('topics/', TopicViewSet.as_view({'get': "list"}), name='topics'),
     path('topic/edit/<int:topic_id>/', TopicViewSet.as_view({'patch': "partial_update"}), name='update-topic'),
     path('topic/get/<int:topic_id>/', TopicViewSet.as_view({'get': "retrieve"}), name='get-topic'),
+    path('topic/like/<int:topic_id>/', TopicViewSet.as_view({'post': "like"}), name='like-topic'),
+    path('topic/unlike/<int:topic_id>/', TopicViewSet.as_view({'post': "unlike"}), name='unlike-topic'),
+    path('topic/fans/<int:topic_id>/', TopicViewSet.as_view({'get': "fans"}), name='topic-get-fans'),
     path('topic/delete/<int:topic_id>/', TopicViewSet.as_view({'delete': "destroy"}), name='delete-topic'),
     path('topics/<str:section>/', TopicViewSet.as_view({'get': "topics_by_section"}), name='topics-section'),
     path('topics/<str:section>/search/', TopicViewSet.as_view({'get': "search"}), name='topic-section-search'),
 ] + router.urls
 
 urlpatterns = [
-    # REST API
-    # path('topics/', TopicView.as_view(), name='topics'),
-    # path('topics/<int:topic_id>/', GetTopicView.as_view(), name='get-topic'),
     path('minichat-messages/', MiniChatMessagesView.as_view(), name='minichat-messages'),
-    # path('posts/', PostsView.as_view(), name='posts'),
-    # path('comments/', CommentsView.as_view(), name='comments'),
     path('user/<int:id>', UserProfileView.as_view(), name='profile'),
     path('get-user/', GetUserView.as_view(), name='get-user'),
     path('users/', UsersView.as_view(), name='users'),
 
     # Registration
-    path('register/', RegistrationView.as_view(), name='registration')
-              ] + viewset_urlpatterns
+    path('register/', RegistrationView.as_view(), name='registration')] + viewset_urlpatterns
