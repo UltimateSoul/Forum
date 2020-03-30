@@ -20,6 +20,12 @@
           </b-col>
         </b-row>
         Likes: {{topic.totalLikes}}
+        <b-button variant="primary"
+                  :pressed="topic.isLiked"
+                  @click="likeOrUnlikeTopicClick()"
+                  :id="'like-topic-button-' + topicID">
+          Like
+        </b-button>
       </b-card>
       <div class="button-control" v-if="isMainUser(author.pk)">
         <b-button @click="editTopic">Edit</b-button>
@@ -39,15 +45,16 @@
                 </b-card-text>
               </b-card-body>
             </b-col>
-            Likes: {{post.likes}}
+            Likes: {{post.total_likes}}
           </b-row>
           <div class="button-control">
-          <b-button variant="primary"
-                    @click="likePostClick(post.id)"
-                    :id="'button-' + post.id">
-            Like
-          </b-button>
-        </div>
+            <b-button variant="primary"
+                      :pressed="post.is_liked"
+                      @click="likeOrUnlikePostClick(post.id, post.is_liked)"
+                      :id="'like-post-button-' + post.id">
+              Like
+            </b-button>
+          </div>
         </b-card>
         <div class="button-control">
           <b-button variant="primary"
@@ -74,17 +81,13 @@
               Likes: {{comment.total_likes}}
               <div class="button-control">
 
-          <b-button variant="primary"
-                    v-if="comment.is_liked"
-                    @click="likeCommentClick(comment.id)"
-                    :id="'button-' + post.id">
-            Like
-          </b-button>
-          <b-button variant="primary"
-                    v-else disabled>
-            Like
-          </b-button>
-        </div>
+                <b-button :pressed="comment.is_liked"
+                          variant="primary"
+                          @click="likeOrUnlikeCommentClick(comment.id, comment.is_liked)"
+                          :id="'like-comment-button-' + comment.id">
+                  Like
+                </b-button>
+              </div>
             </b-card>
           </div>
           <div class="message-range">
@@ -200,17 +203,17 @@
           post: postID
         };
         axios.post('comments/', data)
-        .then((response) => {
-          debugger
-          switch (response.status) {
-            case 201:
-              this.commentText = '';
-              this.getTopicPosts(this.currentPage);
-              break;
-            case 400:
-              break
-          }
-        })
+          .then((response) => {
+            debugger
+            switch (response.status) {
+              case 201:
+                this.commentText = '';
+                this.getTopicPosts(this.currentPage);
+                break;
+              case 400:
+                break
+            }
+          })
       },
       savePost() {
         const data = {
@@ -218,52 +221,94 @@
           topic: this.topicID
         };
         axios.post('posts/', data)
-        .then((response) => {
-          switch (response.status) {
-            case 201:
-              this.postText = '';
-              this.getTopicPosts(this.currentPage);
-              break;
-            case 400:
-              break
-          }
-        })
+          .then((response) => {
+            switch (response.status) {
+              case 201:
+                this.postText = '';
+                this.getTopicPosts(this.currentPage);
+                break;
+              case 400:
+                break
+            }
+          })
       },
-      likePostClick(postID) {
-        const data = {
-          post: postID,
-          user: this.getUserData.userID
-        };
-        axios.post('likes/', data)
-        .then((response) => {
-          switch (response.status) {
-            case 201:
-              this.getTopicPosts(this.currentPage);
-              break;
-            case 220:
-              break;  // already liked this post by current user
-            case 400:
-              break  // errors during serializing
-          }
-        })
+      likeOrUnlikePostClick(postID, isLiked) {
+        if (isLiked) {
+          axios.post(`posts/${postID}/unlike/`)
+            .then((response) => {
+              switch (response.status) {
+                case 200:
+                  this.getTopicPosts(this.currentPage);
+                  break;
+                case 400:
+                  break  // errors during serializing
+              }
+            })
+        } else {
+          axios.post(`posts/${postID}/like/`)
+            .then((response) => {
+              switch (response.status) {
+                case 201:
+                  this.getTopicPosts(this.currentPage);
+                  break;
+                case 220:
+                  break;  // already liked this post by current user
+                case 400:
+                  break  // errors during serializing
+              }
+            })
+        }
       },
-      likeCommentClick(commentID) {
-        const data = {
-          comment: commentID,
-          user: this.getUserData.userID
-        };
-        axios.post('likes/', data)
-        .then((response) => {
-          switch (response.status) {
-            case 201:
-              this.getTopicPosts(this.currentPage);
-              break;
-            case 220:
-              break;  // already liked this post by current user
-            case 400:
-              break  // errors during serializing
-          }
-        })
+      likeOrUnlikeCommentClick(commentID, isLiked) {
+        if (isLiked) {
+          axios.post(`comments/${commentID}/unlike/`)
+            .then((response) => {
+              switch (response.status) {
+                case 200:
+                  this.getTopicPosts(this.currentPage);
+                  break;
+                case 400:
+                  break  // errors during serializing
+              }
+            })
+        }
+        axios.post(`comments/${commentID}/like/`)
+          .then((response) => {
+            switch (response.status) {
+              case 201:
+                this.getTopicPosts(this.currentPage);
+                break;
+              case 220:
+                break;  // already liked this post by current user
+              case 400:
+                break  // errors during serializing
+            }
+          })
+      },
+      likeOrUnlikeTopicClick() {
+        if (this.topic.isLiked) {
+          axios.post(`topic/unlike/${this.topicID}/`).then((response) => {
+            switch (response.status) {
+              case 200:
+                this.getTopicData();
+                break;
+              case 400:
+                break  // errors during serializing
+            }
+          })
+        } else {
+          axios.post(`topic/like/${this.topicID}/`).then((response) => {
+            switch (response.status) {
+              case 201:
+                this.getTopicData();
+                break;
+              case 220:
+                break;  // already liked this post by current user
+              case 400:
+                break  // errors during serializing
+            }
+          })
+        }
       }
     },
     computed: {

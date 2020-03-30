@@ -4,12 +4,12 @@ from .models import Like
 User = get_user_model()
 
 
-def add_like(obj, user: User) -> Like:
+def add_like(obj, user: User) -> tuple:
     """Add like to object"""
     obj_type = ContentType.objects.get_for_model(obj)
     like, is_created = Like.objects.get_or_create(
         content_type=obj_type, object_id=obj.id, user=user)
-    return like
+    return like, is_created
 
 
 def remove_like(obj, user):
