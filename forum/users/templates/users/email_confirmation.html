@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <div>
+        <h1>Thank's for joining our forum! You need to do last step - Confirm your Email by clicking link below</h1>
+    </div>
+    <div>
+        <h3>
+            <a href="http://{{ domain }}{% url 'users:confirm-email' uidb64=uid token=token %}">Confirm your email</a>
+        </h3>
+    </div>
+</div>
+</body>
+</html>

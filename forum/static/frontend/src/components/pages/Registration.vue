@@ -154,7 +154,7 @@
           password: this.password,
           email: this.email,
           game_nickname: this.gameNickName,
-          gender: this.gender,
+          gender: this.gender ? this.gender : 'OTHER',
           avatar: this.avatar,
         };
         this.$store.dispatch('register', data).then(

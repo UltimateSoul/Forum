@@ -1,5 +1,6 @@
 .idea
 venv
+forum_env
 local_settings.py
 __pychache__/
 */__pychache__/

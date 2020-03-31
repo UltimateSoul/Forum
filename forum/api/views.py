@@ -1,22 +1,18 @@
-from django.http import JsonResponse
 from django.views.generic import TemplateView
-from requests import request
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet
 
-from api.helpers import status as tbw_status
-from api.models import MiniChatMessage, Post, Comment, Like
+from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializer, RegisterUserSerializer, RestrictedUserSerializer, UserProfileSerializer
+from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
@@ -212,21 +208,3 @@ class UsersView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
-
-
-class RegistrationView(APIView):
-    permission_classes = [AllowAny]
-
-    @staticmethod
-    def post(request, *args, **kwargs):
-        data = request.data
-        user_serializer = RegisterUserSerializer(data=data)
-        if user_serializer.is_valid():
-            user = User.objects.create_user(
-                **user_serializer.data
-            )
-            # settings.BASE_DIR  ToDo: add default image (situated in static folder)
-            token = Token.objects.get(user=user)
-            return JsonResponse(data={'auth_token': token.key})
-        return JsonResponse(status=status.HTTP_400_BAD_REQUEST,
-                            data={'error': user_serializer.errors})
