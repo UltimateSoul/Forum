@@ -12,6 +12,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from api.tasks import send_confirmation_email
 from users.serializers import RegisterUserSerializer
 from users.tokens import account_activation_token
 
@@ -26,26 +27,18 @@ class RegistrationView(APIView):
         data = request.data
         user_serializer = RegisterUserSerializer(data=data)
         if user_serializer.is_valid():
-            current_site = get_current_site(request)
-            email_subject = 'Activate your forum account.'
+
             user = User.objects.create_user(
                 **user_serializer.data,
                 is_active=False
             )
-            message = render_to_string('users/email_confirmation.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-                'token': account_activation_token.make_token(user),
-            })
-            email = EmailMessage(
-                email_subject, message, from_email='owlsoulbear@gmail.com', to=[user.email]
-            )
             token = Token.objects.get(user=user)
-            try:
-                email.send()
-            except Exception:
-                pass
+            email_token = account_activation_token.make_token(user)
+            current_site = get_current_site(request)
+            send_confirmation_email.delay(user_pk=user.id,
+                                          current_site=current_site,
+                                          token=email_token,
+                                          user_email=user.email)
             # settings.BASE_DIR  ToDo: add default image (situated in static folder)
             return Response(data={'auth_token': token.key})
         return Response(user_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
