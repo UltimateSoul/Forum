@@ -174,7 +174,7 @@ class UserProfileView(APIView):
         if is_main_user:  # checks if it`s owner of profile
             serializer = UserProfileSerializer(user, data=request.data)
             if serializer.is_valid():
-                user.prepare_to_save()
+                user.prepare_to_save(data=request.data)
                 serializer.save()
                 return Response(status=status.HTTP_200_OK)
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})

@@ -90,9 +90,10 @@ class User(AbstractUser):
     def get_age(self):
         return timezone.now() - self.birth_date
 
-    def prepare_to_save(self):
-        if self.avatar:
-            self.avatar.delete()
+    def prepare_to_save(self, data):
+        if self.avatar and data.get('avatar'):
+            if '/'.join(self.avatar.name.split('/')[-1:]) != data.get('avatar').name:
+                self.avatar.delete()
         return
 
 
