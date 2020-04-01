@@ -7,7 +7,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from TBW2_Forum import celery_app
-from users import constants
+from users.helpers import constants
 
 User = get_user_model()
 

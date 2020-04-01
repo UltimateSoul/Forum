@@ -6,15 +6,8 @@ from django.db import models
 from django.utils import timezone
 
 from api.models import Topic, Comment, Post, MiniChatMessage
-from users import constants
-
-
-def user_directory_path(self, filename):
-    return f'avatars/user_{self.id}/{filename}'
-
-
-def team_directory_path(self, filename):
-    return f'avatars/team_{self.id}/{filename}'
+from users.helpers import constants
+from users.helpers.helpers import user_directory_path, team_directory_path
 
 
 class User(AbstractUser):
@@ -99,12 +92,36 @@ class User(AbstractUser):
 
 class Team(models.Model):
     name = models.CharField(max_length=255)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='team',
-                              null=True, blank=True, on_delete=models.SET_NULL)
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='my_team',
+                                 null=True, blank=True, on_delete=models.SET_NULL)
     description = models.TextField()
     avatar = models.ImageField(blank=True, null=True, upload_to=team_directory_path)
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='team_member')
+    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', related_name='members_team')
+    ranks = models.ManyToManyField('Rank', related_name='team')
+
+    created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
 
     def __str__(self):
         return self.name
 
+
+class TeamMembership(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+    rank = models.ForeignKey('Rank', blank=True, null=True, on_delete=models.SET_NULL)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    def __repr__(self):
+        return f'TeamMembership(user={self.user.username}, team={self.team.name})'
+
+    class Meta:
+        verbose_name = 'TeamMembership'
+        verbose_name_plural = 'TeamMemberships'
+        ordering = ('joined_at', )
+
+
+class Rank(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __repr__(self):
+        return f'Rank(name={self.name})'

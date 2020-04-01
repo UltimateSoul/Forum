@@ -24,6 +24,9 @@ User = get_user_model()
 
 class HomeView(TemplateView):
     template_name = 'api/home.html'
+    
+    def get(self, request, *args, **kwargs):
+        return super(HomeView, self).get(request, *args, **kwargs)
 
 
 class TopicViewSet(ModelViewSet, LikedMixin):
