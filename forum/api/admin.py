@@ -18,7 +18,7 @@ class TopicAdmin(admin.ModelAdmin):
 
 @admin.register(MiniChatMessage)
 class MiniChatMessageAdmin(admin.ModelAdmin):
-    list_display = ('author', 'body', 'created_date')
+    list_display = ('author', 'body', 'created_at')
 
     @staticmethod
     def body(obj):
@@ -40,7 +40,7 @@ class CommentAdmin(admin.ModelAdmin):
 
 @admin.register(Post)
 class PostAdmin(admin.ModelAdmin):
-    list_display = ('topic', 'body', 'author', 'published_date')
+    list_display = ('topic', 'body', 'author', 'created_at')
 
     @staticmethod
     def body(obj):

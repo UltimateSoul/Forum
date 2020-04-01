@@ -49,7 +49,7 @@ class User(AbstractUser):
         week_ago = now - datetime.timedelta(days=constants.COINS_PERIOD)
         activity = []
         for instance in Topic, Comment, Post, MiniChatMessage:
-            activity.append(instance.objects.filter(author=user, edited_date__range=[week_ago, now]).exists())
+            activity.append(instance.objects.filter(author=user, edited_at__range=[week_ago, now]).exists())
         return any(activity)
 
     def calculate_blood_coins(self):
@@ -58,22 +58,22 @@ class User(AbstractUser):
         now = datetime.datetime.now()
         week_ago = now - datetime.timedelta(days=constants.COINS_PERIOD)
 
-        topics = Topic.objects.filter(author=self, published_date__range=[week_ago, now])
+        topics = Topic.objects.filter(author=self, created_at__range=[week_ago, now])
         topics_total_likes = 0
         for topic in topics:
             topics_total_likes += topic.total_likes()
 
-        comments = Comment.objects.filter(author=self, published_date__range=[week_ago, now])
+        comments = Comment.objects.filter(author=self, created_at__range=[week_ago, now])
         comments_total_likes = 0
         for comment in comments:
             comments_total_likes += comment.total_likes()
 
-        posts = Post.objects.filter(author=self, published_date__range=[week_ago, now])
+        posts = Post.objects.filter(author=self, created_at__range=[week_ago, now])
         posts_total_likes = 0
         for post in posts:
             posts_total_likes += post.total_likes()
 
-        minichat_messages = MiniChatMessage.objects.filter(author=self, published_date__range=[week_ago, now]).count()
+        minichat_messages = MiniChatMessage.objects.filter(author=self, created_at__range=[week_ago, now]).count()
 
         topics_score = topics.count() * constants.topic_multiplier + topics_total_likes * constants.topic_likes_multiplier
         comments_score = comments.count() * constants.comment_multiplier + comments_total_likes * constants.comment_likes_multiplier

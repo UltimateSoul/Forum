@@ -36,8 +36,8 @@ class Topic(models.Model):
     )
     title = models.CharField(max_length=255)
     body = models.TextField()
-    created_date = models.DateTimeField(auto_now_add=True)
-    edited_date = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(auto_now=True)
     icon = models.ImageField(upload_to='static/images/icons', blank=True,
                              null=True)
     description = models.CharField(max_length=255)
@@ -62,14 +62,14 @@ class Topic(models.Model):
     class Meta:
         verbose_name = 'Topic'
         verbose_name_plural = 'Topics'
-        ordering = ['-created_date']
+        ordering = ['-created_at']
 
 
 class MiniChatMessage(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField(max_length=500)
-    created_date = models.DateTimeField(auto_now_add=True)
-    edited_date = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         if self.__class__.objects.count() > 1000:
@@ -79,7 +79,7 @@ class MiniChatMessage(models.Model):
     class Meta:
         verbose_name = 'Mini-Chat Message'
         verbose_name_plural = 'Mini-Chat Messages'
-        ordering = ['-created_date']
+        ordering = ['-created_at']
 
 
 class Post(models.Model):
@@ -87,8 +87,8 @@ class Post(models.Model):
                               related_name='posts')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField()
-    published_date = models.DateTimeField(auto_now_add=True)
-    edited_date = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(auto_now=True)
 
     likes = GenericRelation(Like)
 
@@ -101,7 +101,7 @@ class Post(models.Model):
     class Meta:
         verbose_name = 'Post'
         verbose_name_plural = 'Posts'
-        ordering = ['published_date']
+        ordering = ['created_at']
 
 
 class Comment(models.Model):
@@ -109,8 +109,8 @@ class Comment(models.Model):
                              related_name='comments')
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField()
-    published_date = models.DateTimeField(auto_now_add=True)
-    edited_date = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    edited_at = models.DateTimeField(auto_now=True)
     likes = GenericRelation(Like)
 
     def total_likes(self):
@@ -122,4 +122,4 @@ class Comment(models.Model):
     class Meta:
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
-        ordering = ['published_date']
+        ordering = ['created_at']

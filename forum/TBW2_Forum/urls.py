@@ -20,9 +20,21 @@ from django.urls import path, include
 from TBW2_Forum import settings
 from api.views import HomeView
 
+front_end_url_integration = [
+    path('conversation/<str:section>/topic/<int:id>', HomeView.as_view()),
+    path('login', HomeView.as_view()),
+    path('user-profile/<int:user_id>', HomeView.as_view()),
+    path('get-started', HomeView.as_view()),
+    path('sections', HomeView.as_view()),
+    path('conversation/<str:section>', HomeView.as_view()),
+    path('topic-editing/<str:section>/<int:id>', HomeView.as_view()),
+    path('shop', HomeView.as_view()),
+    path('registration', HomeView.as_view()),
+]
+
 urlpatterns = [
     path('', HomeView.as_view()),
     path('admin/', admin.site.urls),
     path('api/', include(("api.urls", "api"), namespace="api")),
     path('authentication/', include(("users.urls", "users"), namespace="users")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + front_end_url_integration
