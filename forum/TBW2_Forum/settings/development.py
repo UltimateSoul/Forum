@@ -11,6 +11,10 @@ DATABASES = {
     }
 }
 
+STATICFILES_DIRS = (
+  os.path.join(PROJECT_DIR, 'static/'),
+)
+
 
 CELERY_BROKER_URL = 'redis://localhost:6380'  # change to 'redis://redis:6380' when dockerizing
 CELERY_RESULT_BACKEND = 'redis://localhost:6380'  # change to 'redis://redis:6380' when dockerizing
