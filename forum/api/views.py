@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -22,7 +23,7 @@ User = get_user_model()
 
 
 class HomeView(TemplateView):
-    template_name = 'home.html'
+    template_name = 'api/home.html'
 
 
 class TopicViewSet(ModelViewSet, LikedMixin):

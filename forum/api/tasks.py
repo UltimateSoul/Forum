@@ -1,19 +1,18 @@
 from datetime import timedelta
 from django.contrib.auth import get_user_model
 from celery.task import periodic_task
-from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from TBW2_Forum import celery_app
-from api.models import Topic
+from users import constants
 
 User = get_user_model()
 
 
-@periodic_task(run_every=timedelta(days=7))
+@periodic_task(run_every=timedelta(days=constants.COINS_PERIOD))
 def calculate_bloodcoins():
     """Calculates bloodcoins for all ACTIVE users"""
 

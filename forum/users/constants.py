@@ -9,3 +9,4 @@ comment_likes_multiplier = 0.05
 
 minichat_message_multiplier = 0.09
 
+COINS_PERIOD = 7

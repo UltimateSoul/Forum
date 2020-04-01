@@ -110,7 +110,7 @@ class Comment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True)
     body = models.TextField()
     published_date = models.DateTimeField(auto_now_add=True)
-
+    edited_date = models.DateTimeField(auto_now=True)
     likes = GenericRelation(Like)
 
     def total_likes(self):
