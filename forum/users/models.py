@@ -85,9 +85,7 @@ class User(AbstractUser):
 
     def prepare_to_save(self, data):
         if self.avatar and data.get('avatar'):
-            if '/'.join(self.avatar.name.split('/')[-1:]) != data.get('avatar').name:
-                self.avatar.delete()
-        return
+            self.avatar.delete()
 
 
 class Team(models.Model):

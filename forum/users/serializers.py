@@ -59,5 +59,5 @@ class UserProfileSerializer(serializers.ModelSerializer):
     def validate_avatar(self, image):
         mb3 = 3145728
         if image.size > mb3:
-            assert serializers.ValidationError(f"Your image size must be less than 3 mb")
+            assert serializers.ValidationError("Your image size must be less than 3 mb")
         return image

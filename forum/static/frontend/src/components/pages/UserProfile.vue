@@ -28,6 +28,9 @@
         <b-card-text>
           Email: {{user.email}}
         </b-card-text>
+        <b-card-text>
+          Description: {{user.description}}
+        </b-card-text>
       </b-card>
       <b-form v-else>
         <h5>Choose your avatar:</h5>
@@ -169,6 +172,7 @@
         }
         formData.append('email', this.editingUserData.email);
         formData.append('gender', this.editingUserData.gender);
+        formData.append('description', this.editingUserData.description);
         axios.patch(`user/${this.$route.params.id}`, formData)
         .then( (response) => {
           if (response.status === 200){

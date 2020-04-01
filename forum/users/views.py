@@ -1,10 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.core.mail import send_mail, EmailMessage
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import HttpResponse
-from django.template.loader import render_to_string
-from django.utils.encoding import force_text, force_bytes
-from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.utils.encoding import force_text
+from django.utils.http import urlsafe_base64_decode
 from django.views import View
 from rest_framework import status
 from rest_framework.authtoken.models import Token
@@ -12,7 +10,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from api.tasks import send_confirmation_email
+from core.tasks import send_confirmation_email
 from users.serializers import RegisterUserSerializer
 from users.tokens import account_activation_token
 
