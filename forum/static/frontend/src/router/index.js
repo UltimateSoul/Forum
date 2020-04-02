@@ -2,8 +2,8 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/pages/Home'
 const Login = resolve => {
-  require.ensure(['@/components/pages/Login'], () => {
-    resolve(require('@/components/pages/Login'))
+  require.ensure(['@/components/pages/authentication/Login'], () => {
+    resolve(require('@/components/pages/authentication/Login'))
   })
 };
 const Conversation = resolve => {
@@ -12,13 +12,13 @@ const Conversation = resolve => {
   })
 };
 const TopicCreation = resolve => {
-  require.ensure(['@/components/pages/TopicCreation'], () => {
-    resolve(require('@/components/pages/TopicCreation'))
+  require.ensure(['@/components/pages/topic/TopicCreation'], () => {
+    resolve(require('@/components/pages/topic/TopicCreation'))
   })
 };
 const TopicEditing = resolve => {
-  require.ensure(['@/components/pages/TopicEditing'], () => {
-    resolve(require('@/components/pages/TopicEditing'))
+  require.ensure(['@/components/pages/topic/TopicEditing'], () => {
+    resolve(require('@/components/pages/topic/TopicEditing'))
   })
 };
 const Shop = resolve => {
@@ -42,13 +42,23 @@ const Sections = resolve => {
   })
 };
 const Registration = resolve => {
-  require.ensure(['@/components/pages/Registration'], () => {
-    resolve(require('@/components/pages/Registration'))
+  require.ensure(['@/components/pages/authentication/Registration'], () => {
+    resolve(require('@/components/pages/authentication/Registration'))
   })
 };
 const Topic = resolve => {
-  require.ensure(['@/components/pages/Topic'], () => {
-    resolve(require('@/components/pages/Topic'))
+  require.ensure(['@/components/pages/topic/Topic'], () => {
+    resolve(require('@/components/pages/topic/Topic'))
+  })
+};
+const Teams = resolve => {
+  require.ensure(['@/components/pages/team/Teams'], () => {
+    resolve(require('@/components/pages/team/Teams'))
+  })
+};
+const Team = resolve => {
+  require.ensure(['@/components/pages/team/Team'], () => {
+    resolve(require('@/components/pages/team/Team'))
   })
 };
 
@@ -100,6 +110,16 @@ export default new Router({
       path: '/shop',
       name: 'shop',
       component: Shop
+    },
+    {
+      path: '/teams',
+      name: 'teams',
+      component: Teams
+    },
+    {
+      path: '/teams/:teamID',
+      name: 'team',
+      component: Team
     },
     {
       path: '/get-started',

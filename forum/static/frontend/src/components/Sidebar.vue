@@ -19,6 +19,9 @@
       <router-link to="/get-started">
         <span> Get Started </span>
       </router-link>
+      <router-link to="/teams">
+        <span> Teams </span>
+      </router-link>
       <a @click="profileClick" v-if="isLogged">
         <span> Profile </span>
       </a>

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User
+from .models import User, Team, Rank, TeamMember
 
 
 @admin.register(User)
@@ -12,4 +12,30 @@ class UserAdmin(admin.ModelAdmin):
                     'date_joined')
 
 
+class TeamMembersInline(admin.TabularInline):
+    model = TeamMember
+
+
+@admin.register(Team)
+class TeamAdmin(admin.ModelAdmin):
+
+    list_display = ('name', 'owner', 'members_count')
+    inlines = [
+        TeamMembersInline
+    ]
+
+    @staticmethod
+    def members_count(obj):
+        return obj.members.count()
+
+
+@admin.register(Rank)
+class RankAdmin(admin.ModelAdmin):
+    list_display = ('name', 'team_name')
+
+    @staticmethod
+    def team_name(obj):
+        if obj.team:
+            return obj.team.name
+        return 'doesnt exist'
 

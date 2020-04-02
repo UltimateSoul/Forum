@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from api import services
 from api.serializers import FanSerializer
-from api.helpers import status as tbw_status
+from api.helpers import status as forum_status
 
 class LikedMixin:
 
@@ -18,7 +18,7 @@ class LikedMixin:
         _, is_created = services.add_like(obj, request.user)
         if is_created:
             return Response(status=status.HTTP_201_CREATED)
-        return Response(status=tbw_status.STATUS_220_ALREADY_LIKED)
+        return Response(status=forum_status.STATUS_220_ALREADY_LIKED)
 
     @action(methods=['POST'], detail=True)
     def unlike(self, request, **kwargs):

@@ -37,7 +37,6 @@ class CreateTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
 
-
     class Meta:
         model = Topic
         fields = ['title', 'author', 'body', 'icon', 'description', 'section', 'id']
@@ -94,8 +93,8 @@ class PostSerializer(serializers.ModelSerializer):
                   'author',
                   'total_likes',
                   'body',
-                  'published_date',
-                  'edited_date',
+                  'created_at',
+                  'edited_at',
                   'comments',
                   'id']
 
@@ -122,7 +121,8 @@ class CommentSerializer(serializers.ModelSerializer):
             'body',
             'total_likes',
             'is_liked',
-            'published_date'
+            'created_at',
+            'edited_at'
         ]
 
 

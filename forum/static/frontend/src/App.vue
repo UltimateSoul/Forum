@@ -3,9 +3,11 @@
     <sidebar></sidebar>
     <main id="page-wrap">
       <div class="container-fluid">
-        <transition name="slide" mode="out-in">
-          <router-view/>
-        </transition>
+          <div class="page-container">
+            <transition name="slide" mode="out-in">
+            <router-view/>
+            </transition>
+          </div>
       </div>
     </main>
   </div>
@@ -43,6 +45,13 @@
     text-align: center;
     color: #2c3e50;
     margin-top: 60px;
+  }
+
+  .page-container {
+    margin-left: auto;
+    margin-right: auto;
+    padding: 30px;
+    width: 80vw;
   }
 
   .button-control {

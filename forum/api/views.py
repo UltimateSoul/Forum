@@ -1,4 +1,4 @@
-from django.http import JsonResponse
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -13,11 +13,15 @@ from api.models import MiniChatMessage, Post, Comment
 from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSerializer, \
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer
+
+from users.helpers.helpers import search_team_for_user
+from users.models import Team
+from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
 from .serializers import TopicSerializer
+from .helpers import status as forum_status
 
 User = get_user_model()
 
@@ -212,3 +216,25 @@ class UsersView(APIView):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
+
+
+class TeamViewSet(ModelViewSet):
+    serializer_class = TeamSerializer
+    queryset = Team.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
+
+    def perform_destroy(self, instance):
+        if self.request.user.id == instance.owner.id:
+            instance.delete()
+
+    @action(methods=['GET'], detail=False, url_name='is_has_team', url_path='is_has_team')
+    def is_user_has_team(self, *args, **kwargs):
+        """Checks if user has team or not"""
+        user = self.request.user
+        team = Team.objects.filter(owner=user).first()
+        if not team:
+            team = Team.objects.filter(teammembership__user=user).first()
+        team_id = 0 if not team else team.id
+        return Response(data={'team_id': team_id})

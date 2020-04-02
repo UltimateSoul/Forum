@@ -94,18 +94,20 @@ class Team(models.Model):
                                  null=True, blank=True, on_delete=models.SET_NULL)
     description = models.TextField()
     avatar = models.ImageField(blank=True, null=True, upload_to=team_directory_path)
-    members = models.ManyToManyField(settings.AUTH_USER_MODEL, through='TeamMembership', related_name='members_team')
-    ranks = models.ManyToManyField('Rank', related_name='team')
 
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
+
+    @property
+    def total_members(self):
+        return self.members.count()
 
     def __str__(self):
         return self.name
 
 
-class TeamMembership(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+class TeamMember(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='members')
     rank = models.ForeignKey('Rank', blank=True, null=True, on_delete=models.SET_NULL)
     joined_at = models.DateTimeField(auto_now_add=True)
 
@@ -113,12 +115,13 @@ class TeamMembership(models.Model):
         return f'TeamMembership(user={self.user.username}, team={self.team.name})'
 
     class Meta:
-        verbose_name = 'TeamMembership'
-        verbose_name_plural = 'TeamMemberships'
+        verbose_name = 'TeamMember'
+        verbose_name_plural = 'TeamMembers'
         ordering = ('joined_at', )
 
 
 class Rank(models.Model):
+    team = models.ForeignKey(Team, null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
     def __repr__(self):
