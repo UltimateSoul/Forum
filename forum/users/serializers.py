@@ -78,6 +78,12 @@ class RankRestrictedSerializer(serializers.ModelSerializer):
         fields = ['name']
 
 
+class RankSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rank
+        fields = '__all__'
+
+
 class TeamMemberRestrictedSerializer(serializers.ModelSerializer):
     user = RestrictedUserSerializer(read_only=True)
     rank = RankRestrictedSerializer(read_only=True)

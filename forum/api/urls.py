@@ -2,13 +2,14 @@ from django.urls import path
 from rest_framework.routers import DefaultRouter
 
 from api.views import MiniChatMessagesView, PostsViewSet, CommentsViewSet, \
-    UserProfileView, UsersView, GetUserView, TopicViewSet, TeamViewSet
+    UserProfileView, UsersView, GetUserView, TopicViewSet, TeamViewSet, RanksViewSet
 
 router = DefaultRouter()
 router.register(r'posts', PostsViewSet, basename='posts')
 router.register(r'comments', CommentsViewSet, basename='comments')
 router.register(r'topics', TopicViewSet, basename='topics')
 router.register(r'teams', TeamViewSet, basename='teams')
+router.register(r'ranks', RanksViewSet, basename='ranks')
 
 urlpatterns = [
     path('minichat-messages/', MiniChatMessagesView.as_view(), name='minichat-messages'),

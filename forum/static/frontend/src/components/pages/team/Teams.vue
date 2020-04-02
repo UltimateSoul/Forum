@@ -3,7 +3,7 @@
     <div>
       <div class="button-control">
         <b-button v-if="!hasTeam" variant="outline-primary">Create Team</b-button>
-        <b-button v-else variant="outline-primary">Visit my team</b-button>
+        <b-button v-else variant="outline-primary" @click="goToMyTeam">Visit my team</b-button>
       </div>
       <b-table @row-clicked="clickTeam" striped hover :items="teams" :fields="fields">
         <template v-slot:cell(avatar)="data">
@@ -69,6 +69,14 @@
             }
           }
         )
+      },
+      goToMyTeam() {
+        this.$router.push({
+          name: 'team',
+          params: {
+            teamID: this.myTeamID
+          }
+        })
       },
       clickTeam(rowData) {
         this.$router.push({

@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -15,8 +16,10 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
 from django.contrib.auth import get_user_model
 
 from users.helpers.helpers import search_team_for_user
-from users.models import Team
-from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer
+from users.models import Team, Rank
+from users.permissions import IsTeamOwnerRankPermission
+from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
+    RankSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
@@ -235,6 +238,19 @@ class TeamViewSet(ModelViewSet):
         user = self.request.user
         team = Team.objects.filter(owner=user).first()
         if not team:
-            team = Team.objects.filter(teammembership__user=user).first()
+            team = Team.objects.filter(members__user=user).first()
         team_id = 0 if not team else team.id
         return Response(data={'team_id': team_id})
+
+
+class RanksViewSet(ModelViewSet):
+    queryset = Rank.objects.all()
+    serializer_class = RankSerializer
+    permission_classes = [IsAuthenticated, IsTeamOwnerRankPermission]
+
+    @action(methods=['GET'], detail=False, url_name='get_team_ranks')
+    def get_team_ranks(self, request, *args, **kwargs):
+        team_id = request.GET.get('teamID')
+        ranks = Rank.objects.filter(team__id=team_id)
+        serializer = self.serializer_class(ranks, many=True)
+        return Response(serializer.data)
