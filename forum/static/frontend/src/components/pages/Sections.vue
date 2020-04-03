@@ -79,9 +79,6 @@
 </script>
 
 <style scoped>
-  .clicable {
-    cursor: pointer;
-  }
   .sections-container {
     margin: auto;
     width: 85%;

@@ -45,6 +45,11 @@
         show: false
       }
     },
+    created() {
+      if (!this.isLogged) {
+        this.$router.push({name: 'login'});
+      }
+    },
     computed: {
       ...mapGetters({
         isLogged: 'isLogged',

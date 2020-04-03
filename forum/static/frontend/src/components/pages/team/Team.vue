@@ -1,9 +1,42 @@
 <template>
   <div>
     <div>
+      <img :src="team.avatar" height="250" width="250">
+      <hr>
       <h1>
-        My Team
+        {{ team.name }}
       </h1>
+      <hr>
+      <h5>
+        {{ team.description }}
+      </h5>
+      <hr>
+      <div @click="showTeamMembers = !showTeamMembers" class="clicable">
+        <h3>Team Members:</h3>
+      </div>
+      <div v-show="showTeamMembers">
+        <b-table striped hover :items="members" :fields="memberFields">
+          <template v-slot:cell(avatar)="data">
+              <img v-if="data.item.user.avatar" :src="data.item.user.avatar" height="100" width="100">
+              <img  v-else src="http://0.0.0.0:5000/static/images/default.jpg" height="100" width="100">
+<!--            ToDo: change in prod-->
+          </template>
+          <template v-slot:cell(username)="data">
+            {{ data.item.user.username }}
+          </template>
+          <template v-slot:cell(game_nickname)="data">
+            {{ data.item.user.game_nickname }}
+          </template>
+          <template v-slot:cell(rank)="data">
+            {{ data.item.rank.name }}
+          </template>
+        </b-table>
+      </div>
+
+
+    </div>
+    <div class="button-control" v-if="isOwner">
+      <b-button variant="outline-primary">Edit</b-button>
     </div>
   </div>
 </template>
@@ -27,7 +60,9 @@
         ranks: [],
         maxRanksNumber: 15,
         members: [],
-        owner: {}
+        memberFields: ['avatar', 'username', 'game_nickname', 'rank'],
+        owner: {},
+        showTeamMembers: false,
       }
     },
     created() {
@@ -75,7 +110,7 @@
           (response) => {
             switch (response.status) {
               case 200:
-                this.ranks = response.data.ranks;
+                this.ranks = response.data;
                 break;
               case 400:
                 break;
@@ -87,7 +122,10 @@
     computed: {
       ...mapGetters([
         'getUserData'
-      ])
+      ]),
+      isOwner() {
+        return this.owner.pk === this.getUserData.userID
+      }
     }
   }
 </script>

@@ -85,7 +85,7 @@ class RankSerializer(serializers.ModelSerializer):
 
 
 class TeamMemberRestrictedSerializer(serializers.ModelSerializer):
-    user = RestrictedUserSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
     rank = RankRestrictedSerializer(read_only=True)
 
     class Meta:
@@ -96,7 +96,7 @@ class TeamMemberRestrictedSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     total_members = serializers.ReadOnlyField()
-    owner = RestrictedUserSerializer()
+    owner = UserSerializer()
     members = TeamMemberRestrictedSerializer(read_only=True, many=True)
 
     class Meta:

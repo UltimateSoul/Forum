@@ -8,7 +8,6 @@
       <b-table @row-clicked="clickTeam" striped hover :items="teams" :fields="fields">
         <template v-slot:cell(avatar)="data">
         <img :src="data.item.avatar" height="100" width="100">
-          {{ data.avatar }}
         </template>
         <template v-slot:cell(owner)="data">
           {{ data.item.owner.username }}

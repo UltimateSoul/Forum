@@ -9,17 +9,16 @@
       <a @click="loginClick">
         <span> {{ logText }} </span>
       </a>
-      <router-link to="/sections">
-        <span> Sections </span>
-      </router-link>
-
       <router-link to="/shop">
         <span> Shop </span>
       </router-link>
       <router-link to="/get-started">
         <span> Get Started </span>
       </router-link>
-      <router-link to="/teams">
+      <router-link to="/sections" v-if="isLogged">
+        <span> Sections </span>
+      </router-link>
+      <router-link to="/teams" v-if="isLogged">
         <span> Teams </span>
       </router-link>
       <a @click="profileClick" v-if="isLogged">
