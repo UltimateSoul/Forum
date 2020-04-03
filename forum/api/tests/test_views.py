@@ -5,7 +5,7 @@ from rest_framework.authtoken.models import Token
 
 from api.models import Topic, Like, Comment
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
-from users.tests.factories import UserFactory, AnotherUserFactory
+from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory
 from django.urls import reverse
 
 
@@ -194,7 +194,6 @@ class TestCommentsViewSet(APITestCase):
     """Tests all CommentsViewSet functionality"""
 
     def setUp(self) -> None:
-
         self.user = UserFactory()
         token = Token.objects.get(user=self.user)
         self.client.credentials(
@@ -219,3 +218,77 @@ class TestCommentsViewSet(APITestCase):
         response = self.client.delete(reverse('api:comments-detail', kwargs={'pk': self.comment1.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Comment.objects.all().exists())
+
+
+class TestRanksViewSet(APITestCase):
+
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.team = TeamFactory(owner=self.user)
+
+    def test_get_team_ranks(self):
+        """Tests get_team_ranks logic"""
+        RankFactory(name='rank1', team=self.team)
+        RankFactory(name='rank2', team=self.team)
+        RankFactory(name='rank3', team=self.team)
+        RankFactory(name='rank4', team=self.team)
+        params = {'teamID': self.team.id}
+        response = self.client.get(reverse('api:ranks-get_team_ranks'), params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 4)
+
+    def test_is_team_owner_rank_permission(self):
+        """Tests IsTeamOwnerRankPermission, only team owners can edit and create ranks"""
+
+        weak = RankFactory(name='weak soul', team=self.team)
+        middle = RankFactory(name='middle soul', team=self.team)
+        non_owner = AnotherUserFactory()
+        params = {'pk': weak.id}
+        edited_weak_name_name = 'small weak soul'
+        edited_middle_name_name = 'edited middle soul'
+        data = {'name': edited_weak_name_name}
+        response = self.client.patch(reverse('api:ranks-detail', kwargs=params), data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('name'), edited_weak_name_name)
+
+        token = Token.objects.get(user=non_owner)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+        data = {'name': edited_middle_name_name}
+        params = {'pk': middle.id}
+        response = self.client.patch(reverse('api:ranks-detail', kwargs=params), data=data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_get_team_for_user(self):
+        """Tests "get-team-for-user action functionality"""
+
+        response = self.client.get(reverse('api:teams-get-team-for-user'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('team_id'), self.team.id)
+
+        user_without_team = AnotherUserFactory()
+        token = Token.objects.get(user=user_without_team)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        response = self.client.get(reverse('api:teams-get-team-for-user'))
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+        team_member = TeamMemberFactory(
+            user=UserFactory(
+                username='Team Member',
+                email='teammember@gmail.com',
+                game_nickname='team_member',
+            ),
+            team=TeamFactory(
+                name='Soul Eaters',
+                description='We`ll destroy all the souls. And the age of darkness will come'
+            ),
+            rank=RankFactory(name='Weak Soul')
+        )
+        token = Token.objects.get(user=team_member.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+        response = self.client.get(reverse('api:teams-get-team-for-user'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data.get('team_id'), team_member.team.id)

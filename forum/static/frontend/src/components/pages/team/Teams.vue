@@ -7,7 +7,7 @@
       </div>
       <b-table @row-clicked="clickTeam" striped hover :items="teams" :fields="fields">
         <template v-slot:cell(avatar)="data">
-        <img :src="data.item.avatar" height="100" width="100">
+          <img :src="data.item.avatar" height="100" width="100">
         </template>
         <template v-slot:cell(owner)="data">
           {{ data.item.owner.username }}
@@ -60,11 +60,14 @@
         )
       },
       isHasTeam() {
-        return axios.get('teams/is_has_team/').then(
+        return axios.get('teams/get-team-for-user/').then(
           (response) => {
-            this.hasTeam = Boolean(response.data.team_id);
-            if (this.hasTeam) {
-              this.myTeamID = response.data.team_id
+            switch (response.status) {
+              case 200:
+                this.hasTeam = Boolean(response.data.team_id);
+                if (this.hasTeam) {
+                  this.myTeamID = response.data.team_id
+                }
             }
           }
         )

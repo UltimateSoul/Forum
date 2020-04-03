@@ -2,6 +2,9 @@ import datetime
 
 import factory
 from django.contrib.auth import get_user_model
+
+from users.models import Team, Rank, TeamMember
+
 User = get_user_model()
 
 
@@ -29,3 +32,33 @@ class AnotherUserFactory(factory.django.DjangoModelFactory):
     gender = 'FEMALE'
     birth_date = datetime.datetime.strptime('1999-01-06T23:00:00', '%Y-%m-%dT%H:%M:%S')
     description = 'Another Test Description'
+
+
+class TeamFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Team
+
+    name = 'SoulHunters'
+    description = 'Are you strong enough to hunt souls?'
+
+
+class RankFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Rank
+
+    name = 'Test Rank'
+
+
+class TeamMemberFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = TeamMember
+
+
+
+
+
+
+

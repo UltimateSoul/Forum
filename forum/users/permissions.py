@@ -1,6 +1,6 @@
 from rest_framework import permissions
 
-from users.models import Team
+from users.models import Team, Rank
 
 
 class IsTeamOwnerRankPermission(permissions.BasePermission):
@@ -10,11 +10,11 @@ class IsTeamOwnerRankPermission(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         user = request.user
-        team_id = request.data.get('team')
-        if user.is_authenticated and team_id:
+        if user.is_authenticated:
             try:
-                team = Team.objects.get(id=team_id)
-                return team.owner == user
+                team = request.user.my_team
+                rank = Rank.objects.get(id=view.kwargs.get('pk'))
+                return team == rank.team
             except Team.DoesNotExist:
                 print("Team doesn't exist")
         return False

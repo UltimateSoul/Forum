@@ -232,15 +232,14 @@ class TeamViewSet(ModelViewSet):
         if self.request.user.id == instance.owner.id:
             instance.delete()
 
-    @action(methods=['GET'], detail=False, url_name='is_has_team', url_path='is_has_team')
-    def is_user_has_team(self, *args, **kwargs):
-        """Checks if user has team or not"""
+    @action(methods=['GET'], detail=False, url_name='get-team-for-user', url_path='get-team-for-user')
+    def get_team_for_user(self, *args, **kwargs):
+        """Returns team for user if it has team"""
         user = self.request.user
         team = Team.objects.filter(owner=user).first()
         if not team:
-            team = Team.objects.filter(members__user=user).first()
-        team_id = 0 if not team else team.id
-        return Response(data={'team_id': team_id})
+            team = get_object_or_404(self.queryset, members__user=user)
+        return Response(data={'team_id': team.id})
 
 
 class RanksViewSet(ModelViewSet):
