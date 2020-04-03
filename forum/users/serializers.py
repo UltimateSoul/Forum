@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from users.models import Team, TeamMember, Rank
+from users.models import Team, TeamMember, Rank, UserTeamRequest
 
 User = get_user_model()
 
@@ -101,4 +101,13 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
+        fields = '__all__'
+
+
+class UserTeamRequestSerializer(serializers.ModelSerializer):
+    user = RestrictedUserSerializer()
+    team = TeamSerializer()
+
+    class Meta:
+        model = UserTeamRequest
         fields = '__all__'

@@ -1,4 +1,3 @@
-from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -15,16 +14,14 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 
-from users.helpers.helpers import search_team_for_user
-from users.models import Team, Rank
+from users.models import Team, Rank, UserTeamRequest
 from users.permissions import IsTeamOwnerRankPermission
 from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
-    RankSerializer
+    RankSerializer, UserTeamRequestSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
 from .serializers import TopicSerializer
-from .helpers import status as forum_status
 
 User = get_user_model()
 
@@ -232,7 +229,7 @@ class TeamViewSet(ModelViewSet):
         if self.request.user.id == instance.owner.id:
             instance.delete()
 
-    @action(methods=['GET'], detail=False, url_name='get-team-for-user', url_path='get-team-for-user')
+    @action(methods=['GET'], detail=False)
     def get_team_for_user(self, *args, **kwargs):
         """Returns team for user if it has team"""
         user = self.request.user
@@ -247,9 +244,24 @@ class RanksViewSet(ModelViewSet):
     serializer_class = RankSerializer
     permission_classes = [IsAuthenticated, IsTeamOwnerRankPermission]
 
-    @action(methods=['GET'], detail=False, url_name='get_team_ranks')
+    @action(methods=['GET'], detail=False)
     def get_team_ranks(self, request, *args, **kwargs):
         team_id = request.GET.get('teamID')
         ranks = Rank.objects.filter(team__id=team_id)
         serializer = self.serializer_class(ranks, many=True)
+        return Response(serializer.data)
+
+
+class TeamRequestViewSet(ModelViewSet):
+    queryset = UserTeamRequest.objects.all()
+    serializer_class = UserTeamRequestSerializer
+
+    @action(methods=['GET'], detail=False,
+            url_name='get-requests-for-team',
+            url_path='get-requests-for-team')
+    def get_requests_for_team(self, request, *args, **kwargs):
+
+        team_id = self.request.GET.get('teamID')
+        user_requests = self.queryset.filter(team_id=team_id)
+        serializer = self.serializer_class(user_requests, many=True)
         return Response(serializer.data)

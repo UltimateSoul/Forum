@@ -236,7 +236,7 @@ class TestRanksViewSet(APITestCase):
         RankFactory(name='rank3', team=self.team)
         RankFactory(name='rank4', team=self.team)
         params = {'teamID': self.team.id}
-        response = self.client.get(reverse('api:ranks-get_team_ranks'), params)
+        response = self.client.get(reverse('api:ranks-get-team-ranks'), params)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 4)
 

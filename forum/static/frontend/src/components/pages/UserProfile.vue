@@ -151,7 +151,7 @@
     },
     methods: {
       getUserProfile(id) {
-        axios.get(`user/${id}`)
+        axios.get(`user/${id}/`)
           .then((resp) => {
             this.user = resp.data;
             this.editingUserData = resp.data
@@ -173,7 +173,7 @@
         formData.append('email', this.editingUserData.email);
         formData.append('gender', this.editingUserData.gender);
         formData.append('description', this.editingUserData.description);
-        axios.patch(`user/${this.$route.params.id}`, formData)
+        axios.patch(`user/${this.$route.params.id}/`, formData)
         .then( (response) => {
           if (response.status === 200){
             this.getUserProfile(this.$route.params.id)

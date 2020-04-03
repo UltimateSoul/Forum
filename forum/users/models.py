@@ -126,3 +126,21 @@ class Rank(models.Model):
 
     def __repr__(self):
         return f'Rank(name={self.name})'
+
+
+class UserTeamRequest(models.Model):
+    """
+    This model represents requests from users, that wants join team
+    """
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    team = models.ForeignKey(Team, on_delete=models.CASCADE)
+
+    approved = models.BooleanField(default=False)
+    email_was_send = models.BooleanField(default=False)
+    reject_cause = models.CharField(default='-----', max_length=255)
+
+    def __repr__(self):
+        return f'Request from {self.user.username} into {self.team.name}'
+
+

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from api import services
-from api.models import MiniChatMessage, Topic, Post, Comment, Like
+from api.models import MiniChatMessage, Topic, Post, Comment
 from users.serializers import RestrictedUserSerializer, UserSerializer
 
 User = get_user_model()

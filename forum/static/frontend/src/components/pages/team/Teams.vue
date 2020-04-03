@@ -60,7 +60,7 @@
         )
       },
       isHasTeam() {
-        return axios.get('teams/get-team-for-user/').then(
+        return axios.get('teams/get_team_for_user/').then(
           (response) => {
             switch (response.status) {
               case 200:
