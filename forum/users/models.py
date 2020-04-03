@@ -32,17 +32,18 @@ class User(AbstractUser):
         users = cls.objects.filter(is_active=True)
         active_forum_users = []
         for user in users:
-            if cls.is_active_forum_user(user):
+            if user.is_active_forum_user():
                 active_forum_users.append(user)
         return active_forum_users
 
-    @staticmethod
-    def is_active_forum_user(user):
+    def is_active_forum_user(self):
+        """Checks if user has activity during last week or not"""
+
         now = datetime.datetime.now()
         week_ago = now - datetime.timedelta(days=constants.COINS_PERIOD)
         activity = []
         for instance in Topic, Comment, Post, MiniChatMessage:
-            activity.append(instance.objects.filter(author=user, edited_at__range=[week_ago, now]).exists())
+            activity.append(instance.objects.filter(author=self, edited_at__range=[week_ago, now]).exists())
         return any(activity)
 
     def calculate_blood_coins(self):

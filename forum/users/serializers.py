@@ -105,8 +105,16 @@ class TeamSerializer(serializers.ModelSerializer):
 
 
 class UserTeamRequestSerializer(serializers.ModelSerializer):
-    user = RestrictedUserSerializer()
+    user = RestrictedUserSerializer(required=False)
     team = TeamSerializer()
+
+    class Meta:
+        model = UserTeamRequest
+        fields = '__all__'
+
+
+class CreateUserTeamRequestSerializer(serializers.ModelSerializer):
+    user = RestrictedUserSerializer(required=False)
 
     class Meta:
         model = UserTeamRequest

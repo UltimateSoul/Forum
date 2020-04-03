@@ -10,7 +10,9 @@ import { store } from './store/store'
 import axios from 'axios'
 import Vuelidate from 'vuelidate';
 import PortalVue from 'portal-vue'
+import VModal from 'vue-js-modal'
 
+Vue.use(VModal);
 Vue.use(PortalVue);
 Vue.use(Vuelidate);
 Vue.use(BootstrapVue);

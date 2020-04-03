@@ -5,7 +5,8 @@ from rest_framework.authtoken.models import Token
 
 from api.models import Topic, Like, Comment
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
-from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory
+from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
+    UserTeamRequestFactory
 from django.urls import reverse
 
 
@@ -292,3 +293,57 @@ class TestRanksViewSet(APITestCase):
         response = self.client.get(reverse('api:teams-get-team-for-user'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data.get('team_id'), team_member.team.id)
+
+
+class TestUserTeamRequestViewSet(APITestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.team = TeamFactory(owner=self.user)
+        self.another_user1 = AnotherUserFactory()
+        self.another_user2 = AnotherUserFactory(
+            username='anotheruser2',
+            email='anotheruser2@gmail.com'
+        )
+        self.user_team_request = UserTeamRequestFactory(
+            user=self.another_user1,
+            team=self.team,
+        )
+        self.user_team_request = UserTeamRequestFactory(
+            user=self.another_user2,
+            team=self.team,
+        )
+
+    def test_get_requests_for_team_by_owner(self):
+        """Checks getting all requests for particular team by team owner"""
+
+        params = {'teamID': self.team.id}
+        response = self.client.get(reverse('api:user-team-requests-get-requests-for-team'), params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+
+    def test_get_requests_for_team_by_user(self):
+        """Checks that usual user can't fetch requests data"""
+
+        token = Token.objects.get(user=self.another_user1)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        params = {'teamID': self.team.id}
+        response = self.client.get(reverse('api:user-team-requests-get-requests-for-team'), params)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_post_request_for_team(self):
+        """Tests that user can create requests"""
+
+        usual_user = UserFactory(
+            username='Usual User',
+            email='usualuser@gmail.com',
+        )
+        token = Token.objects.get(user=usual_user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        data = {'team': self.team.id}
+        response = self.client.post(reverse('api:user-team-requests-list'), data=data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)

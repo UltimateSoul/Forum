@@ -1,5 +1,17 @@
 <template>
   <div>
+    <modal name="user-request-for-team">
+      <div>
+        <h1>
+          Thank you!
+        </h1>
+        <h5>
+          Captain of this team will consider your request soon!
+        </h5>
+        <b-button @click="hideUserRequestModal" variant="success">Ok</b-button>
+      </div>
+    </modal>
+    <b-button style="float: right" @click="joinTeam" variant="success">Join Team</b-button>
     <div>
       <img :src="team.avatar" height="250" width="250">
       <hr>
@@ -17,9 +29,9 @@
       <div v-show="showTeamMembers">
         <b-table striped hover :items="members" :fields="memberFields">
           <template v-slot:cell(avatar)="data">
-              <img v-if="data.item.user.avatar" :src="data.item.user.avatar" height="100" width="100">
-              <img  v-else src="http://0.0.0.0:5000/static/images/default.jpg" height="100" width="100">
-<!--            ToDo: change in prod-->
+            <img v-if="data.item.user.avatar" :src="data.item.user.avatar" height="100" width="100">
+            <img v-else src="http://0.0.0.0:5000/static/images/default.jpg" height="100" width="100">
+            <!--            ToDo: change in prod-->
           </template>
           <template v-slot:cell(username)="data">
             {{ data.item.user.username }}
@@ -114,6 +126,33 @@
                 break;
               case 400:
                 break;
+            }
+          }
+        )
+      },
+      showUserRequestModal() {
+        this.$modal.show('user-request-for-team')
+      },
+      hideUserRequestModal() {
+        this.$modal.hide('user-request-for-team')
+      },
+      joinTeam() {
+        const data = {
+          team: this.$route.params.teamID
+        };
+        axios.post('user-team-requests/', data).then(
+          (response) => {
+            switch (response.status) {
+              case 201:
+                this.showUserRequestModal();
+                break;
+              case 403:
+                console.log('Unauthorized or forbidden');
+                break;
+              case 400:
+                break;
+              default:
+                console.log('default behaviour')
             }
           }
         )

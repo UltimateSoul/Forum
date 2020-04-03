@@ -3,7 +3,7 @@ import datetime
 import factory
 from django.contrib.auth import get_user_model
 
-from users.models import Team, Rank, TeamMember
+from users.models import Team, Rank, TeamMember, UserTeamRequest
 
 User = get_user_model()
 
@@ -56,6 +56,11 @@ class TeamMemberFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = TeamMember
 
+
+class UserTeamRequestFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = UserTeamRequest
 
 
 

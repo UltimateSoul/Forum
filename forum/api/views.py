@@ -15,9 +15,9 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
 from django.contrib.auth import get_user_model
 
 from users.models import Team, Rank, UserTeamRequest
-from users.permissions import IsTeamOwnerRankPermission
+from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner
 from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
-    RankSerializer, UserTeamRequestSerializer
+    RankSerializer, UserTeamRequestSerializer, CreateUserTeamRequestSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
@@ -255,10 +255,19 @@ class RanksViewSet(ModelViewSet):
 class TeamRequestViewSet(ModelViewSet):
     queryset = UserTeamRequest.objects.all()
     serializer_class = UserTeamRequestSerializer
+    permission_classes = [IsAuthenticated, IsTeamOwner]
 
-    @action(methods=['GET'], detail=False,
-            url_name='get-requests-for-team',
-            url_path='get-requests-for-team')
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_serializer(self, *args, **kwargs):
+        serializer_class = self.serializer_class
+        if self.request.method == 'POST':
+            serializer_class = CreateUserTeamRequestSerializer
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
+
+    @action(methods=['GET'], detail=False)
     def get_requests_for_team(self, request, *args, **kwargs):
 
         team_id = self.request.GET.get('teamID')
