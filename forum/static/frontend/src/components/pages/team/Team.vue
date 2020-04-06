@@ -27,9 +27,13 @@
         </b-card>
       </div>
     </modal>
-    <b-button style="float: right" v-if="isOwner" @click="showTeamRequestModal" variant="success">Show Team Requests
+    <b-button style="float: right" v-if="isOwner && teamRequests.length" @click="showTeamRequestModal" variant="success">
+      {{ teamRequestsButtonText }}
     </b-button>
-    <b-button style="float: right" v-if="!isMember && !isOwner" @click="joinTeam" variant="success">Join Team</b-button>
+    <b-button style="float: right" v-if="isOwner && !teamRequests.length" @click="showTeamRequestModal" variant="success" disabled>
+      {{ teamRequestsButtonText }}
+    </b-button>
+    <b-button style="float: right" v-if="!isMember && !isOwner && !requestForUserExists" @click="joinTeam" variant="success">Join Team</b-button>
     <div>
       <img :src="team.avatar" height="250" width="250">
       <hr>
@@ -58,7 +62,9 @@
             {{ data.item.user.game_nickname }}
           </template>
           <template v-slot:cell(rank)="data">
-            {{ data.item.rank.name }}
+            <div v-if="data.item.rank" >
+              {{ data.item.rank.name }}
+            </div>
           </template>
         </b-table>
       </div>
@@ -93,9 +99,11 @@
         teamRequests: [],
         memberFields: ['avatar', 'username', 'game_nickname', 'rank'],
         owner: {},
+
         showTeamMembers: false,
         showTeamRequests: false,
 
+        requestForUserExists: false,
       }
     },
     created() {
@@ -104,7 +112,9 @@
         () => {
           if (vueInstance.isOwner) {
           vueInstance.getTeamRequests(1)
-        }}
+        } else {
+            vueInstance.checkIfRequestExists(vueInstance.$route.params.teamID)
+          }}
       );
       this.getTeamRanks(this.$route.params.teamID);
     },
@@ -152,7 +162,7 @@
           teamID: this.team.id,
           page: page
         };
-        return axios.get('user-team-requests/', {
+        return axios.get('user-team-requests/get-requests-for-team/', {
           params: data
         }).then(
           (response) => {
@@ -166,6 +176,23 @@
                 break;
             }
           }
+        )
+      },
+      checkIfRequestExists(teamID) {
+        return axios.get('user-team-requests/is-request-exist/', {
+          params: {teamID: teamID}
+        }).then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.requestForUserExists = true;
+                break;
+              case 404:
+                break;
+              default:
+                this.requestForUserExists = false;
+            }
+        }
         )
       },
       getTeamRanks(teamID) {
@@ -193,7 +220,7 @@
       showTeamRequestModal() {
         this.$modal.show('team-requests')
       },
-      hideTeanRequestModal() {
+      hideTeamRequestModal() {
         this.$modal.hide('team-requests')
       },
       joinTeam() {
@@ -234,6 +261,13 @@
           return member.user.pk === userID
         });
         return false
+      },
+      teamRequestsButtonText() {
+        if (this.teamRequests.length) {
+          return 'Show Team Requests'
+        } else {
+          return 'No team requests'
+        }
       }
     }
   }

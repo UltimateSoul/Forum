@@ -1,10 +1,12 @@
 from django.contrib.contenttypes.models import ContentType
+from django.core import mail
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
 from api.models import Topic, Like, Comment
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
+from users.models import UserTeamRequest
 from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
     UserTeamRequestFactory
 from django.urls import reverse
@@ -30,7 +32,7 @@ class TestProfileView(APITestCase):
         self.assertTrue(user_data.get('email') == self.user.email)
         self.assertTrue(user_data.get('description') == self.user.description)
         self.assertTrue(user_data.get('gender') == self.user.gender)
-        self.assertTrue(user_data.get('blood_coins') == self.user.blood_coins)
+        self.assertTrue(user_data.get('coins') == self.user.coins)
 
     def test_user_profile_view_constraint(self):
         """Checks flow when user goes to another user profile"""
@@ -39,7 +41,7 @@ class TestProfileView(APITestCase):
         profile_response = self.client.get(reverse('api:profile', kwargs=params))
         self.assertTrue(profile_response.status_code == 200)
         user_data = profile_response.data
-        self.assertFalse(bool(user_data.get('blood_coins')))
+        self.assertFalse(bool(user_data.get('coins')))
         self.assertFalse(user_data.get('email') == self.user.email)
         self.assertFalse(user_data.get('username') == self.user.username)
         self.assertFalse(user_data.get('description') == self.user.description)
@@ -365,9 +367,29 @@ class TestUserTeamRequestViewSet(APITestCase):
         self.assertEqual(response.status_code, forum_status.STATUS_222_USER_ALREADY_REQUESTED)
 
     def test_team_owner_approved_request(self):
+        """Tests owner approve user team request flow"""
         data = {
             'approved': True,
         }
-        response = self.client.patch(
-            reverse('api:user-team-requests-detail', kwargs={'pk': self.user_team_request.id}),
-        data=data)
+        response = self.client.patch(reverse('api:user-team-requests-detail',
+                                             kwargs={'pk': self.user_team_request.id}),
+                                     data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        team_request = UserTeamRequest.objects.get(id=self.user_team_request.id)
+        self.assertTrue(team_request.approved)
+        self.assertTrue(team_request.email_was_send)
+
+    def test_team_owner_rejected_request(self):
+        """Tests owner reject user team request flow"""
+        data = {
+            'approved': False,
+        }
+        response = self.client.patch(reverse('api:user-team-requests-detail',
+                                             kwargs={'pk': self.user_team_request.id}),
+                                     data=data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(mail.outbox), 1)
+        team_request = UserTeamRequest.objects.get(id=self.user_team_request.id)
+        self.assertFalse(team_request.approved)
+        self.assertTrue(team_request.email_was_send)

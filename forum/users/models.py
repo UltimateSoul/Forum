@@ -17,7 +17,7 @@ class User(AbstractUser):
     avatar = models.ImageField(blank=True, null=True,
                                upload_to=user_directory_path)
     popularity = models.PositiveIntegerField(default=0)
-    blood_coins = models.PositiveIntegerField(default=0)
+    coins = models.PositiveIntegerField(default=0)
     gender = models.CharField(choices=GENDER_CHOICES, max_length=10,
                               default="Male")
     game_nickname = models.CharField(blank=True, null=True, max_length=50)
@@ -46,8 +46,8 @@ class User(AbstractUser):
             activity.append(instance.objects.filter(author=self, edited_at__range=[week_ago, now]).exists())
         return any(activity)
 
-    def calculate_blood_coins(self):
-        """Calculates bloodcoins for user"""
+    def calculate_coins(self):
+        """Calculates coins for user"""
 
         now = datetime.datetime.now()
         week_ago = now - datetime.timedelta(days=constants.COINS_PERIOD)
@@ -74,8 +74,8 @@ class User(AbstractUser):
         posts_score = posts.count() * constants.post_multiplier + posts_total_likes * constants.post_likes_multiplier
         minichat_messages_score = minichat_messages * constants.minichat_message_multiplier
 
-        blood_coins = topics_score + comments_score + posts_score + minichat_messages_score
-        self.blood_coins += blood_coins
+        coins = topics_score + comments_score + posts_score + minichat_messages_score
+        self.coins += coins
         self.save()
 
     def __repr___(self):

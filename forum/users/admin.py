@@ -8,7 +8,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('game_nickname',
                     'email',
                     'popularity',
-                    'blood_coins',
+                    'coins',
                     'date_joined')
 
 

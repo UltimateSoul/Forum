@@ -25,7 +25,7 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ["avatar",
                   "username",
                   "popularity",
-                  "blood_coins",
+                  "coins",
                   "gender",
                   "game_nickname",
                   "birth_date",
@@ -120,6 +120,10 @@ class CreateUserTeamRequestSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         team_id = self.data.get('team')
         request, is_created = UserTeamRequest.objects.get_or_create(user=user, team_id=team_id)
+        if not is_created:
+            request.approved = False  # Need to guarantee that even if previously user was accepted or rejected,
+            request.email_was_send = False  # his current state was changed
+            request.save()
         return request, is_created
 
     class Meta:

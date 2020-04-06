@@ -11,7 +11,7 @@ from django.utils.http import urlsafe_base64_encode
 
 from Forum import celery_app
 from users.helpers import constants
-from users.models import UserTeamRequest
+from users.models import UserTeamRequest, TeamMember
 
 User = get_user_model()
 
@@ -22,14 +22,18 @@ def send_team_request_state_email(team_request_id):
     team = team_request.team
     user = User.objects.get(id=team_request.user_id)
     if team_request.approved:
+        TeamMember.objects.get_or_create(
+            user=user,
+            team=team
+        )
         email_subject = 'Your team request was successfully approved!'
         message = render_to_string('core/accepted_team_request.html', {
             'user': user,
             'team': team
         })
     else:
-        email_subject = 'I`m a'
-        message = render('core/accepted_team_request.html', {
+        email_subject = 'Your team request was rejected.'
+        message = render_to_string('core/rejected_team_request.html', {
             'user': user,
             'team': team
         })
@@ -38,6 +42,8 @@ def send_team_request_state_email(team_request_id):
     )
     email.content_subtype = 'html'
     email.send()
+    team_request.email_was_send = True
+    team_request.save()
 
 
 @periodic_task(run_every=timedelta(days=constants.COINS_PERIOD))
@@ -46,7 +52,7 @@ def calculate_coins():
 
     active_users = User.get_active_users()
     for active_user in active_users:
-        active_user.calculate_blood_coins()
+        active_user.calculate_coins()
 
 
 @celery_app.task

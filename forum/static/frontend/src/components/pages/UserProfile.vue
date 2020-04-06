@@ -20,7 +20,7 @@
           Birthday: {{user.birth_date}}
         </b-card-text>
         <b-card-text v-if="isMainUser(user.pk)">
-          BloodCoins: {{user.blood_coins}}
+          BloodCoins: {{user.coins}}
         </b-card-text>
         <b-card-text>
           Gender: {{user.gender}}

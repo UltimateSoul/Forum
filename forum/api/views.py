@@ -127,6 +127,7 @@ class PostsViewSet(ModelViewSet, LikedMixin):
 
     serializer_class = PostSerializer
     queryset = Post.objects.all()
+
     # Add additional permission, posts can write only users with checked email
 
     def get_queryset(self):
@@ -256,9 +257,9 @@ class RanksViewSet(ModelViewSet):
 
 
 class TeamRequestViewSet(ModelViewSet):
-    queryset = UserTeamRequest.objects.all()
+    queryset = UserTeamRequest.objects.filter(approved=False, email_was_send=False)
     serializer_class = UserTeamRequestSerializer
-    permission_classes = [IsAuthenticated, IsTeamOwner]
+    permission_classes = [IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -274,7 +275,7 @@ class TeamRequestViewSet(ModelViewSet):
     def perform_update(self, serializer):
         team_request = serializer.save()
         if not team_request.email_was_send:
-            send_team_request_state_email.delay(team_request.id)
+            send_team_request_state_email(team_request.id)  # ToDo: add delay on PROD, need to remove for testing
 
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.serializer_class
@@ -283,10 +284,24 @@ class TeamRequestViewSet(ModelViewSet):
         kwargs['context'] = self.get_serializer_context()
         return serializer_class(*args, **kwargs)
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['GET'], detail=False, url_path='get-requests-for-team')
     def get_requests_for_team(self, request, *args, **kwargs):
 
         team_id = self.request.GET.get('teamID')
-        user_requests = self.queryset.filter(team_id=team_id)
-        serializer = self.serializer_class(user_requests, many=True)
+        page = self.paginate_queryset(self.queryset.filter(team_id=team_id))
+        if page is not None:
+            serializer = self.serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(self.queryset, many=True)
         return Response(serializer.data)
+
+    @action(methods=['GET'], detail=False, url_path='is-request-exist')
+    def is_request_exist(self, request, *args, **kwargs):
+        data = request.GET
+        get_object_or_404(queryset=self.queryset,
+                          user=self.request.user,
+                          email_was_send=False,
+                          approved=False,
+                          team_id=data.get('teamID')
+                          ).exists()
+        return Response()
