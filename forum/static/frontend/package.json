@@ -1,7 +1,7 @@
 {
-  "name": "tbw2-frontend",
+  "name": "forum-frontend",
   "version": "1.0.0",
-  "description": "TBW 2 Forum front-end",
+  "description": "Forum front-end",
   "author": "UltimateSoul <44947152+UltimateSoul@users.noreply.github.com>",
   "private": true,
   "scripts": {

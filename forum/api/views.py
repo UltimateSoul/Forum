@@ -22,6 +22,7 @@ from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
 from .models import Topic
 from .serializers import TopicSerializer
+from api.helpers import status as forum_status
 
 User = get_user_model()
 
@@ -257,8 +258,16 @@ class TeamRequestViewSet(ModelViewSet):
     serializer_class = UserTeamRequestSerializer
     permission_classes = [IsAuthenticated, IsTeamOwner]
 
-    def perform_create(self, serializer):
-        serializer.save(user=self.request.user)
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        obj, is_created = serializer.save()
+        response_status = 201 if is_created else forum_status.STATUS_222_USER_ALREADY_REQUESTED
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=response_status, headers=headers)
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.serializer_class

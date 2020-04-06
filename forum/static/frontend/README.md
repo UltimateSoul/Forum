@@ -1,6 +1,6 @@
-# tbw2-frontend
+# forum-frontend
 
-> TBW 2 Forum front-end
+> Forum front-end
 
 ## Build Setup
 

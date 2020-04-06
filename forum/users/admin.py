@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User, Team, Rank, TeamMember
+from .models import User, Team, Rank, TeamMember, UserTeamRequest
 
 
 @admin.register(User)
@@ -32,6 +32,21 @@ class TeamAdmin(admin.ModelAdmin):
 @admin.register(Rank)
 class RankAdmin(admin.ModelAdmin):
     list_display = ('name', 'team_name')
+
+    @staticmethod
+    def team_name(obj):
+        if obj.team:
+            return obj.team.name
+        return 'doesnt exist'
+
+
+@admin.register(UserTeamRequest)
+class UserTeamRequestAdmin(admin.ModelAdmin):
+    list_display = ('username', 'team_name', 'approved', 'email_was_send')
+
+    @staticmethod
+    def username(obj):
+        return obj.user.username
 
     @staticmethod
     def team_name(obj):

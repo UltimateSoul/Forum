@@ -8,6 +8,7 @@ from api.tests.factories import TopicFactory, PostFactory, CommentFactory
 from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
     UserTeamRequestFactory
 from django.urls import reverse
+from api.helpers import status as forum_status
 
 
 class TestProfileView(APITestCase):
@@ -347,3 +348,18 @@ class TestUserTeamRequestViewSet(APITestCase):
         data = {'team': self.team.id}
         response = self.client.post(reverse('api:user-team-requests-list'), data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_request_created_once(self):
+        """Tests that request for user created only once"""
+
+        usual_user = UserFactory(
+            username='Usual User',
+            email='usualuser@gmail.com',
+        )
+        token = Token.objects.get(user=usual_user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        data = {'team': self.team.id}
+        self.client.post(reverse('api:user-team-requests-list'), data=data)  # first request
+        response = self.client.post(reverse('api:user-team-requests-list'), data=data)  # second request
+        self.assertEqual(response.status_code, forum_status.STATUS_222_USER_ALREADY_REQUESTED)

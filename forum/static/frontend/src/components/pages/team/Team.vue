@@ -146,6 +146,8 @@
               case 201:
                 this.showUserRequestModal();
                 break;
+              case 222:
+                break;
               case 403:
                 console.log('Unauthorized or forbidden');
                 break;

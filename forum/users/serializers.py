@@ -116,6 +116,12 @@ class UserTeamRequestSerializer(serializers.ModelSerializer):
 class CreateUserTeamRequestSerializer(serializers.ModelSerializer):
     user = RestrictedUserSerializer(required=False)
 
+    def save(self, **kwargs):
+        user = self.context.get('request').user
+        team_id = self.data.get('team')
+        request, is_created = UserTeamRequest.objects.get_or_create(user=user, team_id=team_id)
+        return request, is_created
+
     class Meta:
         model = UserTeamRequest
         fields = '__all__'
