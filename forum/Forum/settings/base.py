@@ -46,7 +46,7 @@ MIDDLEWARE = [
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ROOT_URLCONF = 'TBW2_Forum.urls'
+ROOT_URLCONF = 'Forum.urls'
 
 TEMPLATES = [
     {
@@ -65,7 +65,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'TBW2_Forum.wsgi.application'
+WSGI_APPLICATION = 'Forum.wsgi.application'
 
 AUTH_PASSWORD_VALIDATORS = [
     {

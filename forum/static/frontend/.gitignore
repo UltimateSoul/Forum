@@ -13,3 +13,4 @@ media/*
 *.ntvs*
 *.njsproj
 *.sln
+*.env

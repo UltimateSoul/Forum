@@ -1,4 +1,4 @@
-"""TBW2_Forum URL Configuration
+"""Forum URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.2/topics/http/urls/
@@ -17,7 +17,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
-from TBW2_Forum import settings
+from Forum import settings
 from api.views import HomeView
 
 front_end_url_integration = [
