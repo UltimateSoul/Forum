@@ -11,7 +11,25 @@
         <b-button @click="hideUserRequestModal" variant="success">Ok</b-button>
       </div>
     </modal>
-    <b-button style="float: right" @click="joinTeam" variant="success">Join Team</b-button>
+    <modal name="team-requests" :scrollable="true" height="auto" :draggable="true">
+      <div v-for="request in teamRequests">
+        <b-card
+          :title="request.user.username"
+          :img-src="request.user.avatar"
+          img-alt="Image"
+          img-top
+          tag="article"
+          style="max-width: 80rem;"
+          class="mb-2"
+        >
+          <b-button variant="success" @click="patchRequest(true, request.id)">Accept Request</b-button>
+          <b-button variant="danger" @click="patchRequest(false, request.id)">Reject Request</b-button>
+        </b-card>
+      </div>
+    </modal>
+    <b-button style="float: right" v-if="isOwner" @click="showTeamRequestModal" variant="success">Show Team Requests
+    </b-button>
+    <b-button style="float: right" v-if="!isMember && !isOwner" @click="joinTeam" variant="success">Join Team</b-button>
     <div>
       <img :src="team.avatar" height="250" width="250">
       <hr>
@@ -72,13 +90,22 @@
         ranks: [],
         maxRanksNumber: 15,
         members: [],
+        teamRequests: [],
         memberFields: ['avatar', 'username', 'game_nickname', 'rank'],
         owner: {},
         showTeamMembers: false,
+        showTeamRequests: false,
+
       }
     },
     created() {
-      this.getData(this.$route.params.teamID);
+      const vueInstance = this;
+      this.getData(this.$route.params.teamID).then(
+        () => {
+          if (vueInstance.isOwner) {
+          vueInstance.getTeamRequests(1)
+        }}
+      );
       this.getTeamRanks(this.$route.params.teamID);
     },
     watch: {
@@ -114,6 +141,33 @@
             }
           )
       },
+      patchRequest(isAccepted, requestID) {
+        const data = {
+          approved: isAccepted
+        };
+        return axios.patch(`user-team-requests/${requestID}/`, data)
+      },
+      getTeamRequests(page) {
+        const data = {
+          teamID: this.team.id,
+          page: page
+        };
+        return axios.get('user-team-requests/', {
+          params: data
+        }).then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.teamRequests = response.data.results;
+                break;
+              case 400:
+                break;
+              case 403:
+                break;
+            }
+          }
+        )
+      },
       getTeamRanks(teamID) {
         return axios.get('ranks/get_team_ranks/', {
           params:
@@ -135,6 +189,12 @@
       },
       hideUserRequestModal() {
         this.$modal.hide('user-request-for-team')
+      },
+      showTeamRequestModal() {
+        this.$modal.show('team-requests')
+      },
+      hideTeanRequestModal() {
+        this.$modal.hide('team-requests')
       },
       joinTeam() {
         const data = {
@@ -166,6 +226,14 @@
       ]),
       isOwner() {
         return this.owner.pk === this.getUserData.userID
+      },
+      isMember() {
+        const userID = this.getUserData.userID;
+        // ToDo: figure out why doestn't work
+        this.members.forEach(function (member) {
+          return member.user.pk === userID
+        });
+        return false
       }
     }
   }

@@ -5,5 +5,5 @@ class TestTasks(APITestCase):
     def setUp(self) -> None:
         pass
 
-    def test_calculate_bloodcoins(self):
+    def test_calculate_coins(self):
         pass

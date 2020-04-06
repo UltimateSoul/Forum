@@ -1,3 +1,4 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -14,6 +15,7 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 
+from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
 from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner
 from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
@@ -29,7 +31,7 @@ User = get_user_model()
 
 class HomeView(TemplateView):
     template_name = 'api/home.html'
-    
+
     def get(self, request, *args, **kwargs):
         return super(HomeView, self).get(request, *args, **kwargs)
 
@@ -268,6 +270,11 @@ class TeamRequestViewSet(ModelViewSet):
 
     def get_serializer_context(self):
         return {'request': self.request}
+
+    def perform_update(self, serializer):
+        team_request = serializer.save()
+        if not team_request.email_was_send:
+            send_team_request_state_email.delay(team_request.id)
 
     def get_serializer(self, *args, **kwargs):
         serializer_class = self.serializer_class

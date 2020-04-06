@@ -363,3 +363,11 @@ class TestUserTeamRequestViewSet(APITestCase):
         self.client.post(reverse('api:user-team-requests-list'), data=data)  # first request
         response = self.client.post(reverse('api:user-team-requests-list'), data=data)  # second request
         self.assertEqual(response.status_code, forum_status.STATUS_222_USER_ALREADY_REQUESTED)
+
+    def test_team_owner_approved_request(self):
+        data = {
+            'approved': True,
+        }
+        response = self.client.patch(
+            reverse('api:user-team-requests-detail', kwargs={'pk': self.user_team_request.id}),
+        data=data)

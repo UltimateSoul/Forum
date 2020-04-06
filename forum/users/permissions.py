@@ -26,7 +26,8 @@ class IsTeamOwner(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             try:
                 team = request.user.my_team
-                return team.id == int(request.GET.get('teamID'))
+                if request.GET.get('teamID'):
+                    return team.id == int(request.GET.get('teamID'))
             except (Team.DoesNotExist, ValueError):
                 print("Team doesn't exist")
             return False
