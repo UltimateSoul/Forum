@@ -17,7 +17,7 @@ from django.contrib.auth import get_user_model
 
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
-from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner
+from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete
 from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
     RankSerializer, UserTeamRequestSerializer, CreateUserTeamRequestSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
@@ -39,6 +39,7 @@ class HomeView(TemplateView):
 class TopicViewSet(ModelViewSet, LikedMixin):
     paginator = LimitOffsetPagination()
     serializer_class = TopicSerializer
+    permission_classes = [IsAuthenticated, IsAbleToDelete]
     queryset = Topic.objects.all()
     lookup_url_kwarg = 'topic_id'
 
@@ -105,6 +106,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
 
 class MiniChatMessagesView(APIView):
     """Mini Chat Messages Get View"""
+    permission_classes = [IsAbleToDelete]
 
     @staticmethod
     def get(request):
@@ -127,6 +129,7 @@ class PostsViewSet(ModelViewSet, LikedMixin):
 
     serializer_class = PostSerializer
     queryset = Post.objects.all()
+    permission_classes = [IsAuthenticated, IsAbleToDelete]
 
     # Add additional permission, posts can write only users with checked email
 
@@ -147,6 +150,7 @@ class CommentsViewSet(ModelViewSet, LikedMixin):
 
     serializer_class = CommentSerializer
     queryset = Comment.objects.all()
+    permission_classes = [IsAuthenticated, IsAbleToDelete]
 
     def get_queryset(self):
         if self.request.GET.get('post'):
@@ -259,7 +263,7 @@ class RanksViewSet(ModelViewSet):
 class TeamRequestViewSet(ModelViewSet):
     queryset = UserTeamRequest.objects.filter(approved=False, email_was_send=False)
     serializer_class = UserTeamRequestSerializer
-    permission_classes = [IsAuthenticated, IsTeamOwner]
+    permission_classes = [IsAuthenticated, IsTeamOwner, IsAbleToDelete]
 
     def get_permissions(self):
         """
@@ -268,7 +272,7 @@ class TeamRequestViewSet(ModelViewSet):
         if self.action == 'is_request_exist':
             permission_classes = [IsAuthenticated]
         else:
-            permission_classes = [IsAuthenticated, IsTeamOwner]
+            permission_classes = [IsAuthenticated, IsTeamOwner, IsAbleToDelete]
         return [permission() for permission in permission_classes]
 
     def create(self, request, *args, **kwargs):

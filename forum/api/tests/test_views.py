@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from api.models import Topic, Like, Comment
+from api.models import Topic, Like, Comment, Post
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
 from users.models import UserTeamRequest
 from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
@@ -193,6 +193,30 @@ class TestPostsViewSet(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data.get('results')), 2)
 
+    def test_patch_post_by_user(self):
+        """Tests that user can edit post"""
+
+        data = {
+            'body': 'Edited post body'
+        }
+        response = self.client.patch(reverse('api:posts-detail', kwargs={'pk': self.post1.id}), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(data['body'], response.data.get('body'))
+
+    def test_delete_post_by_user(self):
+        """Users cannot delete their """
+
+        response = self.client.delete(reverse('api:posts-detail', kwargs={'pk': self.post1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_successfult_post_deletion(self):
+        """Tests that moderators and admins are able to delete posts"""
+        self.user.is_moderator = True
+        self.user.save()
+        response = self.client.delete(reverse('api:posts-detail', kwargs={'pk': self.post1.id}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(Post.objects.count(), 1)
+
 
 class TestCommentsViewSet(APITestCase):
     """Tests all CommentsViewSet functionality"""
@@ -218,7 +242,25 @@ class TestCommentsViewSet(APITestCase):
         self.assertEqual(len(response.data.get('results')), 2)
 
     def test_delete_comment(self):
-        """Test deletion comments flow"""
+        """Test user try to delete comment"""
+        response = self.client.delete(reverse('api:comments-detail', kwargs={'pk': self.comment1.id}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertTrue(Comment.objects.all().exists())
+
+    def test_successful_comment_deletion(self):
+        """Tests that moderators and superusers can delete comments"""
+
+        self.user.is_moderator = True
+        self.user.save()
+        response = self.client.delete(reverse('api:comments-detail', kwargs={'pk': self.comment1.id}))
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Comment.objects.all().exists())
+
+        self.comment1 = CommentFactory(author=self.user, post=self.post)
+        self.user.is_moderator = False
+        self.user.is_superuser = True
+        self.user.save()
+
         response = self.client.delete(reverse('api:comments-detail', kwargs={'pk': self.comment1.id}))
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Comment.objects.all().exists())

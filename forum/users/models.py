@@ -25,6 +25,8 @@ class User(AbstractUser):
     violations = models.PositiveIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
 
+    is_moderator = models.BooleanField(default=False)
+
     @classmethod
     def get_active_users(cls) -> list:
         """Get all users that added posts/comments/topics/minichat-messages in last week"""
@@ -143,5 +145,3 @@ class UserTeamRequest(models.Model):
 
     def __repr__(self):
         return f'Request from {self.user.username} into {self.team.name}'
-
-
