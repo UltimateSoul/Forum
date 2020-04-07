@@ -325,7 +325,33 @@ class TestUserTeamRequestViewSet(APITestCase):
         params = {'teamID': self.team.id}
         response = self.client.get(reverse('api:user-team-requests-get-requests-for-team'), params)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 2)
+        self.assertEqual(len(response.data.get('results')), 2)
+
+    def test_get_request_only_from_one_team(self):
+        """Checks that team owner will get only requests from his team"""
+        another_user3 = AnotherUserFactory(username='anotheruser3', email='anotheruser3@gmail.com')
+        another_user4 = AnotherUserFactory(username='anotheruser4', email='anotheruser4@gmail.com')
+        another_user5 = AnotherUserFactory(username='anotheruser5', email='anotheruser5@gmail.com')
+        another_user6 = AnotherUserFactory(username='anotheruser6', email='anotheruser6@gmail.com')
+        another_team = TeamFactory(owner=another_user3,
+                                   name='Soul Eaters',
+                                   description='We`ll destroy all the souls. And the age of darkness will come')
+        UserTeamRequestFactory(
+            user=another_user4,
+            team=another_team,
+        )
+        UserTeamRequestFactory(
+            user=another_user5,
+            team=another_team,
+        )
+        UserTeamRequestFactory(
+            user=another_user6,
+            team=another_team,
+        )
+        params = {'teamID': self.team.id}
+        response = self.client.get(reverse('api:user-team-requests-get-requests-for-team'), params)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get('results')), 2)
 
     def test_get_requests_for_team_by_user(self):
         """Checks that usual user can't fetch requests data"""

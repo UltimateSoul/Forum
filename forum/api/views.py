@@ -259,7 +259,17 @@ class RanksViewSet(ModelViewSet):
 class TeamRequestViewSet(ModelViewSet):
     queryset = UserTeamRequest.objects.filter(approved=False, email_was_send=False)
     serializer_class = UserTeamRequestSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated, IsTeamOwner]
+
+    def get_permissions(self):
+        """
+        Instantiates and returns the list of permissions that this view requires.
+        """
+        if self.action == 'is_request_exist':
+            permission_classes = [IsAuthenticated]
+        else:
+            permission_classes = [IsAuthenticated, IsTeamOwner]
+        return [permission() for permission in permission_classes]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -290,7 +300,7 @@ class TeamRequestViewSet(ModelViewSet):
         team_id = self.request.GET.get('teamID')
         page = self.paginate_queryset(self.queryset.filter(team_id=team_id))
         if page is not None:
-            serializer = self.serializer_class(page, many=True)
+            serializer = self.serializer_class(page, many=True, context={'request': self.request})
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(self.queryset, many=True)
         return Response(serializer.data)
