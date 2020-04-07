@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
@@ -198,6 +198,7 @@ class UserProfileView(APIView):
 
 class GetUserView(APIView):
     """Fetch user view"""
+    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request, *args, **kwargs):
@@ -209,6 +210,7 @@ class GetUserView(APIView):
 
 class UsersView(APIView):
     """All Users View"""
+    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request, *args, **kwargs):
@@ -229,6 +231,17 @@ class UsersView(APIView):
 class TeamViewSet(ModelViewSet):
     serializer_class = TeamSerializer
     queryset = Team.objects.all()
+
+    def create(self, request, *args, **kwargs):
+        """Creation team is possible only in case if user doesn't have team"""
+
+        if self.request.user.has_team:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)

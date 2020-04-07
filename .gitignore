@@ -11,3 +11,5 @@ __pychache__/
 *.pyc
 /media/
 media/
+celerybeat.pid
+celerybeat-schedule

@@ -39,7 +39,7 @@ class CreateTopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ['title', 'author', 'body', 'icon', 'description', 'section', 'id']
+        fields = ['title', 'author', 'body', 'description', 'section', 'id']
 
 
 class EditTopicSerializer(serializers.ModelSerializer):
@@ -48,7 +48,7 @@ class EditTopicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Topic
-        fields = ['author', 'body', 'icon', 'description', 'section']
+        fields = ['author', 'body', 'description', 'section']
 
 
 class MiniChatMessageSerializer(serializers.ModelSerializer):

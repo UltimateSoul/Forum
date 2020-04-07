@@ -18,7 +18,7 @@
             <th scope="col">Topic</th>
             <th scope="col">Responses</th>
             <th scope="col">Author</th>
-            <th scope="col">Created Date</th>
+            <th scope="col">Edited Date</th>
           </tr>
           </thead>
           <tbody name="slide" is="transition-group">
@@ -30,7 +30,7 @@
             </th>
             <td>{{ topic.posts_quantity }}</td>
             <td>{{ topic.author.username }}</td>
-            <td>{{ topic.created_date | getDateFormat }}</td>
+            <td>{{ topic.edited_at | getDateFormat }}</td>
           </tr>
           </tbody>
         </table>

@@ -96,8 +96,22 @@ class TeamMemberRestrictedSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
     total_members = serializers.ReadOnlyField()
-    owner = UserSerializer()
+    owner = UserSerializer(required=False)
     members = TeamMemberRestrictedSerializer(read_only=True, many=True)
+
+    def update(self, instance, validated_data):
+        if validated_data.get('avatar') and instance.avatar:
+            instance.avatar.delete()  # needs to not save redundant images on server
+        for field_name, value in validated_data.items():
+            setattr(instance, field_name, value)
+        instance.save()
+        return instance
+
+    def validate_avatar(self, image):
+        mb3 = 3145728
+        if image.size > mb3:
+            assert serializers.ValidationError("Your image size must be less than 3 mb")
+        return image
 
     class Meta:
         model = Team

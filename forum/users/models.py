@@ -15,6 +15,7 @@ class User(AbstractUser):
                       ('FEMALE', 'Female'),
                       ('OTHER', 'Other')]
     avatar = models.ImageField(blank=True, null=True,
+                               default='static/images/default.jpg',
                                upload_to=user_directory_path)
     popularity = models.PositiveIntegerField(default=0)
     coins = models.PositiveIntegerField(default=0)
@@ -26,6 +27,16 @@ class User(AbstractUser):
     description = models.TextField(blank=True, null=True)
 
     is_moderator = models.BooleanField(default=False)
+
+    @property
+    def has_team(self) -> bool:
+        """User can be team owner or team member"""
+
+        team = Team.objects.filter(owner=self).first()
+        team_member = None
+        if not team:
+            team_member = TeamMember.objects.filter(user=self).first()
+        return bool(team or team_member)
 
     @classmethod
     def get_active_users(cls) -> list:

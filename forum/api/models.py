@@ -37,9 +37,7 @@ class Topic(models.Model):
     title = models.CharField(max_length=255)
     body = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    edited_at = models.DateTimeField(auto_now=True)
-    icon = models.ImageField(upload_to='static/images/icons', blank=True,
-                             null=True)
+    edited_at = models.DateTimeField()
     description = models.CharField(max_length=255)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
     section = models.CharField(max_length=13, choices=SECTION_CHOICES,
@@ -62,7 +60,7 @@ class Topic(models.Model):
     class Meta:
         verbose_name = 'Topic'
         verbose_name_plural = 'Topics'
-        ordering = ['-created_at']
+        ordering = ['-edited_at']
 
 
 class MiniChatMessage(models.Model):

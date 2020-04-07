@@ -34,7 +34,7 @@ class RegistrationView(APIView):
             email_token = account_activation_token.make_token(user)
             domain = get_current_site(request).domain
             send_confirmation_email.delay(user_pk=user.id,
-                                          current_site=domain,
+                                          domain=domain,
                                           token=email_token,
                                           user_email=user.email)
             # settings.BASE_DIR  ToDo: add default image (situated in static folder)

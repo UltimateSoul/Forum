@@ -6,7 +6,7 @@ from rest_framework.authtoken.models import Token
 
 from api.models import Topic, Like, Comment, Post
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
-from users.models import UserTeamRequest
+from users.models import UserTeamRequest, Team
 from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
     UserTeamRequestFactory
 from django.urls import reverse
@@ -307,8 +307,74 @@ class TestRanksViewSet(APITestCase):
         response = self.client.patch(reverse('api:ranks-detail', kwargs=params), data=data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
+
+class TestTeamViewSet(APITestCase):
+    def setUp(self) -> None:
+        self.user = UserFactory()
+        token = Token.objects.get(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+        self.team = TeamFactory(owner=self.user)
+
+    def test_get_teams(self):
+        """Tests that users can successfully fetch data about teams"""
+        owner2 = AnotherUserFactory()
+        owner3 = AnotherUserFactory(username='team owner 3', email='teamowner3@gmail.com')
+        TeamFactory(owner=owner2, name='second team')
+        TeamFactory(owner=owner3, name='third team')
+
+        usual_user = UserFactory(
+            username='usualuser',
+            email='default@email.com'
+        )
+        token = Token.objects.get(user=usual_user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        response = self.client.get(reverse('api:teams-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data.get('results')), 3)
+
+    def test_create_new_team(self):
+        """Tests that users without team can create them"""
+        default_user = AnotherUserFactory()
+        token = Token.objects.get(user=default_user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        data = {
+            'name': 'Griffons',
+            'description': 'Only strong souls can be joined us.'
+        }
+        response = self.client.post(reverse('api:teams-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertTrue(Team.objects.filter(name=data['name']).exists())
+
+    def test_cannot_create_new_team(self):
+        """Tests that users with team cannot create them"""
+
+        data = {
+            'name': 'Griffons',
+            'description': 'Only strong souls can be joined us.'
+        }
+        response = self.client.post(reverse('api:teams-list'), data)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_owners_can_edit_team_data(self):
+        """Tests that team owners can edit team data"""
+
+        data = {
+            'description': 'Edited description',
+            'name': 'Edited Name'
+        }
+        response = self.client.patch(reverse('api:teams-detail', kwargs={'pk': self.team.id}), data)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        team = Team.objects.get(id=self.team.id)
+        self.assertEqual(team.name, data['name'])
+        self.assertEqual(team.description, data['description'])
+
     def test_get_team_for_user(self):
-        """Tests "get-team-for-user action functionality"""
+        """Tests get-team-for-user action functionality"""
 
         response = self.client.get(reverse('api:teams-get-team-for-user'))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
