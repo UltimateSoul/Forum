@@ -1,5 +1,16 @@
 from .base import *
 
+INSTALLED_APPS += [
+    'django_elasticsearch_dsl',
+    'django_elasticsearch_dsl_drf',
+]
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'elasticsearch:9200'
+    },
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -12,9 +23,8 @@ DATABASES = {
 }
 
 STATICFILES_DIRS = (
-  os.path.join(PROJECT_DIR, 'static/'),
+    os.path.join(PROJECT_DIR, 'static/'),
 )
-
 
 CELERY_BROKER_URL = 'redis://redis:6380'
 CELERY_RESULT_BACKEND = 'redis://redis:6380'
