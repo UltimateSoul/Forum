@@ -83,8 +83,10 @@
     },
     filters: {
       getDateFormat(value) {
-        let date = new Date(value);
-        return date.toLocaleDateString()
+        let dateObj = new Date(value);
+        let date = dateObj.toLocaleDateString();
+        let time = dateObj.toLocaleTimeString();
+        return `${date}  ${time}`
       }
     }
   }

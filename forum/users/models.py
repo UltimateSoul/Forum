@@ -28,15 +28,24 @@ class User(AbstractUser):
 
     is_moderator = models.BooleanField(default=False)
 
+    def get_team(self):
+        try:
+            team = self.my_team
+        except Team.DoesNotExist as error:
+            try:
+                team = self.teammember.team
+            except TeamMember.DoesNotExist as error:
+                return False
+        return team
+
     @property
     def has_team(self) -> bool:
         """User can be team owner or team member"""
 
-        team = Team.objects.filter(owner=self).first()
-        team_member = None
-        if not team:
-            team_member = TeamMember.objects.filter(user=self).first()
-        return bool(team or team_member)
+        has_team = Team.objects.filter(owner=self).exists()
+        if not has_team:
+            has_team = TeamMember.objects.filter(user=self).exists()
+        return has_team
 
     @classmethod
     def get_active_users(cls) -> list:
@@ -103,10 +112,11 @@ class User(AbstractUser):
 
 
 class Team(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, unique=True)
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='my_team',
                                  null=True, blank=True, on_delete=models.SET_NULL)
-    description = models.TextField()
+    description = models.CharField(max_length=255)
+    base_info = models.TextField(null=True, blank=True)
     avatar = models.ImageField(blank=True, null=True, upload_to=team_directory_path)
 
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)

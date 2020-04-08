@@ -3,14 +3,15 @@ import axios from 'axios'
 const state = {
   user: {
     isLogged: false,
-    authToken: '',
     userID: null,
     username: '',
     email: '',
     bloodCoins: 0,
     avatarImage: '',
     gameNickName: '',
-    gender: ''
+    gender: '',
+    hasTeam: false,
+    teamID: null
   },
 };
 
@@ -28,7 +29,9 @@ const getters = {
       bloodCoins: user.bloodCoins,
       avatar: user.avatarImage,
       gameNickName: user.gameNickName,
-      gender: user.gender
+      gender: user.gender,
+      hasTeam: user.hasTeam,
+      teamID: user.teamID
     };
   },
   isMainUser: state => idToCheck => {
@@ -44,15 +47,15 @@ const actions = {
           sessionStorage.setItem('auth_token', response.data.token);
           axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+          axios.defaults.headers.delete['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-          context.commit('setAuthToken', response.data.token);
-          context.dispatch('fetchUser', response.data.token)
+          context.commit('setAuthToken');
+          context.dispatch('fetchUser')
         }
       )
   },
-  fetchUser({commit}, authToken) {
-    let data = {auth_token: authToken};
-    return axios.get('/get-user/', {params: data})
+  fetchUser({commit}) {
+    return axios.get('/get-user/')
       .then((response) => {
         let userData = response.data;
         commit('setUserData', userData)
@@ -66,17 +69,15 @@ const actions = {
       .then((response) => {
         let auth_token = response.data.auth_token;
         sessionStorage.setItem('auth_token', auth_token);
-        context.commit('setAuthToken', auth_token);
-        context.dispatch('fetchUser', auth_token)
-
+        context.commit('setAuthToken');
+        context.dispatch('fetchUser')
       })
   }
 };
 
 const mutations = {
-  setAuthToken(state, authToken) {
+  setAuthToken(state) {
     state.user.isLogged = Boolean(sessionStorage.getItem('auth_token'));
-    state.user.authToken = authToken
   },
   setUserData(state, userData) {
     state.user.userID = userData.pk;
@@ -85,6 +86,8 @@ const mutations = {
     state.user.avatarImage = userData.avatar;
     state.user.gender = userData.gender;
     state.user.gameNickName = userData.game_nickname;
+    state.user.hasTeam = userData.has_team;
+    state.user.teamID = userData.team_id;
   },
   logout(state) {
     sessionStorage.removeItem('auth_token');

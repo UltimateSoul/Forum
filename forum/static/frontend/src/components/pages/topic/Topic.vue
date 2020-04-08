@@ -204,7 +204,6 @@
         };
         axios.post('comments/', data)
           .then((response) => {
-            debugger
             switch (response.status) {
               case 201:
                 this.commentText = '';

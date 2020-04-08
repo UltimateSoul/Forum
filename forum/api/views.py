@@ -198,12 +198,10 @@ class UserProfileView(APIView):
 
 class GetUserView(APIView):
     """Fetch user view"""
-    permission_classes = [AllowAny]
 
     @staticmethod
     def get(request, *args, **kwargs):
-        token = Token.objects.get(key=request.GET.get('auth_token'))
-        user = User.objects.get(auth_token=token)
+        user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
 
@@ -231,6 +229,11 @@ class UsersView(APIView):
 class TeamViewSet(ModelViewSet):
     serializer_class = TeamSerializer
     queryset = Team.objects.all()
+
+    def get_queryset(self):
+        if 'name' in self.request.GET:
+            return self.queryset.filter(name=self.request.GET.get('name'))
+        return self.queryset
 
     def create(self, request, *args, **kwargs):
         """Creation team is possible only in case if user doesn't have team"""

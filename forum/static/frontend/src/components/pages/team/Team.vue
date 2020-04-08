@@ -87,6 +87,7 @@
       return {
         team: {
           avatar: '',
+          baseInfo: '',
           totalMembers: 0,
           createdAt: '',
           description: '',
@@ -102,12 +103,12 @@
 
         showTeamMembers: false,
         showTeamRequests: false,
-
         requestForUserExists: false,
       }
     },
     created() {
       const vueInstance = this;
+      this.$store.dispatch('fetchUser');
       this.getData(this.$route.params.teamID).then(
         () => {
           if (vueInstance.isOwner) {
@@ -134,6 +135,7 @@
                   this.members = response.data.members;
                   this.owner = response.data.owner;
                   this.team.avatar = response.data.avatar;
+                  this.team.baseInfo = response.data.base_info;
                   this.team.id = response.data.id;
                   this.team.name = response.data.name;
                   this.team.description = response.data.description;
@@ -188,6 +190,7 @@
                 this.requestForUserExists = true;
                 break;
               case 404:
+                this.requestForUserExists = false;
                 break;
               default:
                 this.requestForUserExists = false;
@@ -249,7 +252,8 @@
     },
     computed: {
       ...mapGetters([
-        'getUserData'
+        'getUserData',
+        'isHasTeam'
       ]),
       isOwner() {
         return this.owner.pk === this.getUserData.userID

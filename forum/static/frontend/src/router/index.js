@@ -61,6 +61,11 @@ const Team = resolve => {
     resolve(require('@/components/pages/team/Team'))
   })
 };
+const CreateTeam = resolve => {
+  require.ensure(['@/components/pages/team/CreateTeam'], () => {
+    resolve(require('@/components/pages/team/CreateTeam'))
+  })
+};
 
 Vue.use(Router);
 
@@ -120,6 +125,11 @@ export default new Router({
       path: '/teams/:teamID',
       name: 'team',
       component: Team
+    },
+    {
+      path: '/create-team',
+      name: 'create-team',
+      component: CreateTeam
     },
     {
       path: '/get-started',

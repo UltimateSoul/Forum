@@ -2,7 +2,7 @@
   <div>
     <div>
       <div class="button-control">
-        <b-button v-if="!hasTeam" variant="outline-primary">Create Team</b-button>
+        <b-button v-if="!hasTeam" @click="goToCreateTeam" variant="outline-primary">Create Team</b-button>
         <b-button v-else variant="outline-primary" @click="goToMyTeam">Visit my team</b-button>
       </div>
       <b-table @row-clicked="clickTeam" striped hover :items="teams" :fields="fields">
@@ -35,8 +35,9 @@
       }
     },
     created() {
+      this.$store.dispatch('fetchUser');
       this.getData();
-      this.isHasTeam();
+      this.getTeamForUser();
     },
     methods: {
       getData() {
@@ -59,7 +60,7 @@
           }
         )
       },
-      isHasTeam() {
+      getTeamForUser() {
         return axios.get('teams/get_team_for_user/').then(
           (response) => {
             switch (response.status) {
@@ -78,6 +79,11 @@
           params: {
             teamID: this.myTeamID
           }
+        })
+      },
+      goToCreateTeam() {
+        this.$router.push({
+          name: 'create-team'
         })
       },
       clickTeam(rowData) {

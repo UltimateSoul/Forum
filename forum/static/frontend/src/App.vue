@@ -23,8 +23,12 @@
     created() {
       let token = sessionStorage.getItem('auth_token');
       if (Boolean(token)) {
-        this.$store.commit('setAuthToken', token);
-        this.$store.dispatch('fetchUser', token)
+        this.$store.commit('setAuthToken');
+        this.$store.dispatch('fetchUser')
+      } else {
+        this.$router.push(
+          {name: 'login'}
+        )
       }
     },
     components: {

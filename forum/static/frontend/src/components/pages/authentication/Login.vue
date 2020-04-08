@@ -58,11 +58,10 @@
           username: this.username,
           password: this.password
         };
-        let vueInstance = this;
         this.$store.dispatch('login', data)
           .then(() => {
-            if (vueInstance.isLogged) {
-              setTimeout(this.homePageClick, 3500)
+            if (this.isLogged) {
+              this.homePageClick
             }
           })
           .catch((response) => {

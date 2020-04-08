@@ -65,7 +65,6 @@ class TestTopicViewSet(APITestCase):
 
     def test_topic_viewset_list(self):
         """Testing TopicViewSet list of topics by section functionality"""
-        data = {'section': Topic.CONVERSATION}
         TopicFactory()
         TopicFactory(title='Test Title2',
                      body='Test body',
