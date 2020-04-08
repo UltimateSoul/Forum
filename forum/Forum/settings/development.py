@@ -16,8 +16,8 @@ STATICFILES_DIRS = (
 )
 
 
-CELERY_BROKER_URL = 'redis://localhost:6380'  # change to 'redis://redis:6380' when dockerizing
-CELERY_RESULT_BACKEND = 'redis://localhost:6380'  # change to 'redis://redis:6380' when dockerizing
+CELERY_BROKER_URL = 'redis://redis:6380'
+CELERY_RESULT_BACKEND = 'redis://redis:6380'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
