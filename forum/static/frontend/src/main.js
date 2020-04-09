@@ -11,17 +11,20 @@ import axios from 'axios'
 import Vuelidate from 'vuelidate';
 import PortalVue from 'portal-vue'
 import VModal from 'vue-js-modal'
+import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
 
 Vue.use(VModal);
 Vue.use(PortalVue);
 Vue.use(Vuelidate);
 Vue.use(BootstrapVue);
+Vue.component('vue-bootstrap-typeahead', VueBootstrapTypeahead)
 Vue.config.productionTip = false;
 
 axios.defaults.baseURL = 'http://0.0.0.0:5000/api/';
 if (sessionStorage.getItem('auth_token')){
  axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
  axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+ axios.defaults.headers.delete['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
  axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
 }
 // router.beforeEach((to, from, next) =>{

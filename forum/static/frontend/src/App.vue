@@ -15,8 +15,8 @@
 
 <script>
   import Sidebar from './components/Sidebar'
-  // import Header from './components/Header'
-  // import Footer from './components/Footer'
+  // // import Header from './components/Header'
+  // // import Footer from './components/Footer'
 
   export default {
     name: 'App',
@@ -32,7 +32,8 @@
       }
     },
     components: {
-      sidebar: Sidebar
+      sidebar: Sidebar,
+      // VueBootstrapTypeahead,
       // headerComponent: Header,
       // footerComponent: Footer
     }

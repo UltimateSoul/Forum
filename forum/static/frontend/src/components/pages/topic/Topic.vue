@@ -1,5 +1,11 @@
 <template>
   <div>
+    <b-pagination
+      v-model="currentPage"
+      :total-rows="rows"
+      :per-page="15"
+      aria-controls="my-table"
+    ></b-pagination>
     <h1>{{topic.title}}</h1>
     <hr>
     <h5>{{topic.description}}</h5>

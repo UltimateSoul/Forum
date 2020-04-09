@@ -1,5 +1,10 @@
 <template>
   <div>
+    <vue-bootstrap-typeahead
+      v-model="elasticSearch.query"
+      @input="getAlternatives"
+      :data="elasticSearch.searchedAlternatives"
+    />
     <div class="row">
       <div class="col-lg-8">
         <h1>Conversation</h1>
@@ -26,7 +31,7 @@
               @click="moveToTopic(topic.id)" class="clickable">
 
             <th>
-                {{ topic.title }}
+              {{ topic.title }}
             </th>
             <td>{{ topic.posts_quantity }}</td>
             <td>{{ topic.author.username }}</td>
@@ -52,7 +57,11 @@
         loading: false,
         topics: [],
         testQuantity: 2,
-        section: this.$route.params.section
+        section: this.$route.params.section,
+        elasticSearch: {
+          searchedAlternatives: [],
+          query: ''
+        }
       }
     },
     created() {
@@ -62,8 +71,8 @@
     methods: {
       getData() {
         axios.get(`topics/by-section/`, {params: {section: this.section.toUpperCase()}}).then((resp) => {
-            this.topics = resp.data;
-          })
+          this.topics = resp.data;
+        })
           .finally(() => {
             this.loading = false;
           })
@@ -79,6 +88,9 @@
             topicID: topicID
           }
         })
+      },
+      getAlternatives() {
+        // ToDo: fetch data in elasticsearch here
       }
     },
     filters: {
