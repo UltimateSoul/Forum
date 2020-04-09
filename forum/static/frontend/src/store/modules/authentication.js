@@ -6,11 +6,12 @@ const state = {
     userID: null,
     username: '',
     email: '',
-    bloodCoins: 0,
+    coins: 0,
     avatarImage: '',
     gameNickName: '',
     gender: '',
     hasTeam: false,
+    isTeamOwner: false,
     teamID: null
   },
 };
@@ -26,12 +27,13 @@ const getters = {
       userID: user.userID,
       username: user.username,
       email: user.email,
-      bloodCoins: user.bloodCoins,
+      coins: user.coins,
       avatar: user.avatarImage,
       gameNickName: user.gameNickName,
       gender: user.gender,
       hasTeam: user.hasTeam,
-      teamID: user.teamID
+      teamID: user.teamID,
+      isTeamOwner: user.isTeamOwner,
     };
   },
   isMainUser: state => idToCheck => {
@@ -88,6 +90,7 @@ const mutations = {
     state.user.gameNickName = userData.game_nickname;
     state.user.hasTeam = userData.has_team;
     state.user.teamID = userData.team_id;
+    state.user.isTeamOwner = userData.is_team_owner;
   },
   logout(state) {
     sessionStorage.removeItem('auth_token');

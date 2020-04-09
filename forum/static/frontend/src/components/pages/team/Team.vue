@@ -27,13 +27,27 @@
         </b-card>
       </div>
     </modal>
-    <b-button style="float: right" v-if="isOwner && teamRequests.length" @click="showTeamRequestModal" variant="success">
-      {{ teamRequestsButtonText }}
-    </b-button>
-    <b-button style="float: right" v-if="isOwner && !teamRequests.length" @click="showTeamRequestModal" variant="success" disabled>
-      {{ teamRequestsButtonText }}
-    </b-button>
-    <b-button style="float: right" v-if="!isMember && !isOwner && !requestForUserExists" @click="joinTeam" variant="success">Join Team</b-button>
+    <b-row>
+      <b-col lg="8">
+        <b-button class="float-left" v-if="isOwner" @click="goToEditTeam"
+                  variant="success">
+          Edit Team
+        </b-button>
+      </b-col>
+      <b-col lg="4">
+        <b-button class="float-right" v-if="isOwner && teamRequests.length" @click="showTeamRequestModal"
+                  variant="success">
+          {{ teamRequestsButtonText }}
+        </b-button>
+        <b-button class="float-right" v-if="isOwner && !teamRequests.length" @click="showTeamRequestModal"
+                  variant="success" disabled>
+          {{ teamRequestsButtonText }}
+        </b-button>
+        <b-button class="float-right" v-if="!isMember && !isOwner && !requestForUserExists" @click="joinTeam"
+                  variant="success">Join Team
+        </b-button>
+      </b-col>
+    </b-row>
     <div>
       <img :src="team.avatar" height="250" width="250">
       <hr>
@@ -62,17 +76,12 @@
             {{ data.item.user.game_nickname }}
           </template>
           <template v-slot:cell(rank)="data">
-            <div v-if="data.item.rank" >
+            <div v-if="data.item.rank">
               {{ data.item.rank.name }}
             </div>
           </template>
         </b-table>
       </div>
-
-
-    </div>
-    <div class="button-control" v-if="isOwner">
-      <b-button variant="outline-primary">Edit</b-button>
     </div>
   </div>
 </template>
@@ -112,10 +121,11 @@
       this.getData(this.$route.params.teamID).then(
         () => {
           if (vueInstance.isOwner) {
-          vueInstance.getTeamRequests(1)
-        } else {
+            vueInstance.getTeamRequests(1)
+          } else {
             vueInstance.checkIfRequestExists(vueInstance.$route.params.teamID)
-          }}
+          }
+        }
       );
       this.getTeamRanks(this.$route.params.teamID);
     },
@@ -195,7 +205,7 @@
               default:
                 this.requestForUserExists = false;
             }
-        }
+          }
         )
       },
       getTeamRanks(teamID) {
@@ -248,6 +258,14 @@
             }
           }
         )
+      },
+      goToEditTeam() {
+        this.$router.push({
+          'name': 'edit-team',
+          params: {
+            teamID: this.$route.params.teamID
+          }
+        })
       }
     },
     computed: {

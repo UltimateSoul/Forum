@@ -1,28 +1,13 @@
 <template>
   <div>
-    <h1>Team Creation</h1>
+    <b-img height="250" width="250" :src="getTeamAvatar"></b-img>
+    <h1>{{ getTeamName }} Team Editing</h1>
     <div class="form-container">
       <b-form>
-        <b-form-group label="Team Title" label-for="teamTitleInput">
-          <b-form-input type="text"
-                        class="form-control text-center"
-                        id="teamTitleInput"
-                        :maxlength="255"
-                        aria-describedby="teamTitleHelp"
-                        :state="validateState('name')"
-                        @blur="$v.name.$touch()"
-                        v-model="$v.name.$model"
-                        placeholder="My Awesome Team"></b-form-input>
-          <small id="teamTitleHelp" class="form-text text-muted"
-                 :class="{'danger-team-name-text': !$v.name.unique}">
-            {{ teamTitleSmallText }}
-          </small>
-        </b-form-group>
-        <hr>
         <b-form-group label="Quick description of your team" label-for="teamDescriptionInput">
           <b-form-input
             id="teamDescriptionInput"
-            v-model="description"
+            v-model="dataToChange.description"
             placeholder="Enter something..."
             :maxlength="255"
           ></b-form-input>
@@ -34,7 +19,7 @@
         <b-form-group label="Base information about your team" label-for="teamBaseInfo">
           <b-form-textarea
             id="teamBaseInfo"
-            v-model="baseInfo"
+            v-model="dataToChange.baseInfo"
             placeholder="Enter something..."
             rows="3"
             max-rows="6"
@@ -47,8 +32,8 @@
         <b-form-group label="Team Image" label-for="teamAvatarInput">
           <b-form-file
             id="teamAvatarInput"
-            v-model="file"
-            :state="Boolean(file)"
+            v-model="dataToChange.file"
+            :state="Boolean(dataToChange.file)"
             placeholder="Choose an image file or drop it here..."
             drop-placeholder="Drop file here..."
           ></b-form-file>
@@ -59,14 +44,8 @@
         <div class="button-control">
           <button type="button"
                   class="btn btn-primary btn-lg"
-                  v-if="$v.$invalid"
-                  disabled>Submit
-          </button>
-          <button type="button"
-                  class="btn btn-primary btn-lg"
-                  v-else
-                  @click="createTeam"
-          >Submit
+                  @click="updateTeam"
+          >Update
           </button>
         </div>
       </b-form>
@@ -82,9 +61,13 @@
     name: "EditTeam",
     data() {
       return {
-        description: '',
-        file: null,
-        baseInfo: '',
+        dataToChange: {
+          description: '',
+          file: null,
+          baseInfo: '',
+        },
+
+
       }
     },
     created() {
@@ -93,29 +76,31 @@
           name: 'home'
         })
       }
+      this.$store.dispatch('getTeamData', this.$route.params.teamID).then(
+        () => {
+          this.dataToChange.description = this.getTeam.description
+          this.dataToChange.baseInfo = this.getTeam.baseInfo
+        }
+      )
     },
     methods: {
-      validateState(name) {
-        const {$dirty, $error} = this.$v[name];
-        return $dirty ? !$error : null;
-      },
-      createTeam() {
+      updateTeam() {
         const formData = new FormData();
-        if (this.file) {
-          formData.append('avatar', this.file);
+        if (this.dataToChange.file) {
+          formData.append('avatar', this.dataToChange.file);
         }
-        formData.append('name', this.name);
-        formData.append('description', this.description);
-        formData.append('base_info', this.baseInfo);
-        axios.post('teams/', formData).then(
+        formData.append('description', this.dataToChange.description);
+        formData.append('base_info', this.dataToChange.baseInfo);
+        axios.patch(`teams/${this.$route.params.teamID}/`, formData).then(
           (response) => {
+            debugger
             switch (response.status) {
-              case 201:
+              case 200:
                 this.$store.dispatch('fetchUser');
                 this.$router.push({
                   name: 'team',
                   params: {
-                    teamID: response.data.pk
+                    teamID: this.$route.params.teamID
                   }
                 });
                 break;
@@ -131,6 +116,9 @@
     computed: {
       ...mapGetters([
         'isTeamOwner',
+        'getTeam',
+        'getTeamName',
+        'getTeamAvatar',
       ]),
     }
   }

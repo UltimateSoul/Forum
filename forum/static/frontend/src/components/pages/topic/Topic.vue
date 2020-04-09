@@ -30,95 +30,106 @@
       <div class="button-control" v-if="isMainUser(author.pk)">
         <b-button @click="editTopic">Edit</b-button>
       </div>
-      <div v-for="post in posts"
-           :key="post.id">
-        <hr>
-        <b-card no-body class="overflow-hidden">
-          <b-row no-gutters>
-            <b-col md="2">
-              <b-card-img :src="post.author.avatar" class="rounded-1"></b-card-img>
-            </b-col>
-            <b-col md="10">
-              <b-card-body :title="post.author.username">
-                <b-card-text>
-                  {{post.body}}
-                </b-card-text>
-              </b-card-body>
-            </b-col>
-            Likes: {{post.total_likes}}
-          </b-row>
+      <div v-if="loading">
+        <b-spinner class="spinner-style" label="Loading..."></b-spinner>
+      </div>
+      <div v-else>
+        <div v-for="post in posts"
+             :key="post.id">
+          <hr>
+          <b-card no-body class="overflow-hidden">
+            <b-row no-gutters>
+              <b-col md="2">
+                <b-card-img :src="post.author.avatar" class="rounded-1"></b-card-img>
+              </b-col>
+              <b-col md="10">
+                <b-card-body :title="post.author.username">
+                  <b-card-text>
+                    {{post.body}}
+                  </b-card-text>
+                </b-card-body>
+              </b-col>
+              Likes: {{post.total_likes}}
+            </b-row>
+            <div class="button-control">
+              <b-button variant="primary"
+                        :pressed="post.is_liked"
+                        @click="likeOrUnlikePostClick(post.id, post.is_liked)"
+                        :id="'like-post-button-' + post.id">
+                Like
+              </b-button>
+            </div>
+          </b-card>
           <div class="button-control">
             <b-button variant="primary"
-                      :pressed="post.is_liked"
-                      @click="likeOrUnlikePostClick(post.id, post.is_liked)"
-                      :id="'like-post-button-' + post.id">
-              Like
+                      @click="buttonsEngine['button-'+post.id].isOpen = !buttonsEngine['button-'+post.id].isOpen"
+                      :id="'button-' + post.id">
+              {{ getCommentsButtonText('button-' + post.id) }}
             </b-button>
           </div>
-        </b-card>
-        <div class="button-control">
-          <b-button variant="primary"
-                    @click="buttonsEngine['button-'+post.id].isOpen = !buttonsEngine['button-'+post.id].isOpen"
-                    :id="'button-' + post.id">
-            {{ getCommentsButtonText('button-' + post.id) }}
+          <div v-if="buttonsEngine['button-'+post.id].isOpen">
+            <div class="message-range" v-for="comment in post.comments">
+              <b-card no-body class="overflow-hidden">
+                <b-row no-gutters>
+                  <b-col md="2">
+                    <b-card-img :src="comment.author.avatar" class="rounded-1"></b-card-img>
+                  </b-col>
+                  <b-col md="10">
+                    <b-card-body :title="comment.author.username">
+                      <b-card-text>
+                        {{comment.body}}
+                      </b-card-text>
+                    </b-card-body>
+                  </b-col>
+                </b-row>
+                Likes: {{comment.total_likes}}
+                <div class="button-control">
+
+                  <b-button :pressed="comment.is_liked"
+                            variant="primary"
+                            @click="likeOrUnlikeCommentClick(comment.id, comment.is_liked)"
+                            :id="'like-comment-button-' + comment.id">
+                    Like
+                  </b-button>
+                </div>
+              </b-card>
+            </div>
+            <div class="message-range">
+              <b-form-textarea
+                id="textarea"
+                v-model="commentText"
+                placeholder="Enter comment..."
+                rows="3"
+                max-rows="6"
+              ></b-form-textarea>
+              <b-button variant="primary"
+                        @click="saveComment(post.id)"
+                        :id="'button-comment' + post.id">
+                Post
+              </b-button>
+            </div>
+          </div>
+        </div>
+        <div class="message-range">
+          <b-form-textarea
+            id="textarea"
+            v-model="postText"
+            placeholder="Enter post..."
+            rows="3"
+            max-rows="6"
+          ></b-form-textarea>
+          <b-button @click="savePost" variant="primary">
+            Post
           </b-button>
         </div>
-        <div v-if="buttonsEngine['button-'+post.id].isOpen">
-          <div class="message-range" v-for="comment in post.comments">
-            <b-card no-body class="overflow-hidden">
-              <b-row no-gutters>
-                <b-col md="2">
-                  <b-card-img :src="comment.author.avatar" class="rounded-1"></b-card-img>
-                </b-col>
-                <b-col md="10">
-                  <b-card-body :title="comment.author.username">
-                    <b-card-text>
-                      {{comment.body}}
-                    </b-card-text>
-                  </b-card-body>
-                </b-col>
-              </b-row>
-              Likes: {{comment.total_likes}}
-              <div class="button-control">
-
-                <b-button :pressed="comment.is_liked"
-                          variant="primary"
-                          @click="likeOrUnlikeCommentClick(comment.id, comment.is_liked)"
-                          :id="'like-comment-button-' + comment.id">
-                  Like
-                </b-button>
-              </div>
-            </b-card>
-          </div>
-          <div class="message-range">
-            <b-form-textarea
-              id="textarea"
-              v-model="commentText"
-              placeholder="Enter comment..."
-              rows="3"
-              max-rows="6"
-            ></b-form-textarea>
-            <b-button variant="primary"
-                      @click="saveComment(post.id)"
-                      :id="'button-comment' + post.id">
-              Post
-            </b-button>
-          </div>
-        </div>
-      </div>
-      <div class="message-range">
-        <b-form-textarea
-          id="textarea"
-          v-model="postText"
-          placeholder="Enter post..."
-          rows="3"
-          max-rows="6"
-        ></b-form-textarea>
-        <b-button @click="savePost" variant="primary">
-          Post
-        </b-button>
       </div>
     </div>
+    <b-pagination
+      v-model="currentPage"
+      :total-rows="rows"
+      :per-page="15"
+      aria-controls="my-table"
+    ></b-pagination>
   </div>
 </template>
 
@@ -130,7 +141,10 @@
     name: "Topic",
     data() {
       return {
+        loading: false,
         topicID: this.$route.params.topicID,
+        rows: 1,
+        perPage: 3,
         topic: {
           title: "",
           description: "",
@@ -153,7 +167,16 @@
     },
     created() {
       this.getTopicData();
-      this.getTopicPosts(1)
+      this.getTopicPosts(this.currentPage)
+    },
+    watch: {
+      '$route'(to, from) {
+        this.getTopicData();
+        this.getTopicPosts(this.currentPage);
+      },
+      'currentPage'() {
+        this.getTopicPosts(this.currentPage);
+      }
     },
     methods: {
       getTopicData() {
@@ -173,6 +196,7 @@
         )
       },
       getTopicPosts(page) {
+        this.loading = true
         axios.get('posts/', {
           params: {
             topic: this.topicID,
@@ -180,12 +204,14 @@
           }
         }).then((response) => {
           this.posts = response.data.results;
+          this.rows = response.data.count
           this.posts.forEach(post => {
             let buttonID = 'button-' + post.id;
             this.$set(this.buttonsEngine, buttonID, {
               isOpen: false
             })
           })
+          this.loading = false
         })
       },
       editTopic() {

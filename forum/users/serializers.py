@@ -21,6 +21,7 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     has_team = serializers.ReadOnlyField()
     team_id = serializers.SerializerMethodField()
+    is_team_owner = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -36,11 +37,19 @@ class UserSerializer(serializers.ModelSerializer):
                   "email",
                   "has_team",
                   "team_id",
+                  "is_team_owner",
                   "pk"]
 
     def get_team_id(self, user):
         team = user.get_team()
         return team.id if team else None
+
+    def get_is_team_owner(self, user):
+        try:
+            user.my_team
+        except Team.DoesNotExist:
+            return False
+        return True
 
 
 class RestrictedUserSerializer(serializers.ModelSerializer):

@@ -54,6 +54,11 @@
     cursor: pointer;
   }
 
+  .spinner-style {
+    width: 5rem;
+    height: 5rem;
+  }
+
   .page-container {
     margin-left: auto;
     margin-right: auto;

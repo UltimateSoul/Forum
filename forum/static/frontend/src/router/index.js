@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/components/pages/Home'
+
 const Login = resolve => {
   require.ensure(['@/components/pages/authentication/Login'], () => {
     resolve(require('@/components/pages/authentication/Login'))
@@ -66,6 +67,11 @@ const CreateTeam = resolve => {
     resolve(require('@/components/pages/team/CreateTeam'))
   })
 };
+const EditTeam = resolve => {
+  require.ensure(['@/components/pages/team/EditTeam'], () => {
+    resolve(require('@/components/pages/team/EditTeam'))
+  })
+};
 
 Vue.use(Router);
 
@@ -125,6 +131,11 @@ export default new Router({
       path: '/teams/:teamID',
       name: 'team',
       component: Team
+    },
+    {
+      path: '/edit-team/:teamID',
+      name: 'edit-team',
+      component: EditTeam
     },
     {
       path: '/create-team',
