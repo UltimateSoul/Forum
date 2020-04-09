@@ -31,10 +31,10 @@ class User(AbstractUser):
     def get_team(self):
         try:
             team = self.my_team
-        except Team.DoesNotExist as error:
+        except Team.DoesNotExist:
             try:
                 team = self.teammember.team
-            except TeamMember.DoesNotExist as error:
+            except TeamMember.DoesNotExist:
                 return False
         return team
 
@@ -68,7 +68,7 @@ class User(AbstractUser):
             activity.append(instance.objects.filter(author=self, edited_at__range=[week_ago, now]).exists())
         return any(activity)
 
-    def calculate_coins(self):
+    def calculate_coins(self):  # noqa
         """Calculates coins for user"""
 
         now = datetime.datetime.now()

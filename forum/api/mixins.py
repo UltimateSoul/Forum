@@ -6,13 +6,14 @@ from api import services
 from api.serializers import FanSerializer
 from api.helpers import status as forum_status
 
+
 class LikedMixin:
 
     def get_object(self):
         raise NotImplementedError('Not implemented')
 
     @action(methods=['POST'], detail=True)
-    def like(self, request, **kwargs):
+    def like(self, request, **kwargs):  # noqa
         """Add like to object"""
         obj = self.get_object()
         _, is_created = services.add_like(obj, request.user)
@@ -21,14 +22,14 @@ class LikedMixin:
         return Response(status=forum_status.STATUS_220_ALREADY_LIKED)
 
     @action(methods=['POST'], detail=True)
-    def unlike(self, request, **kwargs):
+    def unlike(self, request, **kwargs):  # noqa
         """Delete like from object"""
         obj = self.get_object()
         services.remove_like(obj, request.user)
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=['GET'], detail=True)
-    def fans(self, request, **kwargs):
+    def fans(self, request, **kwargs):  # noqa
         """Get all users which liked object"""
         obj = self.get_object()
         fans = services.get_fans(obj)

@@ -69,9 +69,10 @@ class MiniChatMessage(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     edited_at = models.DateTimeField(auto_now=True)
 
-    def save(self, *args, **kwargs):
-        if self.__class__.objects.count() > 1000:
-            self.objects.first().delete()
+    def save(self, *args, **kwargs):  # noqa
+        if self.__class__.objects.count() > 10000:
+            to_delete_messages = self.__class__.objects.order_by('created_at')[:5000]
+            self.__class__.objects.filter(id__in=to_delete_messages).delete()
         super(MiniChatMessage, self).save(*args, **kwargs)
 
     class Meta:

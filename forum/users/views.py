@@ -21,7 +21,7 @@ class RegistrationView(APIView):
     permission_classes = [AllowAny]
 
     @staticmethod
-    def post(request, *args, **kwargs):
+    def post(request, *args, **kwargs):  # noqa
         data = request.data
         user_serializer = RegisterUserSerializer(data=data)
         if user_serializer.is_valid():
@@ -44,7 +44,7 @@ class RegistrationView(APIView):
 
 class EmailConfirmationHandleView(View):
 
-    def get(self, request, uidb64, token, **kwargs):
+    def get(self, request, uidb64, token, **kwargs):  # noqa
         try:
             uid = force_text(urlsafe_base64_decode(uidb64))
             user = User.objects.get(pk=uid)
@@ -52,7 +52,6 @@ class EmailConfirmationHandleView(View):
             user = None
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            user.save()
+            user.save()  # ToDo: add notification to the user
             return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
-        else:
-            return HttpResponse('Activation link is invalid!')
+        return HttpResponse('Activation link is invalid!')

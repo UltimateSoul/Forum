@@ -53,4 +53,3 @@ class UserTeamRequestAdmin(admin.ModelAdmin):
         if obj.team:
             return obj.team.name
         return 'doesnt exist'
-

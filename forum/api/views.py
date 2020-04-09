@@ -1,4 +1,3 @@
-from django.contrib.sites.shortcuts import get_current_site
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -7,7 +6,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import MiniChatMessage, Post, Comment
@@ -32,9 +30,6 @@ User = get_user_model()
 class HomeView(TemplateView):
     template_name = 'api/home.html'
 
-    def get(self, request, *args, **kwargs):
-        return super(HomeView, self).get(request, *args, **kwargs)
-
 
 class TopicViewSet(ModelViewSet, LikedMixin):
     paginator = LimitOffsetPagination()
@@ -49,24 +44,24 @@ class TopicViewSet(ModelViewSet, LikedMixin):
         obj = get_object_or_404(queryset, id=topic_id)
         return obj
 
-    def list(self, request, *args, **kwargs):
+    def list(self, request, *args, **kwargs):  # noqa
         topics = Topic.objects.all()
         queryset = self.paginator.paginate_queryset(topics, request)
         serializer = TopicSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):  # noqa
         serializer = CreateTopicSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         topic = serializer.save(author=self.request.user)
         return Response(status=status.HTTP_201_CREATED, data={'topic_id': topic.id})
 
-    def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):  # noqa
         topic = self.get_object()
         serializer = TopicSerializer(topic, context={'request': request})
         return Response(serializer.data)
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request, *args, **kwargs):  # noqa
         topic = self.get_object()
         is_able_to_edit = check_ability_to_edit(user=self.request.user, obj=topic)
         if is_able_to_edit:
@@ -76,7 +71,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
             return Response(status=status.HTTP_200_OK, data={'topic_id': topic.id})
         return Response(status=status.HTTP_403_FORBIDDEN)
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):  # noqa
         topic = self.get_object()
         is_able_to_delete = check_ability_to_delete(user=self.request.user)
         if is_able_to_delete:
@@ -85,7 +80,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
         return Response(status=status.HTTP_403_FORBIDDEN)
 
     @action(methods=['GET'], detail=False, url_name='search', url_path='search')
-    def search(self, request, *args, **kwargs):
+    def search(self, request, *args, **kwargs):  # noqa
         search_data = request.GET
         section = search_data['section'].upper()
         search_by = search_data['searchBy']
@@ -96,7 +91,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['GET'], detail=False, url_name='by-section', url_path='by-section')
-    def topics_by_section(self, request, *args, **kwargs):
+    def topics_by_section(self, request, *args, **kwargs):  # noqa
         section = request.GET.get('section')
         topics = Topic.objects.filter(section=section.upper())
         queryset = self.paginator.paginate_queryset(topics, request)
@@ -119,9 +114,8 @@ class MiniChatMessagesView(APIView):
         if mini_chat_message.is_valid():
             mini_chat_message.save(author=request.user)
             return Response({'success': True})
-        else:
-            return Response({'success': False,
-                             'errors': mini_chat_message.error_messages})
+        return Response({'success': False,
+                         'errors': mini_chat_message.error_messages})
 
 
 class PostsViewSet(ModelViewSet, LikedMixin):
@@ -138,7 +132,7 @@ class PostsViewSet(ModelViewSet, LikedMixin):
             return self.queryset.filter(topic=self.request.GET.get('topic'))
         return self.queryset
 
-    def get_serializer_context(self, *args, **kwargs):
+    def get_serializer_context(self, *args, **kwargs):  # noqa
         return {'request': self.request}
 
     def perform_create(self, serializer):
@@ -157,7 +151,7 @@ class CommentsViewSet(ModelViewSet, LikedMixin):
             return self.queryset.filter(post=self.request.GET.get('post'))
         return self.queryset
 
-    def get_serializer_context(self, *args, **kwargs):
+    def get_serializer_context(self, *args, **kwargs):  # noqa
         return {'request': self.request}
 
     def perform_create(self, serializer):
@@ -168,7 +162,7 @@ class UserProfileView(APIView):
     """User Profile View"""
 
     @staticmethod
-    def get(request, *args, **kwargs):
+    def get(request, *args, **kwargs):  # noqa
         user_id = kwargs.get('id')
         is_main_user = request.user.id == user_id
         try:
@@ -181,7 +175,7 @@ class UserProfileView(APIView):
         except User.DoesNotExist as error:
             return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
 
-    def patch(self, request, *args, **kwargs):
+    def patch(self, request, *args, **kwargs):  # noqa
         """Here user can change his profile data"""
         user_id = kwargs.get('id')
         user = request.user
@@ -200,7 +194,7 @@ class GetUserView(APIView):
     """Fetch user view"""
 
     @staticmethod
-    def get(request, *args, **kwargs):
+    def get(request, *args, **kwargs):  # noqa
         user = request.user
         serializer = UserSerializer(user)
         return Response(serializer.data)
@@ -211,8 +205,8 @@ class UsersView(APIView):
     permission_classes = [AllowAny]
 
     @staticmethod
-    def get(request, *args, **kwargs):
-        if request.GET.get('email'):
+    def get(request, *args, **kwargs):  # noqa
+        if request.GET.get('email'):  # noqa
             # Uses in registration process. Checks if email is unique
             users = User.objects.filter(email=request.GET.get('email'))
             serializer = UserSerializer(users, many=True)
@@ -235,7 +229,7 @@ class TeamViewSet(ModelViewSet):
             return self.queryset.filter(name=self.request.GET.get('name'))
         return self.queryset
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):  # noqa
         """Creation team is possible only in case if user doesn't have team"""
 
         if self.request.user.has_team:
@@ -254,7 +248,7 @@ class TeamViewSet(ModelViewSet):
             instance.delete()
 
     @action(methods=['GET'], detail=False)
-    def get_team_for_user(self, *args, **kwargs):
+    def get_team_for_user(self, *args, **kwargs):  # noqa
         """Returns team for user if it has team"""
         user = self.request.user
         team = Team.objects.filter(owner=user).first()
@@ -269,7 +263,7 @@ class RanksViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, IsTeamOwnerRankPermission]
 
     @action(methods=['GET'], detail=False)
-    def get_team_ranks(self, request, *args, **kwargs):
+    def get_team_ranks(self, request, *args, **kwargs):  # noqa
         team_id = request.GET.get('teamID')
         ranks = Rank.objects.filter(team__id=team_id)
         serializer = self.serializer_class(ranks, many=True)
@@ -291,10 +285,10 @@ class TeamRequestViewSet(ModelViewSet):
             permission_classes = [IsAuthenticated, IsTeamOwner, IsAbleToDelete]
         return [permission() for permission in permission_classes]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):  # noqa
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        obj, is_created = serializer.save()
+        _, is_created = serializer.save()
         response_status = 201 if is_created else forum_status.STATUS_222_USER_ALREADY_REQUESTED
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=response_status, headers=headers)
@@ -307,7 +301,7 @@ class TeamRequestViewSet(ModelViewSet):
         if not team_request.email_was_send:
             send_team_request_state_email(team_request.id)  # ToDo: add delay on PROD, need to remove for testing
 
-    def get_serializer(self, *args, **kwargs):
+    def get_serializer(self, *args, **kwargs):  # noqa
         serializer_class = self.serializer_class
         if self.request.method == 'POST':
             serializer_class = CreateUserTeamRequestSerializer
@@ -315,7 +309,7 @@ class TeamRequestViewSet(ModelViewSet):
         return serializer_class(*args, **kwargs)
 
     @action(methods=['GET'], detail=False, url_path='get-requests-for-team')
-    def get_requests_for_team(self, request, *args, **kwargs):
+    def get_requests_for_team(self, request, *args, **kwargs):  # noqa
 
         team_id = self.request.GET.get('teamID')
         page = self.paginate_queryset(self.queryset.filter(team_id=team_id))
@@ -326,7 +320,7 @@ class TeamRequestViewSet(ModelViewSet):
         return Response(serializer.data)
 
     @action(methods=['GET'], detail=False, url_path='is-request-exist')
-    def is_request_exist(self, request, *args, **kwargs):
+    def is_request_exist(self, request, *args, **kwargs):  # noqa
         data = request.GET
         get_object_or_404(queryset=self.queryset,
                           user=self.request.user,

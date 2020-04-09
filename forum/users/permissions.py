@@ -23,7 +23,7 @@ class IsTeamOwner(permissions.BasePermission):
     message = 'Only team owner can do this.'
 
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in permissions.SAFE_METHODS:  # noqa
             try:
                 team = request.user.my_team
                 if request.GET.get('teamID'):

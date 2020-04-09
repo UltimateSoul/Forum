@@ -1,6 +1,6 @@
-from .base import *
+from .base import *  # noqa
 
-INSTALLED_APPS += [
+INSTALLED_APPS += [  # noqa
     'django_elasticsearch_dsl',
     'django_elasticsearch_dsl_drf',
 ]
@@ -14,16 +14,16 @@ ELASTICSEARCH_DSL = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': os.getenv('HOST'),
-        'NAME': os.getenv('POSTGRES_DB'),
-        'USER': os.getenv('POSTGRES_USER'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'PORT': os.getenv('DB_PORT')
+        'HOST': os.getenv('HOST'),  # noqa
+        'NAME': os.getenv('POSTGRES_DB'),  # noqa
+        'USER': os.getenv('POSTGRES_USER'),  # noqa
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),  # noqa
+        'PORT': os.getenv('DB_PORT')  # noqa
     }
 }
 
 STATICFILES_DIRS = (
-    os.path.join(PROJECT_DIR, 'static/'),
+    os.path.join(PROJECT_DIR, 'static/'),  # noqa
 )
 
 CELERY_BROKER_URL = 'redis://redis:6380'
@@ -33,9 +33,9 @@ CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')  # noqa
 
-FROM_EMAIL = os.getenv('FROM_EMAIL')
+FROM_EMAIL = os.getenv('FROM_EMAIL')  # noqa
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'apikey'
