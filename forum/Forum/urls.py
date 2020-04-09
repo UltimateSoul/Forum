@@ -36,5 +36,6 @@ urlpatterns = [
     path('', HomeView.as_view()),
     path('admin/', admin.site.urls),
     path('api/', include(("api.urls", "api"), namespace="api")),
+    path('core/', include(("core.urls", "core"), namespace="core")),
     path('authentication/', include(("users.urls", "users"), namespace="users")),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + front_end_url_integration

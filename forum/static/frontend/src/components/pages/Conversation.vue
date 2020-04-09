@@ -2,8 +2,8 @@
   <div>
     <vue-bootstrap-typeahead
       v-model="elasticSearch.query"
-      @input="getAlternatives"
-      :data="elasticSearch.searchedAlternatives"
+      @input="getSuggestions"
+      :data="elasticSearch.suggestions"
     />
     <div class="row">
       <div class="col-lg-8">
@@ -59,7 +59,7 @@
         testQuantity: 2,
         section: this.$route.params.section,
         elasticSearch: {
-          searchedAlternatives: [],
+          suggestions: [],
           query: ''
         }
       }
@@ -89,8 +89,19 @@
           }
         })
       },
-      getAlternatives() {
-        // ToDo: fetch data in elasticsearch here
+      getSuggestions() {
+        axios.get('http://0.0.0.0:5000/core/search-topics/', {
+          params: {
+            query: this.elasticSearch.query
+          }
+        }).then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.elasticSearch.suggestions = response.data.suggestions;
+            }
+          }
+        )
       }
     },
     filters: {
