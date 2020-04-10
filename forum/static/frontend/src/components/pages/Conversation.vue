@@ -1,10 +1,38 @@
 <template>
   <div>
-    <vue-bootstrap-typeahead
-      v-model="elasticSearch.query"
-      @input="getSuggestions"
-      :data="elasticSearch.suggestions"
-    />
+    <div style="margin: 40px">
+      <vue-bootstrap-typeahead
+        @hit="searchTopicByTitle"
+        v-model="elasticSearch.query"
+        @input="getSuggestions"
+        placeholder="Search topics in that section by title"
+        :data="elasticSearch.suggestions"
+      />
+      <template slot="suggestion" slot-scope="{ data }">
+        {{ data.elasticSearch.suggestions }}
+      </template>
+    </div>
+    <modal name="searchedTopics" v-if="showSearchedTopicModal">
+      <div>
+        <b-card
+          :title="searchedTopic.title"
+          :img-src="searchedTopic.author.avatar"
+          img-alt="Image"
+          img-top
+          tag="article"
+          style="max-width: 60rem;"
+          class="mb-2"
+        >
+          <b-card-text>
+            {{ searchedTopic.body }}
+          </b-card-text>
+
+          <b-button @click="$router.push({name: 'topic',
+           params: {topicID: searchedTopic.pk}})" variant="primary">Go to this topic
+          </b-button>
+        </b-card>
+      </div>
+    </modal>
     <div class="row">
       <div class="col-lg-8">
         <h1>Conversation</h1>
@@ -55,13 +83,15 @@
     data() {
       return {
         loading: false,
+        showSearchedTopicModal: false,
         topics: [],
         testQuantity: 2,
         section: this.$route.params.section,
         elasticSearch: {
           suggestions: [],
           query: ''
-        }
+        },
+        searchedTopic: {}
       }
     },
     created() {
@@ -92,13 +122,30 @@
       getSuggestions() {
         axios.get('http://0.0.0.0:5000/core/search-topics/', {
           params: {
-            query: this.elasticSearch.query
+            query: this.elasticSearch.query,
+            section: this.$route.params.section
           }
         }).then(
           (response) => {
             switch (response.status) {
               case 200:
                 this.elasticSearch.suggestions = response.data.suggestions;
+            }
+          }
+        )
+      },
+      searchTopicByTitle() {
+        console.log(`I'm searching topic by title: "${this.elasticSearch.query}"`)
+        const data = {
+          searchBy: 'title',
+          value: this.elasticSearch.query
+        }
+        axios.get('topics/search/', {params: data}).then(
+          response => {
+            switch (response.status) {
+              case 200:
+                debugger;  // ToDo: finalize logic, improve elasticsearch search
+                this.searchedTopic = response.data;
             }
           }
         )

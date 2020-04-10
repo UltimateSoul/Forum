@@ -36,5 +36,14 @@ class TopicDocument(Document):
         }
     )
 
+    section = fields.TextField(
+        attr='section',
+        fields={
+            'suggest': fields.Completion(
+                analyzer=basic_analyzer
+            )
+        }
+    )
+
     class Django:
         model = Topic

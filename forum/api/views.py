@@ -85,9 +85,12 @@ class TopicViewSet(ModelViewSet, LikedMixin):
         section = search_data['section'].upper()
         search_by = search_data['searchBy']
         if search_by == 'title':
-            topic_exists = Topic.objects.filter(title=search_data['value'],
-                                                section=section).exists()
-            return Response(data={'topic_exists': topic_exists})
+            topics = Topic.objects.filter(title=search_data['value'],
+                                          section=section)
+            if not topics:
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            serializer = TopicSerializer(topics, many=True)
+            return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['GET'], detail=False, url_name='by-section', url_path='by-section')

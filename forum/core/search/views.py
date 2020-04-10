@@ -9,6 +9,7 @@ class SearchTopics(APIView):
 
     def get(self, request, *args, **kwargs):  # noqa
         query = self.request.GET.get('query')
-        suggestions = search_for_movie_title(query)
+        section = self.request.GET.get('section')
+        suggestions = search_for_movie_title(query, section)
         serializer = SuggestionsSerializer({'suggestions': suggestions})
         return Response(data=serializer.data)

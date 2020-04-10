@@ -95,8 +95,8 @@
             section: this.section.toUpperCase()
           };
           return axios.get(`topics/search/`, {params: params})
-            .then(res => {
-              return !res.data.topic_exists
+            .then(response => {
+              return response.status === 204
             })
         },
         minLen: minLength(3)

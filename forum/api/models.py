@@ -40,8 +40,7 @@ class Topic(models.Model):
     edited_at = models.DateTimeField()
     description = models.CharField(max_length=255)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
-    section = models.CharField(max_length=13, choices=SECTION_CHOICES,
-                               default=CONVERSATION)
+    section = models.CharField(max_length=13, choices=SECTION_CHOICES, default=CONVERSATION)
     likes = GenericRelation(Like)
 
     def total_likes(self):
