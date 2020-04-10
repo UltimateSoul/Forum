@@ -13,12 +13,15 @@ def search_for_movie_title(search_string: str, section: str) -> list:
                             must=[Q("match", section=section),
                                   Q("fuzzy", title=search_string)]))
     topics = topics.execute()
-    suggestions = [topic.title for topic in topics]
+    suggestions = [{'text': topic.title,
+                    'id': topic.id} for topic in topics]
     if not suggestions:
         topics = TopicDocument.search().suggest('auto_complete',
                                                 search_string,
-                                                completion={'field': 'title.suggest'})
+                                                completion={'field': 'title.suggest',
+                                                            'fuzzy': True})
         topics = topics.execute()
         suggestions = topics.suggest.auto_complete[0]['options']
-        suggestions = [suggestion['text'] for suggestion in suggestions]
+        suggestions = [{'text': suggestion['text'],
+                        'id': suggestion['_source']['id']} for suggestion in suggestions]
     return suggestions

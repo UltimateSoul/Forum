@@ -13,7 +13,7 @@
         <span> Shop </span>
       </router-link>
       <router-link to="/get-started">
-        <span> Get Started </span>
+        <span> Get&nbspStarted </span>
       </router-link>
       <router-link to="/sections" v-if="isLogged">
         <span> Sections </span>
@@ -146,6 +146,6 @@
   .bm-item-list > * > span {
     margin-left: 10px;
     font-weight: 700;
-    color: #C1F4FC;
+    color: #ffffff;
   }
 </style>

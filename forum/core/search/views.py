@@ -11,5 +11,5 @@ class SearchTopics(APIView):
         query = self.request.GET.get('query')
         section = self.request.GET.get('section')
         suggestions = search_for_movie_title(query, section)
-        serializer = SuggestionsSerializer({'suggestions': suggestions})
+        serializer = SuggestionsSerializer(suggestions, many=True)
         return Response(data=serializer.data)

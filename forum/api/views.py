@@ -89,7 +89,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
                                           section=section)
             if not topics:
                 return Response(status=status.HTTP_204_NO_CONTENT)
-            serializer = TopicSerializer(topics, many=True)
+            serializer = TopicSerializer(topics, many=True, context={'request': request})
             return Response(serializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

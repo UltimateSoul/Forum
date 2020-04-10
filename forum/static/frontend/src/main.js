@@ -12,6 +12,7 @@ import Vuelidate from 'vuelidate';
 import PortalVue from 'portal-vue'
 import VModal from 'vue-js-modal'
 import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
+import vuetify from '@/plugins/vuetify' // path to vuetify export
 
 Vue.use(VModal);
 Vue.use(PortalVue);
@@ -38,6 +39,7 @@ new Vue({
   el: '#app',
   router,
   store,
+  vuetify,
   components: { App },
   template: '<App/>'
 });

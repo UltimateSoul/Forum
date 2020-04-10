@@ -1,36 +1,49 @@
 <template>
   <div>
+    <v-autocomplete
+      v-model="elasticSearch.select"
+      :items="elasticSearch.suggestions"
+      :search-input.sync="elasticSearch.search"
+      class="mx-4"
+      flat
+      hide-no-data
+      hide-details
+      label="Search topics in that section by title"
+      solo-inverted
+    ></v-autocomplete>
+
     <div style="margin: 40px">
-      <vue-bootstrap-typeahead
-        @hit="searchTopicByTitle"
-        v-model="elasticSearch.query"
-        @input="getSuggestions"
-        placeholder="Search topics in that section by title"
-        :data="elasticSearch.suggestions"
-      />
       <template slot="suggestion" slot-scope="{ data }">
         {{ data.elasticSearch.suggestions }}
       </template>
     </div>
-    <modal name="searchedTopics" v-if="showSearchedTopicModal">
+    <modal name="searchedTopic"
+           v-if="Boolean(searchedTopic)"
+           :draggable="true"
+           :aria-expanded="true"
+           height="30%"
+           width="50%">
       <div>
-        <b-card
-          :title="searchedTopic.title"
-          :img-src="searchedTopic.author.avatar"
-          img-alt="Image"
-          img-top
-          tag="article"
-          style="max-width: 60rem;"
-          class="mb-2"
-        >
-          <b-card-text>
-            {{ searchedTopic.body }}
-          </b-card-text>
-
-          <b-button @click="$router.push({name: 'topic',
-           params: {topicID: searchedTopic.pk}})" variant="primary">Go to this topic
-          </b-button>
-        </b-card>
+        <div @click="moveToTopic(searchedTopic.id)">
+          <b-card no-body class="overflow-hidden"
+                  @click="moveToTopic(searchedTopic.id)">
+            <b-row no-gutters>
+              <b-col md="6">
+                <b-card-img :src="searchedTopic.author.avatar" alt="Image" class="rounded-0"></b-card-img>
+              </b-col>
+              <b-col md="6">
+                <b-card-body :title="searchedTopic.title">
+                  <b-card-text>
+                    {{ searchedTopic.description }}
+                  </b-card-text>
+                  <b-button @click="moveToTopic(topic.id)" class="primary">
+                    go to that topic
+                  </b-button>
+                </b-card-body>
+              </b-col>
+            </b-row>
+          </b-card>
+        </div>
       </div>
     </modal>
     <div class="row">
@@ -83,20 +96,40 @@
     data() {
       return {
         loading: false,
-        showSearchedTopicModal: false,
         topics: [],
         testQuantity: 2,
         section: this.$route.params.section,
         elasticSearch: {
           suggestions: [],
-          query: ''
+          select: null,
+          search: null
         },
-        searchedTopic: {}
+        searchedTopic: {
+          title: '',
+          description: '',
+          author: {
+            avatar: ''
+          }
+        }
       }
     },
     created() {
       this.loading = true;
       this.getData()
+    },
+    watch: {
+      'elasticSearch.search'(val) {
+        val && val !== this.select && this.getSuggestions(val)
+      },
+      'elasticSearch.select'(val) {
+        let id;
+        this.elasticSearch.suggestions.forEach((suggestion)=> {
+          if (suggestion.text === val) {
+            id = suggestion.id
+          }
+        })
+        this.searchTopicByID(id)
+      }
     },
     methods: {
       getData() {
@@ -119,33 +152,37 @@
           }
         })
       },
-      getSuggestions() {
+      getSuggestions(v) {
         axios.get('http://0.0.0.0:5000/core/search-topics/', {
           params: {
-            query: this.elasticSearch.query,
+            query: this.elasticSearch.search,
             section: this.$route.params.section
           }
         }).then(
           (response) => {
             switch (response.status) {
               case 200:
-                this.elasticSearch.suggestions = response.data.suggestions;
+                this.elasticSearch.suggestions = response.data;
+                break
+              default:
             }
           }
         )
       },
-      searchTopicByTitle() {
-        console.log(`I'm searching topic by title: "${this.elasticSearch.query}"`)
-        const data = {
-          searchBy: 'title',
-          value: this.elasticSearch.query
-        }
-        axios.get('topics/search/', {params: data}).then(
+      showSearchedTopic() {
+        this.$modal.show('searchedTopic')
+      },
+      hideSearchedTopic() {
+        this.$modal.hide('searchedTopic')
+      },
+      searchTopicByID(topicID) {
+        console.log(`I'm searching topic by title: "${this.elasticSearch.search}"`)
+        axios.get(`topics/${topicID}/`).then(
           response => {
             switch (response.status) {
               case 200:
-                debugger;  // ToDo: finalize logic, improve elasticsearch search
                 this.searchedTopic = response.data;
+                this.showSearchedTopic()
             }
           }
         )

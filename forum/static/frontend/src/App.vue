@@ -1,5 +1,6 @@
 <template>
-  <div id="app">
+  <v-app>
+    <div id="app">
     <sidebar></sidebar>
     <main id="page-wrap">
       <div class="container-fluid">
@@ -11,6 +12,7 @@
       </div>
     </main>
   </div>
+  </v-app>
 </template>
 
 <script>

@@ -11,7 +11,11 @@
         <b-button @click="hideUserRequestModal" variant="success">Ok</b-button>
       </div>
     </modal>
-    <modal name="team-requests" :scrollable="true" height="auto" :draggable="true">
+    <modal name="team-requests"
+           :scrollable="true"
+           width="50%"
+           height="50%"
+           :draggable="true">
       <div v-for="request in teamRequests">
         <b-card
           :title="request.user.username"
@@ -19,7 +23,7 @@
           img-alt="Image"
           img-top
           tag="article"
-          style="max-width: 80rem;"
+          style="max-width: 50rem;"
           class="mb-2"
         >
           <b-button variant="success" @click="patchRequest(true, request.id)">Accept Request</b-button>
