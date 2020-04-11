@@ -1,60 +1,122 @@
 <template>
   <div>
-    <div class="row">
-      <div class="col-lg-12 col-md-8 col-xs-5 m-md-4">
-        <div class="card text-center">
-          <div class="card-header">
-            Hy {{ user.username }}
-          </div>
-          <div class="card-body">
-            <h5 class="card-title">Special title treatment</h5>
-            <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-            <a href="#" class="btn btn-primary">Go somewhere</a>
-          </div>
-          <div class="card-footer text-muted">
-            2 days ago
-          </div>
-        </div>
+    <b-jumbotron header="Welcome to our forum!" lead="">
+      <div class="center-card">
+        <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+          <b-row no-gutters>
+            <b-col md="6">
+              <b-card-img :src="user.avatar" alt="Image" class="rounded-0"></b-card-img>
+            </b-col>
+            <b-col md="6">
+              <b-card-body :title="user.username">
+                You are with us for {{ getDaysHere() }} days.
+              </b-card-body>
+            </b-col>
+          </b-row>
+        </b-card>
       </div>
-    </div>
-
-    <!--    <div class="row">-->
-    <!--      <div class="col-lg-4">-->
-    <!--        <div class="card" style="width: 18rem;" v-for="user in users">-->
-    <!--          <img :src="user.imageURL" class="card-img-top" alt="...">-->
-    <!--          <div class="card-body">-->
-    <!--            <h5 class="card-title">{{ user.name }}</h5>-->
-    <!--            <p class="card-text">Your level is {{ user.level }}</p>-->
-    <!--            <a href="#" class="btn btn-primary">Your Hero: {{ user.hero }}</a>-->
-    <!--          </div>-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--      <div class="col-lg-8">-->
-
-    <!--      </div>-->
-    <!--    </div>-->
+      <b-row class="button-control">
+        <b-col>
+          <router-link to="/get-started">
+            <b-button variant="dark">Get Started</b-button>
+          </router-link>
+        </b-col>
+        <b-col>
+          <b-button variant="dark" @click="profileClick">Profile</b-button>
+        </b-col>
+      </b-row>
+      <div v-if="popularTopics.length">
+        <h1>
+          The most popular topics:
+        </h1>
+        <b-table @row-clicked="clickTopic"
+                 striped hover
+                 class="clicable"
+                 :items="popularTopics"
+                 :fields="fields">
+          <template v-slot:cell(avatar)="data">
+            <img :src="data.item.author.avatar" height="100" width="100">
+          </template>
+          <template v-slot:cell(created_at)="data">
+            {{ data.item.created_at | getDateFormat }}
+          </template>
+        </b-table>
+      </div>
+    </b-jumbotron>
   </div>
 </template>
 
 <script>
-  import { mapGetters } from 'vuex'
+  import axios from 'axios'
+  import {mapGetters} from 'vuex'
+
   export default {
     name: "Home",
     data() {
       return {
-        show: false
+        fields: ['avatar', 'title', 'description', 'posts_quantity'],
+        show: false,
+        popularTopics: [],
+        loading: false,
       }
     },
     created() {
       if (!this.isLogged) {
         this.$router.push({name: 'login'});
       }
+      this.getPopularTopics()
+    },
+    methods: {
+      getDaysHere() {
+        const oneDay = 24 * 60 * 60 * 1000;
+        const now = Date.now()
+        return Math.round(Math.abs((now - this.user.dateJoined) / oneDay));
+      },
+      getPopularTopics() {
+        this.loading = true
+        axios.get('http://0.0.0.0:5000/core/get-popular-topics/').then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.popularTopics = response.data;
+                this.loading = false
+                break
+              default:
+                this.loading = false
+                break
+            }
+          }
+        )
+      },
+      profileClick() {
+        this.$router.push({
+          name: 'user-profile',
+          params: {
+            id: this.user.userID
+          }
+        })
+      },
+      clickTopic(rowData) {
+        this.$router.push({
+          name: 'topic',
+          params: {
+            section: rowData.section,
+            topicID: rowData.id
+          }
+        })
+      }
     },
     computed: {
       ...mapGetters({
         isLogged: 'isLogged',
-        user: 'getUserData'
+        user: 'getUserData',
       })
+    },
+    filters: {
+      getDateFormat(value) {
+        let date = new Date(value);
+        return date.toLocaleDateString()
+      }
     }
   }
 </script>
@@ -63,5 +125,9 @@
 
   .auto-margin {
     margin: 30px auto 30px auto;
+  }
+
+  .center-card {
+    text-align: -webkit-center;
   }
 </style>

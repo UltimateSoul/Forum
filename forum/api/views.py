@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
 from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete
-from users.serializers import UserSerializer, RestrictedUserSerializer, UserProfileSerializer, TeamSerializer, \
+from users.serializers import UserSerializer, RestrictedUserSerializer, TeamSerializer, \
     RankSerializer, UserTeamRequestSerializer, CreateUserTeamRequestSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
 from .mixins import LikedMixin
@@ -38,28 +38,11 @@ class TopicViewSet(ModelViewSet, LikedMixin):
     queryset = Topic.objects.all()
     lookup_url_kwarg = 'topic_id'
 
-    def get_object(self):
-        topic_id = self.kwargs.get('topic_id')
-        queryset = Topic.objects.all()
-        obj = get_object_or_404(queryset, id=topic_id)
-        return obj
-
-    def list(self, request, *args, **kwargs):  # noqa
-        topics = Topic.objects.all()
-        queryset = self.paginator.paginate_queryset(topics, request)
-        serializer = TopicSerializer(queryset, many=True, context={'request': request})
-        return Response(serializer.data)
-
     def create(self, request, *args, **kwargs):  # noqa
         serializer = CreateTopicSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         topic = serializer.save(author=self.request.user)
         return Response(status=status.HTTP_201_CREATED, data={'topic_id': topic.id})
-
-    def retrieve(self, request, *args, **kwargs):  # noqa
-        topic = self.get_object()
-        serializer = TopicSerializer(topic, context={'request': request})
-        return Response(serializer.data)
 
     def partial_update(self, request, *args, **kwargs):  # noqa
         topic = self.get_object()
@@ -161,56 +144,48 @@ class CommentsViewSet(ModelViewSet, LikedMixin):
         serializer.save(author=self.request.user)
 
 
-class UserProfileView(APIView):
-    """User Profile View"""
+class UsersViewSet(ModelViewSet):
+    """Users view set"""
 
-    @staticmethod
-    def get(request, *args, **kwargs):  # noqa
-        user_id = kwargs.get('id')
-        is_main_user = request.user.id == user_id
-        try:
-            user = User.objects.get(id=user_id)  # ToDo: add handling exception if user doesn't exists and write tests
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
+    def perform_update(self, serializer):
+        self.request.user.prepare_to_save(data=self.request.data)
+        serializer.save()
+
+    def get_object(self):
+        """
+        Returns the object the view is displaying.
+
+        You may want to override this if you need to provide non-standard
+        queryset lookups.  Eg if objects are referenced using multiple
+        keyword arguments in the url conf.
+        """
+        if self.request.method == "PATCH":
+            obj = self.request.user
+            return obj
+        return super(UsersViewSet, self).get_object()
+
+    def get_serializer(self, *args, **kwargs):
+        """
+        Need to use restricted serializers for non main users
+        """
+        if kwargs.get('pk'):
+            is_main_user = self.request.user.id == kwargs.get('pk')
             if is_main_user:
-                serializer = UserSerializer(user)
+                serializer_class = UserSerializer
             else:
-                serializer = RestrictedUserSerializer(user)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        except User.DoesNotExist as error:
-            return Response(status=status.HTTP_404_NOT_FOUND, data={'error': str(error)})
+                serializer_class = RestrictedUserSerializer
+            kwargs['context'] = self.get_serializer_context()
+            return serializer_class(*args, **kwargs)
+        serializer_class = self.get_serializer_class()
+        kwargs['context'] = self.get_serializer_context()
+        return serializer_class(*args, **kwargs)
 
-    def patch(self, request, *args, **kwargs):  # noqa
-        """Here user can change his profile data"""
-        user_id = kwargs.get('id')
-        user = request.user
-        is_main_user = user.id == user_id or user.is_staff or user.is_superuser
-        if is_main_user:  # checks if it`s owner of profile
-            serializer = UserProfileSerializer(user, data=request.data)
-            if serializer.is_valid():
-                user.prepare_to_save(data=request.data)
-                serializer.save()
-                return Response(status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': serializer.errors})
-        return Response(status=status.HTTP_400_BAD_REQUEST, data={'errors': 'Cheater!'})
-
-
-class GetUserView(APIView):
-    """Fetch user view"""
-
-    @staticmethod
-    def get(request, *args, **kwargs):  # noqa
-        user = request.user
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-
-class UsersView(APIView):
-    """All Users View"""
-    permission_classes = [AllowAny]
-
-    @staticmethod
-    def get(request, *args, **kwargs):  # noqa
+    @action(methods=['GET'], detail=False)
+    def search(self, request, *args, **kwargs):  # noqa
         if request.GET.get('email'):  # noqa
-            # Uses in registration process. Checks if email is unique
             users = User.objects.filter(email=request.GET.get('email'))
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
@@ -218,8 +193,13 @@ class UsersView(APIView):
             users = User.objects.filter(username=request.GET.get('username'))
             serializer = UserSerializer(users, many=True)
             return Response(serializer.data)
-        users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        else:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=['GET'], detail=False, url_name='get-user', url_path='get-user')
+    def get_user(self, request, *args, **kwargs):  # noqa
+        user = request.user
+        serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
 
 

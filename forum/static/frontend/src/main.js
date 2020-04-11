@@ -13,7 +13,9 @@ import PortalVue from 'portal-vue'
 import VModal from 'vue-js-modal'
 import VueBootstrapTypeahead from "vue-bootstrap-typeahead";
 import vuetify from '@/plugins/vuetify' // path to vuetify export
+import CKEditor from '@ckeditor/ckeditor5-vue';
 
+Vue.use( CKEditor );
 Vue.use(VModal);
 Vue.use(PortalVue);
 Vue.use(Vuelidate);

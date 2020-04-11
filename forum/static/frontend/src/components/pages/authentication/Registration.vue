@@ -117,7 +117,7 @@
           if (val === '') {
             return true;
           }
-          return axios.get('users/?username=' + val)
+          return axios.get('users/search/?username=' + val)
             .then(res => {
               console.log('Unique: ', Object.keys(res.data).length === 0);
               return Object.keys(res.data).length === 0
@@ -131,7 +131,7 @@
           if (val === '') {
             return true;
           }
-          return axios.get('users/?email=' + val)
+          return axios.get('users/search/?email=' + val)
             .then(res => {
               console.log('Unique: ', Object.keys(res.data).length === 0);
               return Object.keys(res.data).length === 0

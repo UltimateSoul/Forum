@@ -1,3 +1,5 @@
+import datetime
+
 from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -41,6 +43,8 @@ class Topic(models.Model):
     description = models.CharField(max_length=255)
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
     section = models.CharField(max_length=13, choices=SECTION_CHOICES, default=CONVERSATION)
+
+    is_pinned = models.BooleanField(default=False)
     likes = GenericRelation(Like)
 
     def total_likes(self):
@@ -55,6 +59,14 @@ class Topic(models.Model):
 
     def __str__(self):
         return self.title
+
+    @classmethod
+    def get_most_popupar_topics(cls):
+        now = datetime.datetime.now()
+        week_ago = now - datetime.timedelta(days=7)
+        last_week_topics = cls.objects.filter(edited_at__range=(week_ago, now))
+        filtered_topics = list(filter(lambda topic: topic.total_likes() * topic.posts_quantity, last_week_topics))
+        return filtered_topics[4::-1]
 
     class Meta:
         verbose_name = 'Topic'

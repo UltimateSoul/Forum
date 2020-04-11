@@ -10,6 +10,9 @@ const state = {
     avatarImage: '',
     gameNickName: '',
     gender: '',
+    date_joined: null,
+    isModerator: false,
+    isAdmin: false,
     hasTeam: false,
     isTeamOwner: false,
     teamID: null
@@ -26,6 +29,7 @@ const getters = {
     return {
       userID: user.userID,
       username: user.username,
+      dateJoined: user.dateJoined,
       email: user.email,
       coins: user.coins,
       avatar: user.avatarImage,
@@ -57,7 +61,7 @@ const actions = {
       )
   },
   fetchUser({commit}) {
-    return axios.get('/get-user/')
+    return axios.get('/users/get-user/')
       .then((response) => {
         let userData = response.data;
         commit('setUserData', userData)
@@ -88,6 +92,7 @@ const mutations = {
     state.user.avatarImage = userData.avatar;
     state.user.gender = userData.gender;
     state.user.gameNickName = userData.game_nickname;
+    state.user.dateJoined = new Date(userData.date_joined);
     state.user.hasTeam = userData.has_team;
     state.user.teamID = userData.team_id;
     state.user.isTeamOwner = userData.is_team_owner;

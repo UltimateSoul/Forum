@@ -47,12 +47,11 @@
             <b-row no-gutters>
               <b-col md="2">
                 <b-card-img :src="post.author.avatar" class="rounded-1"></b-card-img>
+                {{ post.author.usernam }}
               </b-col>
               <b-col md="10">
                 <b-card-body :title="post.author.username">
-                  <b-card-text>
-                    {{post.body}}
-                  </b-card-text>
+                  <div class="html-text" v-html="post.body"></div>
                 </b-card-body>
               </b-col>
               Likes: {{post.total_likes}}
@@ -68,13 +67,16 @@
           </b-card>
           <div class="button-control">
             <b-button variant="primary"
+                      :class="buttonsEngine['button-'+post.id].isOpen ? null : 'collapsed'"
+                      :aria-expanded="buttonsEngine['button-'+post.id].isOpen ? 'true' : 'false'"
+                      :aria-controls="'collaps-' + post.id"
                       @click="buttonsEngine['button-'+post.id].isOpen = !buttonsEngine['button-'+post.id].isOpen"
                       :id="'button-' + post.id">
               {{ getCommentsButtonText('button-' + post.id) }}
             </b-button>
           </div>
-          <div v-if="buttonsEngine['button-'+post.id].isOpen">
-            <div class="message-range" v-for="comment in post.comments">
+          <b-collapse :id="'collaps-' + post.id" v-model="buttonsEngine['button-'+post.id].isOpen" class="mt-2">
+             <div class="message-range" v-for="comment in post.comments">
               <b-card no-body class="overflow-hidden">
                 <b-row no-gutters>
                   <b-col md="2">
@@ -83,7 +85,7 @@
                   <b-col md="10">
                     <b-card-body :title="comment.author.username">
                       <b-card-text>
-                        {{comment.body}}
+                        <div class="html-text" v-html="comment.body"></div>
                       </b-card-text>
                     </b-card-body>
                   </b-col>
@@ -101,29 +103,19 @@
               </b-card>
             </div>
             <div class="message-range">
-              <b-form-textarea
-                id="textarea"
-                v-model="commentText"
-                placeholder="Enter comment..."
-                rows="3"
-                max-rows="6"
-              ></b-form-textarea>
+              <editor :editorData="editorComment" @update="updateComment"></editor>
               <b-button variant="primary"
                         @click="saveComment(post.id)"
                         :id="'button-comment' + post.id">
                 Post
               </b-button>
             </div>
+          </b-collapse>
+          <div v-if="buttonsEngine['button-'+post.id].isOpen">
           </div>
         </div>
-        <div class="message-range">
-          <b-form-textarea
-            id="textarea"
-            v-model="postText"
-            placeholder="Enter post..."
-            rows="3"
-            max-rows="6"
-          ></b-form-textarea>
+        <editor :editorData="editorPost" @update="updatePost"></editor>
+        <div class="button-control">
           <b-button @click="savePost" variant="primary">
             Post
           </b-button>
@@ -140,6 +132,7 @@
 </template>
 
 <script>
+  import editor from "../../elements/Editor";
   import axios from 'axios'
   import {mapGetters} from 'vuex';
 
@@ -166,11 +159,13 @@
         },
         posts: [],
         buttonsEngine: {},
-        postText: '',
-        commentText: '',
-        currentPage: 1
+        editorPost: '',
+        editorComment: '',
+        currentPage: 1,
+
       }
     },
+    components: {editor},
     created() {
       this.getTopicData();
       this.getTopicPosts(this.currentPage)
@@ -185,6 +180,12 @@
       }
     },
     methods: {
+      updateComment(text) {
+        this.editorComment = text
+      },
+      updatePost(text) {
+        this.editorPost = text
+      },
       getTopicData() {
         axios.get('topics/' + this.topicID + '/').then(
           (response) => {
@@ -231,14 +232,14 @@
       },
       saveComment(postID) {
         const data = {
-          body: this.commentText,
+          body: this.editorComment,
           post: postID
         };
         axios.post('comments/', data)
           .then((response) => {
             switch (response.status) {
               case 201:
-                this.commentText = '';
+                this.editorComment = '';
                 this.getTopicPosts(this.currentPage);
                 break;
               case 400:
@@ -248,14 +249,14 @@
       },
       savePost() {
         const data = {
-          body: this.postText,
+          body: this.editorPost,
           topic: this.topicID
         };
         axios.post('posts/', data)
           .then((response) => {
             switch (response.status) {
               case 201:
-                this.postText = '';
+                this.editorPost = '';
                 this.getTopicPosts(this.currentPage);
                 break;
               case 400:
@@ -362,5 +363,9 @@
 <style scoped>
   .message-range {
     margin: 10px 15%;
+  }
+
+  .html-text {
+    align-content: initial;
   }
 </style>

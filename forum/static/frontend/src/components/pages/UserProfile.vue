@@ -3,7 +3,7 @@
     <b-container>
       <b-card
         :title="user.username"
-        :img-src="'http://0.0.0.0:5000' + user.avatar"
+        :img-src="user.avatar"
         img-alt="Image"
         img-top
         tag="article"
@@ -132,7 +132,7 @@
           if (val === '' || val === data.email) {
             return true;
           }
-          return axios.get('users/?email=' + val)
+          return axios.get('users/search/?email=' + val)
             .then(res => {
               console.log('Unique: ', Object.keys(res.data).length === 0);
               return Object.keys(res.data).length === 0
@@ -151,7 +151,7 @@
     },
     methods: {
       getUserProfile(id) {
-        axios.get(`user/${id}/`)
+        axios.get(`users/${id}/`)
           .then((resp) => {
             this.user = resp.data;
             this.editingUserData = resp.data
@@ -173,7 +173,7 @@
         formData.append('email', this.editingUserData.email);
         formData.append('gender', this.editingUserData.gender);
         formData.append('description', this.editingUserData.description);
-        axios.patch(`user/${this.$route.params.id}/`, formData)
+        axios.patch(`users/${this.$route.params.id}/`, formData)
         .then( (response) => {
           if (response.status === 200){
             this.getUserProfile(this.$route.params.id)
