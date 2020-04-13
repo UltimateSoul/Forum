@@ -51,7 +51,7 @@
               </b-col>
               <b-col md="10">
                 <b-card-body :title="post.author.username">
-                    <div class="html-text" v-html="post.body"></div>
+                  <div class="html-text" v-html="post.body"></div>
                 </b-card-body>
               </b-col>
               Likes: {{post.total_likes}}
@@ -67,13 +67,16 @@
           </b-card>
           <div class="button-control">
             <b-button variant="primary"
+                      :class="buttonsEngine['button-'+post.id].isOpen ? null : 'collapsed'"
+                      :aria-expanded="buttonsEngine['button-'+post.id].isOpen ? 'true' : 'false'"
+                      :aria-controls="'collaps-' + post.id"
                       @click="buttonsEngine['button-'+post.id].isOpen = !buttonsEngine['button-'+post.id].isOpen"
                       :id="'button-' + post.id">
               {{ getCommentsButtonText('button-' + post.id) }}
             </b-button>
           </div>
-          <div v-if="buttonsEngine['button-'+post.id].isOpen">
-            <div class="message-range" v-for="comment in post.comments">
+          <b-collapse :id="'collaps-' + post.id" v-model="buttonsEngine['button-'+post.id].isOpen" class="mt-2">
+             <div class="message-range" v-for="comment in post.comments">
               <b-card no-body class="overflow-hidden">
                 <b-row no-gutters>
                   <b-col md="2">
@@ -82,7 +85,7 @@
                   <b-col md="10">
                     <b-card-body :title="comment.author.username">
                       <b-card-text>
-                        {{comment.body}}
+                        <div class="html-text" v-html="comment.body"></div>
                       </b-card-text>
                     </b-card-body>
                   </b-col>
@@ -107,6 +110,8 @@
                 Post
               </b-button>
             </div>
+          </b-collapse>
+          <div v-if="buttonsEngine['button-'+post.id].isOpen">
           </div>
         </div>
         <editor :editorData="editorPost" @update="updatePost"></editor>
@@ -359,6 +364,7 @@
   .message-range {
     margin: 10px 15%;
   }
+
   .html-text {
     align-content: initial;
   }

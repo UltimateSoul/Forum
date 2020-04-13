@@ -31,6 +31,7 @@ class UserSerializer(serializers.ModelSerializer):
                   "coins",
                   "gender",
                   "game_nickname",
+                  "date_joined",
                   "birth_date",
                   "violations",
                   "description",

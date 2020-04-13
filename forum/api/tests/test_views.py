@@ -23,8 +23,8 @@ class TestProfileView(APITestCase):
 
     def test_user_profile_view_success(self):
         """Checks flow when user goes to his profile"""
-        params = {'id': self.user.id}
-        profile_response = self.client.get(reverse('api:profile', kwargs=params))
+        params = {'pk': self.user.id}
+        profile_response = self.client.get(reverse('api:users-detail', kwargs=params))
         self.assertTrue(profile_response.status_code == 200)
         user_data = profile_response.data
         self.assertTrue(user_data.get('username') == self.user.username)
@@ -37,8 +37,8 @@ class TestProfileView(APITestCase):
     def test_user_profile_view_constraint(self):
         """Checks flow when user goes to another user profile"""
         another_user = AnotherUserFactory()
-        params = {'id': another_user.id}
-        profile_response = self.client.get(reverse('api:profile', kwargs=params))
+        params = {'pk': another_user.id}
+        profile_response = self.client.get(reverse('api:users-detail', kwargs=params))
         self.assertTrue(profile_response.status_code == 200)
         user_data = profile_response.data
         self.assertFalse(bool(user_data.get('coins')))
@@ -50,10 +50,9 @@ class TestProfileView(APITestCase):
 
     def test_user_profile_view_user_doesnt_exist(self):
         """Checks flow when user doesn`t exists in db"""
-        params = {'id': 101}
-        profile_response = self.client.get(reverse('api:profile', kwargs=params))
+        params = {'pk': 101}
+        profile_response = self.client.get(reverse('api:users-detail', kwargs=params))
         self.assertTrue(profile_response.status_code == 404)
-        self.assertEqual(profile_response.data.get('error'), 'User matching query does not exist.')
 
 
 class TestTopicViewSet(APITestCase):
@@ -130,7 +129,7 @@ class TestTopicViewSet(APITestCase):
         topic = TopicFactory(author=self.user)
         response = self.client.delete(reverse('api:topics-detail', kwargs={'topic_id': topic.id}))
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
-        superuser = UserFactory(is_superuser=True, is_staff=True, username='superuser')
+        superuser = UserFactory(is_superuser=True, is_moderator=True, username='superuser')
         token = Token.objects.get(user=superuser)
         self.client.credentials(
             HTTP_AUTHORIZATION=f'Token {token.key}')

@@ -93,7 +93,7 @@
         formData.append('base_info', this.dataToChange.baseInfo);
         axios.patch(`teams/${this.$route.params.teamID}/`, formData).then(
           (response) => {
-            debugger
+
             switch (response.status) {
               case 200:
                 this.$store.dispatch('fetchUser');

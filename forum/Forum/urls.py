@@ -17,8 +17,25 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
 
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework import permissions
+
 from Forum import settings
 from api.views import HomeView
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Forum API",
+        default_version='v1',
+        description="Forum application programming interface",
+        terms_of_service="https://www.google.com/policies/terms/",
+        contact=openapi.Contact(email="owlsoulbear@gmail.com"),
+        license=openapi.License(name="BSD License"),
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 front_end_url_integration = [
     path('conversation/<str:section>/topic/<int:id>', HomeView.as_view()),
@@ -33,9 +50,10 @@ front_end_url_integration = [
 ]
 
 urlpatterns = [
-    path('', HomeView.as_view()),
-    path('admin/', admin.site.urls),
-    path('api/', include(("api.urls", "api"), namespace="api")),
-    path('core/', include(("core.urls", "core"), namespace="core")),
-    path('authentication/', include(("users.urls", "users"), namespace="users")),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + front_end_url_integration
+                  path('', HomeView.as_view()),
+                  path('admin/', admin.site.urls),
+                  path('api/', include(("api.urls", "api"), namespace="api")),
+                  path('core/', include(("core.urls", "core"), namespace="core")),
+                  path('authentication/', include(("users.urls", "users"), namespace="users")),
+                  path('doc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+              ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + front_end_url_integration
