@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
@@ -148,6 +148,7 @@ class UsersViewSet(ModelViewSet):
     """Users view set"""
 
     serializer_class = UserSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
     queryset = User.objects.all()
 
     def perform_update(self, serializer):
