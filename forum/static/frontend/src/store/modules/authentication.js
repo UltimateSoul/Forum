@@ -51,10 +51,6 @@ const actions = {
     return axios.post('http://0.0.0.0:5000/authentication/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
           sessionStorage.setItem('auth_token', response.data.token);
-          axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-          axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-          axios.defaults.headers.delete['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-          axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
           context.commit('setAuthToken');
           context.dispatch('fetchUser')
         }
@@ -84,6 +80,10 @@ const actions = {
 const mutations = {
   setAuthToken(state) {
     state.user.isLogged = Boolean(sessionStorage.getItem('auth_token'));
+    axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+    axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+    axios.defaults.headers.delete['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+    axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
   },
   setUserData(state, userData) {
     state.user.userID = userData.pk;

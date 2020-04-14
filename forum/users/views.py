@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from core.tasks import send_confirmation_email
+from users.models import UserNotification
 from users.serializers import RegisterUserSerializer
 from users.tokens import account_activation_token
 
@@ -27,8 +28,15 @@ class RegistrationView(APIView):
         if user_serializer.is_valid():
 
             user = User.objects.create_user(
-                **user_serializer.data,
-                is_active=False
+                **user_serializer.data
+            )
+            notification_message = UserNotification.get_notification_text(UserNotification.SUCCESSFULLY_REGISTERED,
+                                                                          username=user.username)
+            UserNotification.objects.create(
+                user=user,
+                notification_type=UserNotification.SUCCESS,
+                message=notification_message,
+                purpose=UserNotification.SUCCESSFULLY_REGISTERED_PURPOSE
             )
             token = Token.objects.get(user=user)
             email_token = account_activation_token.make_token(user)
@@ -51,7 +59,7 @@ class EmailConfirmationHandleView(View):
         except(TypeError, ValueError, OverflowError, User.DoesNotExist):
             user = None
         if user is not None and account_activation_token.check_token(user, token):
-            user.is_active = True
+            user.email_confirmed = True
             user.save()  # ToDo: add notification to the user
-            return HttpResponse('Thank you for your email confirmation. Now you can login your account.')
+            return HttpResponse('Thank you for your email confirmation.')
         return HttpResponse('Activation link is invalid!')

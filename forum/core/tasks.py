@@ -10,7 +10,7 @@ from django.utils.http import urlsafe_base64_encode
 
 from Forum import celery_app
 from users.helpers import constants
-from users.models import UserTeamRequest, TeamMember
+from users.models import UserTeamRequest, TeamMember, UserNotification
 
 User = get_user_model()
 
@@ -67,3 +67,12 @@ def send_confirmation_email(user_pk, domain, token, user_email):
     )
     email.content_subtype = 'html'
     email.send()
+    user = User.objects.get(pk=user_pk)
+    notification_message = UserNotification.get_notification_text(UserNotification.CONFIRM_EMAIL,
+                                                                  username=user.username)
+    UserNotification.objects.create(
+        user=user,
+        notification_type=UserNotification.SUCCESS,
+        message=notification_message,
+        purpose=UserNotification.CONFIRM_EMAIL_PURPOSE
+    )

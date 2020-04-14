@@ -1,5 +1,19 @@
 <template>
-  <div class="registration-container">
+  <div>
+    <modal name="confirm-email" :clickToClose="false">
+      <div>
+        <v-alert dense text type="success">
+        You've been successfully <strong>registered</strong>!
+      </v-alert>
+        <h1>One more step!</h1>
+        <p class="text-justify">
+          We've sent confirmation link to your email. Please, consider activating your account to start using our awesome forum!
+        </p>
+        <b-button variant="success" @click="hideConfirmEmail">
+          Ok
+        </b-button>
+      </div>
+    </modal>
     <h1>Registration</h1>
     <div class="form-container">
       <b-form>
@@ -83,7 +97,6 @@
         </button>
       </b-form>
     </div>
-
   </div>
 </template>
 
@@ -106,7 +119,8 @@
           {text: 'Male', value: 'MALE'},
           {text: 'Female', value: 'FEMALE'},
           {text: '-----', value: 'OTHER'}
-        ]
+        ],
+        showConfirmEmailModal: false,
       }
     },
     validations: {
@@ -148,6 +162,13 @@
       }
     },
     methods: {
+      showconfirmEmail() {
+        this.$modal.show('confirmEmail')
+      },
+      hideConfirmEmail() {
+        this.$modal.hide('confirmEmail')
+        this.$router.push('home')
+      },
       register() {
         let data = {
           username: this.username,
@@ -160,7 +181,7 @@
         this.$store.dispatch('register', data).then(
           () => {
             if (this.$store.getters.isLogged) {
-              this.$router.push({name: 'home'});
+              this.showconfirmEmail()
             }
           }
         )

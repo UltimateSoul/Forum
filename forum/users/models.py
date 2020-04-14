@@ -8,6 +8,7 @@ from django.utils import timezone
 from api.models import Topic, Comment, Post, MiniChatMessage
 from users.helpers import constants
 from users.helpers.helpers import user_directory_path, team_directory_path
+from users.mixins import NotificationTextMixin
 
 
 class User(AbstractUser):
@@ -26,6 +27,7 @@ class User(AbstractUser):
     violations = models.PositiveIntegerField(default=0)
     description = models.TextField(blank=True, null=True)
 
+    email_confirmed = models.BooleanField(default=False)
     is_moderator = models.BooleanField(default=False)
 
     def get_team(self):
@@ -141,7 +143,7 @@ class TeamMember(models.Model):
     class Meta:
         verbose_name = 'TeamMember'
         verbose_name_plural = 'TeamMembers'
-        ordering = ('joined_at', )
+        ordering = ('joined_at',)
 
 
 class Rank(models.Model):
@@ -166,3 +168,22 @@ class UserTeamRequest(models.Model):
 
     def __repr__(self):
         return f'Request from {self.user.username} into {self.team.name}'
+
+
+class UserNotification(models.Model, NotificationTextMixin):
+    """Model that represents notifications that user can receive"""
+
+    SUCCESS = 1
+    INFO = 2
+    WARNING = 3
+    DANGER = 4
+    NOTIFICATION_CHOICES = ((SUCCESS, 'success'),
+                            (INFO, 'info'),
+                            (WARNING, 'warning'),
+                            (DANGER, 'danger'))
+
+    purpose = models.CharField(max_length=255, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.CharField(max_length=255, null=True, blank=True)
+    notification_type = models.PositiveSmallIntegerField(null=True, blank=True,
+                                                         choices=NOTIFICATION_CHOICES)

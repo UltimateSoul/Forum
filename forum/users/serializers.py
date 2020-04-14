@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 
-from users.models import Team, TeamMember, Rank, UserTeamRequest
+from users.models import Team, TeamMember, Rank, UserTeamRequest, UserNotification
 
 User = get_user_model()
 
@@ -161,3 +161,10 @@ class CreateUserTeamRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserTeamRequest
         fields = '__all__'
+
+
+class UserNotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserNotification
+        fields = ['message', 'notification_type']
