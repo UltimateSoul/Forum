@@ -8,7 +8,6 @@ from django.utils import timezone
 from api.models import Topic, Comment, Post, MiniChatMessage
 from users.helpers import constants
 from users.helpers.helpers import user_directory_path, team_directory_path
-from users.mixins import NotificationTextMixin
 
 
 class User(AbstractUser):
@@ -114,6 +113,8 @@ class User(AbstractUser):
 
 
 class Team(models.Model):
+    """Represents team of players."""
+
     name = models.CharField(max_length=255, unique=True)
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, related_name='my_team',
                                  null=True, blank=True, on_delete=models.SET_NULL)
@@ -132,6 +133,8 @@ class Team(models.Model):
 
 
 class TeamMember(models.Model):
+    """Represents member of the team. User can be in one team in one time moment."""
+
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='members')
     rank = models.ForeignKey('Rank', blank=True, null=True, on_delete=models.SET_NULL)
@@ -147,6 +150,8 @@ class TeamMember(models.Model):
 
 
 class Rank(models.Model):
+    """Represents ranks of team members, each member can have rank. Captain can manage ranks."""
+
     team = models.ForeignKey(Team, null=True, blank=True, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
 
@@ -156,7 +161,7 @@ class Rank(models.Model):
 
 class UserTeamRequest(models.Model):
     """
-    This model represents requests from users, that wants join team
+    This model represents requests from users, which want join team
     """
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -168,22 +173,3 @@ class UserTeamRequest(models.Model):
 
     def __repr__(self):
         return f'Request from {self.user.username} into {self.team.name}'
-
-
-class UserNotification(models.Model, NotificationTextMixin):
-    """Model that represents notifications that user can receive"""
-
-    SUCCESS = 1
-    INFO = 2
-    WARNING = 3
-    DANGER = 4
-    NOTIFICATION_CHOICES = ((SUCCESS, 'success'),
-                            (INFO, 'info'),
-                            (WARNING, 'warning'),
-                            (DANGER, 'danger'))
-
-    purpose = models.CharField(max_length=255, null=True, blank=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    message = models.CharField(max_length=255, null=True, blank=True)
-    notification_type = models.PositiveSmallIntegerField(null=True, blank=True,
-                                                         choices=NOTIFICATION_CHOICES)

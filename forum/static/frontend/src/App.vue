@@ -1,37 +1,78 @@
 <template>
   <v-app>
     <div id="app">
-    <sidebar></sidebar>
-    <main id="page-wrap">
-      <div class="container-fluid">
+      <sidebar></sidebar>
+      <main id="page-wrap">
+        <div class="container-fluid">
+          <v-alert v-for="notification in notifications"
+                   :type="notification.type"
+                   @click="deleteNotification(notification.id)">
+            {{ notification.message }}
+          </v-alert>
           <div class="page-container">
             <transition name="slide" mode="out-in">
-            <router-view/>
+              <router-view/>
             </transition>
           </div>
-      </div>
-    </main>
-  </div>
+        </div>
+      </main>
+    </div>
   </v-app>
 </template>
 
 <script>
+  import axios from 'axios'
   import Sidebar from './components/Sidebar'
   // // import Header from './components/Header'
   // // import Footer from './components/Footer'
 
   export default {
     name: 'App',
+    data() {
+      return {
+        notifications: []
+      }
+    },
     created() {
       let token = sessionStorage.getItem('auth_token');
       if (Boolean(token)) {
         this.$store.commit('setAuthToken');
-        this.$store.dispatch('fetchUser')
+        this.$store.dispatch('fetchUser').then(
+          () => {
+            debugger
+            this.getNotifications()
+          }
+        )
       } else {
         this.$router.push(
           {name: 'login'}
         )
       }
+
+    },
+    methods: {
+      getNotifications() {
+        axios.get('http://0.0.0.0:5000/core/notifications-list/').then(
+          (response) => {
+            debugger
+            switch (response.status) {
+              case 200:
+                this.notifications = response.data
+                break;
+            }
+          }
+        )
+      },
+      deleteNotification(notificationID) {
+        axios.delete(`http://0.0.0.0:5000/core/delete-notification/${notificationID}`).then(
+          (response) => {
+            switch (response.status) {
+              case 204:
+                break;
+            }
+          }
+        )
+      },
     },
     components: {
       sidebar: Sidebar,
@@ -52,6 +93,7 @@
     text-align: center;
     color: #2c3e50;
   }
+
   .clicable {
     cursor: pointer;
   }
