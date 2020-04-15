@@ -63,6 +63,7 @@ class EmailConfirmationHandleView(View):
                 UserNotification.EMAIL_CONFIRMED,
                 username=user.username
             )
+            UserNotification.objects.filter(user=user, purpose=UserNotification.CONFIRM_EMAIL_PURPOSE).delete()
             UserNotification.objects.create(user=user,
                                             message=notification_message,
                                             purpose=UserNotification.EMAIL_WAS_CONFIRMED_PURPOSE,

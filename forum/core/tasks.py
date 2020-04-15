@@ -31,12 +31,33 @@ def send_team_request_state_email(team_request_id):
             'user': user,
             'team': team
         })
+        notification_message = UserNotification.get_notification_text(
+            UserNotification.ACCEPTED_TEAM_REQUEST,
+            username=user.username,
+            team_name=team.name,
+        )
+        UserNotification.objects.create(
+            user=user,
+            purpose=UserNotification.APPROVED_TEAM_REQUEST_PURPOSE,
+            message=notification_message,
+            notification_type=UserNotification.SUCCESS
+        )
     else:
         email_subject = 'Your team request was rejected.'
         message = render_to_string('core/rejected_team_request.html', {
             'user': user,
             'team': team
         })
+        notification_message = UserNotification.get_notification_text(
+            UserNotification.REJECTED_TEAM_REQUEST,
+            team_name=team.name,
+        )
+        UserNotification.objects.create(
+            user=user,
+            purpose=UserNotification.REJECTED_TEAM_REQUEST_PURPOSE,
+            message=notification_message,
+            notification_type=UserNotification.SUCCESS
+        )
     email = EmailMessage(
         email_subject, message, from_email=settings.FROM_EMAIL, to=[user.email]
     )

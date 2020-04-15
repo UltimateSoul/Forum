@@ -10,7 +10,7 @@
                  class="clickable"
                  @click="deleteNotification(notification.id)">
               <v-alert
-                :type="getNotificationType(notification.type)"
+                :type="getNotificationType(notification.notification_type)"
                 :key="notification.id">
                 {{ notification.message }}
               </v-alert>
@@ -41,23 +41,15 @@
     created() {
       let token = sessionStorage.getItem('auth_token');
       if (Boolean(token)) {
-        const vueInstance = this
         this.$store.commit('setAuthToken');
-        this.$store.dispatch('fetchUser').then(
-          () => {
-            vueInstance.getNotifications()
-          }
-        )
+        this.$store.dispatch('fetchUser')
       } else {
         this.$router.push(
           {name: 'login'}
         )
       }
-
-    },
-    watch: {
-      $route(to, from) {
-        this.getNotifications()
+      if (this.$store.getters.isLogged) {
+        setInterval(this.getNotifications, 30000);
       }
     },
     methods: {
@@ -83,22 +75,16 @@
         )
       },
       getNotificationType(notificationTypeNumber) {
-        let notificationType = 'success'
         switch (notificationTypeNumber) {
           case 1:
-            notificationType = 'success';
-            break;
+            return 'success';
           case 2:
-            notificationType = 'info';
-            break;
+            return 'info';
           case 3:
-            notificationType = 'warning';
-            break;
+            return 'warning';
           case 4:
-            notificationType = 'error';
-            break;
+            return 'error';
         }
-        return notificationType
       }
     },
     components: {

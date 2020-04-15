@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.db import models
-from users.mixins import NotificationTextMixin
+from core.mixins import NotificationTextMixin
 
 
 class UserNotification(models.Model, NotificationTextMixin):

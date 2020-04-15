@@ -3,7 +3,7 @@
 from django.conf import settings
 from django.db import migrations, models
 import django.db.models.deletion
-import users.mixins
+import core.mixins
 
 
 class Migration(migrations.Migration):
@@ -24,6 +24,6 @@ class Migration(migrations.Migration):
                 ('notification_type', models.PositiveSmallIntegerField(blank=True, choices=[(1, 'success'), (2, 'info'), (3, 'warning'), (4, 'danger')], null=True)),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
-            bases=(models.Model, users.mixins.NotificationTextMixin),
+            bases=(models.Model, core.mixins.NotificationTextMixin),
         ),
     ]

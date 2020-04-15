@@ -13,6 +13,8 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 
+from core.mixins import NotificationTextMixin
+from core.models import UserNotification
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
 from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete
@@ -273,6 +275,18 @@ class TeamRequestViewSet(ModelViewSet):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         _, is_created = serializer.save()
+        if is_created:
+            notification_message = UserNotification.TEAM_REQUEST_WAS_SENT_WITH_ACTIVATED_EMAIL\
+                if request.user.email_confirmed else UserNotification.TEAM_REQUEST_WAS_SENT_WITH_DEACTIVATED_EMAIL
+            notification_message = UserNotification.get_notification_text(
+                notification_message, username=request.user.username
+            )
+            UserNotification.objects.create(
+                purpose=UserNotification.REQUEST_WAS_SENT_PURPOSE,
+                user=request.user,
+                message=notification_message,
+                notification_type=UserNotification.INFO
+            )
         response_status = 201 if is_created else forum_status.STATUS_222_USER_ALREADY_REQUESTED
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=response_status, headers=headers)

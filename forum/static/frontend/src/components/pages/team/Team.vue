@@ -1,7 +1,7 @@
 <template>
   <div>
     <modal name="user-request-for-team">
-      <div>
+      <div class="m-5 text-center">
         <h1>
           Thank you!
         </h1>

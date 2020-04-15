@@ -1,8 +1,12 @@
 class NotificationPurposes:
-    """Handles notification purposes. Notifications could be found and deleted using these purposes"""
+    """Handles notification purposes.
+     Notifications could be found and deleted using these purposes"""
     SUCCESSFULLY_REGISTERED_PURPOSE = 0
     CONFIRM_EMAIL_PURPOSE = 1
     EMAIL_WAS_CONFIRMED_PURPOSE = 2
+    REQUEST_WAS_SENT_PURPOSE = 3
+    APPROVED_TEAM_REQUEST_PURPOSE = 4
+    REJECTED_TEAM_REQUEST_PURPOSE = 5
 
 
 class NotificationChoices:
