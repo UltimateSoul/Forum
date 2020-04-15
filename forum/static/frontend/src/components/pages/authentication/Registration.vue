@@ -1,7 +1,7 @@
 <template>
   <div>
-    <modal name="confirm-email" :clickToClose="false">
-      <div>
+    <modal name="confirmEmail" :clickToClose="false">
+      <div class="m-5 text-center">
         <v-alert dense text type="success">
         You've been successfully <strong>registered</strong>!
       </v-alert>
@@ -120,7 +120,6 @@
           {text: 'Female', value: 'FEMALE'},
           {text: '-----', value: 'OTHER'}
         ],
-        showConfirmEmailModal: false,
       }
     },
     validations: {
@@ -167,7 +166,7 @@
       },
       hideConfirmEmail() {
         this.$modal.hide('confirmEmail')
-        this.$router.push('home')
+        this.$router.push({name: 'home'});
       },
       register() {
         let data = {
@@ -178,10 +177,12 @@
           gender: this.gender ? this.gender : 'OTHER',
           avatar: this.avatar,
         };
+        const vueInstance = this
         this.$store.dispatch('register', data).then(
           () => {
-            if (this.$store.getters.isLogged) {
-              this.showconfirmEmail()
+            if (vueInstance.$store.getters.isLogged) {
+              debugger;
+              vueInstance.showconfirmEmail()
             }
           }
         )

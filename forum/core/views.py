@@ -23,6 +23,7 @@ class UserNotificationListView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = UserNotificationSerializer
     queryset = UserNotification.objects.all()
+    pagination_class = None
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user)

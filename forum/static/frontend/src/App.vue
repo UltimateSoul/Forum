@@ -4,12 +4,17 @@
       <sidebar></sidebar>
       <main id="page-wrap">
         <div class="container-fluid">
-          <v-alert v-for="notification in notifications"
-                   :type="notification.type"
-                   @click="deleteNotification(notification.id)">
-            {{ notification.message }}
-          </v-alert>
           <div class="page-container">
+            <div v-for="notification in notifications"
+                 v-if="notifications.length"
+                 class="clickable"
+                 @click="deleteNotification(notification.id)">
+              <v-alert
+                :type="getNotificationType(notification.type)"
+                :key="notification.id">
+                {{ notification.message }}
+              </v-alert>
+            </div>
             <transition name="slide" mode="out-in">
               <router-view/>
             </transition>
@@ -36,11 +41,11 @@
     created() {
       let token = sessionStorage.getItem('auth_token');
       if (Boolean(token)) {
+        const vueInstance = this
         this.$store.commit('setAuthToken');
         this.$store.dispatch('fetchUser').then(
           () => {
-            debugger
-            this.getNotifications()
+            vueInstance.getNotifications()
           }
         )
       } else {
@@ -54,25 +59,42 @@
       getNotifications() {
         axios.get('http://0.0.0.0:5000/core/notifications-list/').then(
           (response) => {
-            debugger
             switch (response.status) {
               case 200:
-                this.notifications = response.data
+                this.notifications = response.data;
                 break;
             }
           }
         )
       },
       deleteNotification(notificationID) {
-        axios.delete(`http://0.0.0.0:5000/core/delete-notification/${notificationID}`).then(
+        axios.delete(`http://0.0.0.0:5000/core/delete-notification/${notificationID}/`).then(
           (response) => {
             switch (response.status) {
               case 204:
-                break;
+                this.getNotifications()
             }
           }
         )
       },
+      getNotificationType(notificationTypeNumber) {
+        let notificationType = 'success'
+        switch (notificationTypeNumber) {
+          case 1:
+            notificationType = 'success';
+            break;
+          case 2:
+            notificationType = 'info';
+            break;
+          case 3:
+            notificationType = 'warning';
+            break;
+          case 4:
+            notificationType = 'error';
+            break;
+        }
+        return notificationType
+      }
     },
     components: {
       sidebar: Sidebar,
@@ -94,9 +116,14 @@
     color: #2c3e50;
   }
 
-  .clicable {
+  .clickable {
     cursor: pointer;
   }
+
+  .special-card {
+  background-color: rgba(245, 245, 245, 1);
+  opacity: .95;
+}
 
   .spinner-style {
     width: 5rem;
@@ -107,7 +134,7 @@
     margin-left: auto;
     margin-right: auto;
     padding: 30px;
-    width: 80vw;
+    width: 90vw;
   }
 
   .button-control {

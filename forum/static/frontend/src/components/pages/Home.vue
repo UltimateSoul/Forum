@@ -1,11 +1,11 @@
 <template>
   <div>
-    <b-jumbotron header="Welcome to our forum!" lead="">
+    <div style="background: url(http://0.0.0.0:5000/static/images/welcome.jpg); min-height: 720px">
       <div class="center-card">
-        <b-card no-body class="overflow-hidden" style="max-width: 540px;">
+        <b-card no-body class="overflow-hidden special-card" style="max-width: 540px;">
           <b-row no-gutters>
             <b-col md="6">
-              <b-card-img :src="user.avatar" alt="Image" class="rounded-0"></b-card-img>
+              <b-card-img :src="user.avatar ? user.avatar : 'http://0.0.0.0:5000/static/images/default.jpg'" alt="Image" class="rounded-0"></b-card-img>
             </b-col>
             <b-col md="6">
               <b-card-body :title="user.username">
@@ -35,14 +35,14 @@
                  :items="popularTopics"
                  :fields="fields">
           <template v-slot:cell(avatar)="data">
-            <img :src="data.item.author.avatar" height="100" width="100">
+            <img :src="data.item.author.avatar ? data.item.author.avatar : 'http://0.0.0.0:5000/static/images/default.jpg'" height="100" width="100">
           </template>
           <template v-slot:cell(created_at)="data">
             {{ data.item.created_at | getDateFormat }}
           </template>
         </b-table>
       </div>
-    </b-jumbotron>
+    </div>
   </div>
 </template>
 
