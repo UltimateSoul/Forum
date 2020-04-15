@@ -55,6 +55,11 @@
       }
 
     },
+    watch: {
+      $route(to, from) {
+        this.getNotifications()
+      }
+    },
     methods: {
       getNotifications() {
         axios.get('http://0.0.0.0:5000/core/notifications-list/').then(
@@ -121,9 +126,9 @@
   }
 
   .special-card {
-  background-color: rgba(245, 245, 245, 1);
-  opacity: .95;
-}
+    background-color: rgba(245, 245, 245, 1);
+    opacity: .95;
+  }
 
   .spinner-style {
     width: 5rem;

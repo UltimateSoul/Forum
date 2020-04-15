@@ -129,13 +129,18 @@
           (response) => {
             switch (response.status) {
               case 201:
-                this.$store.dispatch('fetchUser');
-                this.$router.push({
-                  name: 'team',
-                  params: {
-                    teamID: response.data.pk
+                let vueInstance = this;
+                this.$store.dispatch('fetchUser').then(
+                  () => {
+                    debugger
+                    vueInstance.$router.push({
+                      name: 'team',
+                      params: {
+                        teamID: response.data.id
+                      }
+                    });
                   }
-                });
+                )
                 break;
               case 400:
                 break;

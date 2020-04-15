@@ -35,9 +35,14 @@
       }
     },
     created() {
-      this.$store.dispatch('fetchUser');
+      let vueInstance = this;
+      this.$store.dispatch('fetchUser')
+      .then(
+        () => {
+          vueInstance.getTeamForUser();
+        }
+      );
       this.getData();
-      this.getTeamForUser();
     },
     methods: {
       getData() {
@@ -69,8 +74,17 @@
                 if (this.hasTeam) {
                   this.myTeamID = response.data.team_id
                 }
+                break;
+              case 404:
+                this.hasTeam = false
+                break;
             }
           }
+        )
+        .catch(
+          (error) => {
+            console.log(error)
+        }
         )
       },
       goToMyTeam() {

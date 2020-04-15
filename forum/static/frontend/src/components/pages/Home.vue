@@ -1,6 +1,5 @@
 <template>
   <div>
-    <div style="background: url(http://0.0.0.0:5000/static/images/welcome.jpg); min-height: 720px">
       <div class="center-card">
         <b-card no-body class="overflow-hidden special-card" style="max-width: 540px;">
           <b-row no-gutters>
@@ -43,7 +42,6 @@
         </b-table>
       </div>
     </div>
-  </div>
 </template>
 
 <script>

@@ -3,7 +3,7 @@
     <div class="sections-container">
       <div class="row">
         <div class="col-lg-6">
-          <div class="card bg-light mb-3 clicable" style="max-width: 18rem;"
+          <div class="card bg-light mb-3 clickable" style="max-width: 18rem;"
                @click="sectionClick('ideas')">
             <div class="card-body">
               <ideas-svg></ideas-svg>
@@ -13,7 +13,7 @@
           </div>
         </div>
         <div class="col-lg-6">
-          <div class="card bg-light mb-3 clicable" style="max-width: 18rem;"
+          <div class="card bg-light mb-3 clickable" style="max-width: 18rem;"
                @click="sectionClick('bugs')">
             <div class="card-body">
               <bugs-svg></bugs-svg>
@@ -25,7 +25,7 @@
       </div>
       <div class="row">
         <div class="col-lg-6">
-          <div class="card bg-light mb-3 clicable" style="max-width: 18rem;"
+          <div class="card bg-light mb-3 clickable" style="max-width: 18rem;"
                @click="sectionClick('conversation')">
             <div class="card-body">
               <conversation-svg></conversation-svg>
@@ -35,7 +35,7 @@
           </div>
         </div>
         <div class="col-lg-6">
-          <div class="card bg-light mb-3 clicable" style="max-width: 18rem;"
+          <div class="card bg-light mb-3 clickable" style="max-width: 18rem;"
                @click="sectionClick('entertainment')">
             <div class="card-body">
               <entertainment-svg></entertainment-svg>

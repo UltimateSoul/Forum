@@ -57,7 +57,7 @@
                 Submit
               </b-button>
               <b-button v-else @click="createTopic" variant="success">
-                Button
+                Submit
               </b-button>
             </div>
           </div>
