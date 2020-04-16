@@ -54,6 +54,7 @@ urlpatterns = [
                   path('admin/', admin.site.urls),
                   path('api/', include(("api.urls", "api"), namespace="api")),
                   path('core/', include(("core.urls", "core"), namespace="core")),
+                  path('shop/', include(("shop.urls", "shop"), namespace="shop")),
                   path('authentication/', include(("users.urls", "users"), namespace="users")),
                   path('doc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
               ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) + front_end_url_integration

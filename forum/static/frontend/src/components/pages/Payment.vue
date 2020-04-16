@@ -20,7 +20,6 @@
     data() {
       return {
         stripeAPIToken: 'pk_test_6N0OZCClQ43Mx8TA4eXmyh9g00fxEBrE4b',  // ToDo: take this token from .env file on production
-        stripeAPISecretToken: 'sk_test_C0jGpc83Z2a5GcGinHfzjba500IWsROPBa',  // ToDo: take this token from .env file on production
 
         stripe: '',
         elements: '',

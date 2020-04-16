@@ -32,3 +32,9 @@ class UserShopProfile(models.Model):
     customer_id = models.CharField(max_length=255, null=True, blank=True)
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+#
+# class PaymentIntent(models.Model):
+#     """Represents stripe payment intent object"""
+#
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+#     client_secret = models.CharField(max_length=255, null=True, blank=True)
