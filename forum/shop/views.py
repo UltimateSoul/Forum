@@ -28,7 +28,9 @@ class PaymentIntent(APIView):
         money = get_money_for_coins(serializer.data.get('amount'))
         if not money:
             return Response(status=status.HTTP_400_BAD_REQUEST)
+        customer_id = request.user.shop_profile.customer_id
         intent = stripe.PaymentIntent.create(amount=money,
                                              currency='usd',
-                                             metadata={'integration_check': 'accept_a_payment'},)
+                                             metadata={'integration_check': 'accept_a_payment'},
+                                             customer=customer_id)
         return Response({'secret': intent.client_secret}, status=status.HTTP_201_CREATED)

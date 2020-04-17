@@ -73,12 +73,6 @@ const EditTeam = resolve => {
   })
 };
 
-const Payment = resolve => {
-  require.ensure(['@/components/pages/Payment'], () => {
-    resolve(require('@/components/pages/Payment'))
-  })
-};
-
 Vue.use(Router);
 
 export default new Router({
@@ -127,11 +121,6 @@ export default new Router({
       path: '/shop',
       name: 'shop',
       component: Shop
-    },
-    {
-      path: '/shop/payment',
-      name: 'payment',
-      component: Payment
     },
     {
       path: '/teams',
