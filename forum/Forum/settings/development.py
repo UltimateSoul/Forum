@@ -41,7 +41,7 @@ SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')  # noqa
 STRIPE_PUBLIC_API_KEY = os.getenv('STRIPE_PUBLIC_API_KEY')  # noqa
 STRIPE_SECRET_API_KEY = os.getenv('STRIPE_SECRET_API_KEY')  # noqa
 
-FROM_EMAIL = os.getenv('FROM_EMAIL')  # noqa
+FROM_EMAIL = os.getenv('FROM_EMAIL')  # noqa  email from which emails are send
 
 EMAIL_HOST = 'smtp.sendgrid.net'
 EMAIL_HOST_USER = 'apikey'

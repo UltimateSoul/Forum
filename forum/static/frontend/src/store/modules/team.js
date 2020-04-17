@@ -18,7 +18,7 @@ const state = {
 };
 
 const getters = {
-  isHasTeam(state, getters, rootState) {
+  hasTeam(state, getters, rootState) {
     return rootState.authentication.user.hasTeam;
   },
   isTeamOwner: (state, getters, rootState) => (teamID) => {

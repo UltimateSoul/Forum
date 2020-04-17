@@ -37,19 +37,11 @@
               </b-form-invalid-feedback>
 
               <label for="topic-body">Topic Body:</label>
-              <b-form-textarea
-                id="topic-body"
-                :state="validateState('body')"
-                @blur="$v.body.$touch()"
-                v-model="$v.body.$model"
-                placeholder="Enter something..."
-                rows="3"
-                max-rows="6"
-              >
-              </b-form-textarea>
-              <b-form-invalid-feedback id="input-live-feedback">
-                Enter at least 10 letters
-              </b-form-invalid-feedback>
+              <ckeditor :editor="editor"
+                        class="ck-content"
+                        v-model="body"
+                        :config="editorConfig">
+              </ckeditor>
             </b-form>
             <div class="button-control">
               <b-button v-if="$v.$invalid"
@@ -68,8 +60,9 @@
 </template>
 
 <script>
-  import {required, minLength} from 'vuelidate/lib/validators'
   import axios from 'axios';
+  import {required, minLength} from 'vuelidate/lib/validators'
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
   export default {
     name: "TopicCreation",
@@ -78,6 +71,8 @@
         title: "",
         description: "",
         body: "",
+        editor: ClassicEditor,
+        editorConfig: {},
         section: this.$route.params.section
       }
     },
@@ -105,10 +100,6 @@
         required,
         minLen: minLength(3)
       },
-      body: {
-        required,
-        minLen: minLength(10)
-      }
     },
     methods: {
       createTopic() {
@@ -119,18 +110,18 @@
           section: this.section.toUpperCase()
         };
         axios.post('topics/', data)
-        .then((response) => {
-          switch (response.status) {
-            case 201:
-              this.moveToCreatedTopic(response.data.topic_id);
-              break;
-            case 400:
-              break;
-            case 500:
-              break;
+          .then((response) => {
+            switch (response.status) {
+              case 201:
+                this.moveToCreatedTopic(response.data.topic_id);
+                break;
+              case 400:
+                break;
+              case 500:
+                break;
 
-          }
-        })
+            }
+          })
       },
       moveToCreatedTopic(topicID) {
         this.$router.push({

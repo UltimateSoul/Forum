@@ -25,19 +25,11 @@
               </b-form-invalid-feedback>
 
               <label for="topic-body">Topic Body:</label>
-              <b-form-textarea
-                id="topic-body"
-                :state="validateState('body')"
-                @blur="$v.body.$touch()"
-                v-model="$v.body.$model"
-                placeholder="Enter something..."
-                rows="3"
-                max-rows="6"
-              >
-              </b-form-textarea>
-              <b-form-invalid-feedback id="input-live-feedback">
-                Enter at least 10 letters
-              </b-form-invalid-feedback>
+              <ckeditor :editor="editor"
+                        class="ck-content"
+                        v-model="body"
+                        :config="editorConfig">
+              </ckeditor>
             </b-form>
             <div class="button-control">
               <b-button v-if="$v.$invalid"
@@ -56,9 +48,11 @@
 </template>
 
 <script>
-  import {required, minLength} from 'vuelidate/lib/validators'
+  import {minLength, required} from 'vuelidate/lib/validators'
   import {mapGetters} from 'vuex'
   import axios from 'axios';
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
+
 
   export default {
     name: "TopicEditing",
@@ -68,6 +62,8 @@
         body: "",
         section: this.$route.params.section,
         topicID: this.$route.params.topicID,
+        editor: ClassicEditor,
+        editorConfig: {},
         author: {
           avatar: '',
           gameNickName: '',
@@ -96,10 +92,6 @@
         required,
         minLen: minLength(3)
       },
-      body: {
-        required,
-        minLen: minLength(10)
-      }
     },
     methods: {
       getData() {

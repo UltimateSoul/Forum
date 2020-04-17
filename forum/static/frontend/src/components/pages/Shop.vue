@@ -44,7 +44,6 @@
           <b-button @click="createPaymentIntent(10000)">Buy</b-button>
         </b-col>
       </b-row>
-      <b-button :disabled="loading" @click="loading = !loading">Test Disabled State</b-button>
     </div>
   </div>
 </template>

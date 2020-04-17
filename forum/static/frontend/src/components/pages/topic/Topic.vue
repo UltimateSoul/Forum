@@ -20,7 +20,7 @@
           <b-col md="10">
             <b-card-body>
               <b-card-text>
-                {{topic.body}}
+                <div class="html-text" v-html="topic.body"></div>
               </b-card-text>
             </b-card-body>
           </b-col>
@@ -30,7 +30,7 @@
                   :pressed="topic.isLiked"
                   @click="likeOrUnlikeTopicClick()"
                   :id="'like-topic-button-' + topicID">
-          Like
+          {{ topic.isLiked ? 'Unlike' : 'Like' }}
         </b-button>
       </b-card>
       <div class="button-control" v-if="isMainUser(author.pk)">
@@ -61,7 +61,7 @@
                         :pressed="post.is_liked"
                         @click="likeOrUnlikePostClick(post.id, post.is_liked)"
                         :id="'like-post-button-' + post.id">
-                Like
+                {{ post.is_liked ? 'Unlike' : 'Like' }}
               </b-button>
             </div>
           </b-card>
@@ -76,7 +76,7 @@
             </b-button>
           </div>
           <b-collapse :id="'collaps-' + post.id" v-model="buttonsEngine['button-'+post.id].isOpen" class="mt-2">
-             <div class="message-range" v-for="comment in post.comments">
+            <div class="message-range" v-for="comment in post.comments">
               <b-card no-body class="overflow-hidden">
                 <b-row no-gutters>
                   <b-col md="2">
@@ -97,13 +97,17 @@
                             variant="primary"
                             @click="likeOrUnlikeCommentClick(comment.id, comment.is_liked)"
                             :id="'like-comment-button-' + comment.id">
-                    Like
+                    {{ comment.is_liked ? 'Unlike' : 'Like' }}
                   </b-button>
                 </div>
               </b-card>
             </div>
             <div class="message-range">
-              <editor :editorData="editorComment" @update="updateComment"></editor>
+              <ckeditor :editor="editor"
+                        class="ck-content"
+                        v-model="editorComment"
+                        :config="editorConfig">
+              </ckeditor>
               <b-button variant="primary"
                         @click="saveComment(post.id)"
                         :id="'button-comment' + post.id">
@@ -114,7 +118,11 @@
           <div v-if="buttonsEngine['button-'+post.id].isOpen">
           </div>
         </div>
-        <editor :editorData="editorPost" @update="updatePost"></editor>
+        <ckeditor :editor="editor"
+                  class="ck-content"
+                  v-model="editorPost"
+                  :config="editorConfig">
+        </ckeditor>
         <div class="button-control">
           <b-button @click="savePost" variant="primary">
             Post
@@ -132,9 +140,9 @@
 </template>
 
 <script>
-  import editor from "../../elements/Editor";
   import axios from 'axios'
   import {mapGetters} from 'vuex';
+  import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
   export default {
     name: "Topic",
@@ -161,11 +169,12 @@
         buttonsEngine: {},
         editorPost: '',
         editorComment: '',
+        editor: ClassicEditor,
+        editorConfig: {},
         currentPage: 1,
 
       }
     },
-    components: {editor},
     created() {
       this.getTopicData();
       this.getTopicPosts(this.currentPage)
@@ -180,12 +189,6 @@
       }
     },
     methods: {
-      updateComment(text) {
-        this.editorComment = text
-      },
-      updatePost(text) {
-        this.editorPost = text
-      },
       getTopicData() {
         axios.get('topics/' + this.topicID + '/').then(
           (response) => {

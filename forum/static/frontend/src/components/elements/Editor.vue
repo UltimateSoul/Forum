@@ -29,20 +29,22 @@
     data() {
       return {
         editor: ClassicEditor,
-        data: this.editorData,
-        editorConfig: {
-        }
+        data: this.loadedText,
+        editorConfig: {}
       };
     },
     methods: {
       updateData() {
         this.$emit('update', this.data)
       }
+    },
+    computed: {
+      loadedText() {
+        return this.editorData
+      }
     }
   };
 </script>
 <style>
-  .ck-content {
-    height: 250px;
-  }
+
 </style>

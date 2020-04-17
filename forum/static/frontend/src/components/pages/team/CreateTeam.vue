@@ -32,13 +32,11 @@
         </b-form-group>
         <hr>
         <b-form-group label="Base information about your team" label-for="teamBaseInfo">
-          <b-form-textarea
-            id="teamBaseInfo"
-            v-model="baseInfo"
-            placeholder="Enter something..."
-            rows="3"
-            max-rows="6"
-          ></b-form-textarea>
+          <ckeditor :editor="editor"
+              class="ck-content"
+              v-model="baseInfo"
+              :config="editorConfig">
+          </ckeditor>
           <small id="teamBaseInfoHelp" class="form-text text-muted">
             Here you can write team rules, awards etc.
           </small>
@@ -75,6 +73,7 @@
 </template>
 
 <script>
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   import {required} from 'vuelidate/lib/validators'
   import axios from 'axios'
   import {mapGetters} from "vuex";
@@ -87,6 +86,8 @@
         description: '',
         file: null,
         baseInfo: '',
+        editor: ClassicEditor,
+        editorConfig: {}
       }
     },
     created() {

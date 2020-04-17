@@ -47,7 +47,7 @@
                   variant="success" disabled>
           {{ teamRequestsButtonText }}
         </b-button>
-        <b-button class="float-right" v-if="!isMember && !isOwner && !requestForUserExists" @click="joinTeam"
+        <b-button class="float-right" v-if="canJoin" @click="joinTeam"
                   variant="success">Join Team
         </b-button>
       </b-col>
@@ -62,6 +62,8 @@
       <h5>
         {{ team.description }}
       </h5>
+      <hr>
+        <div class="html-text" v-html="team.baseInfo"></div>
       <hr>
       <div @click="showTeamMembers = !showTeamMembers" class="clicable">
         <h3>Team Members:</h3>
@@ -275,7 +277,7 @@
     computed: {
       ...mapGetters([
         'getUserData',
-        'isHasTeam'
+        'hasTeam'
       ]),
       isOwner() {
         return this.owner.pk === this.getUserData.userID
@@ -294,6 +296,9 @@
         } else {
           return 'No team requests'
         }
+      },
+      canJoin() {
+        return !this.isMember && !this.isOwner && !this.requestForUserExists && !this.hasTeam
       }
     }
   }

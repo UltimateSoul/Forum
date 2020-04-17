@@ -7,7 +7,7 @@
         <b-form-group label="Quick description of your team" label-for="teamDescriptionInput">
           <b-form-input
             id="teamDescriptionInput"
-            v-model="dataToChange.description"
+            v-model="description"
             placeholder="Enter something..."
             :maxlength="255"
           ></b-form-input>
@@ -17,13 +17,11 @@
         </b-form-group>
         <hr>
         <b-form-group label="Base information about your team" label-for="teamBaseInfo">
-          <b-form-textarea
-            id="teamBaseInfo"
-            v-model="dataToChange.baseInfo"
-            placeholder="Enter something..."
-            rows="3"
-            max-rows="6"
-          ></b-form-textarea>
+          <ckeditor :editor="editor"
+              class="ck-content"
+              v-model="baseInfo"
+              :config="editorConfig">
+          </ckeditor>
           <small id="teamBaseInfoHelp" class="form-text text-muted">
             Here you can write team rules, awards etc.
           </small>
@@ -32,8 +30,8 @@
         <b-form-group label="Team Image" label-for="teamAvatarInput">
           <b-form-file
             id="teamAvatarInput"
-            v-model="dataToChange.file"
-            :state="Boolean(dataToChange.file)"
+            v-model="file"
+            :state="Boolean(file)"
             placeholder="Choose an image file or drop it here..."
             drop-placeholder="Drop file here..."
           ></b-form-file>
@@ -54,6 +52,7 @@
 </template>
 
 <script>
+  import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   import axios from 'axios'
   import {mapGetters} from "vuex";
 
@@ -61,13 +60,11 @@
     name: "EditTeam",
     data() {
       return {
-        dataToChange: {
-          description: '',
-          file: null,
-          baseInfo: '',
-        },
-
-
+        description: '',
+        file: null,
+        baseInfo: '',
+        editor: ClassicEditor,
+        editorConfig: {}
       }
     },
     created() {
@@ -78,19 +75,19 @@
       }
       this.$store.dispatch('getTeamData', this.$route.params.teamID).then(
         () => {
-          this.dataToChange.description = this.getTeam.description
-          this.dataToChange.baseInfo = this.getTeam.baseInfo
+          this.description = this.getTeam.description
+          this.baseInfo = this.getTeam.baseInfo
         }
       )
     },
     methods: {
       updateTeam() {
         const formData = new FormData();
-        if (this.dataToChange.file) {
-          formData.append('avatar', this.dataToChange.file);
+        if (this.file) {
+          formData.append('avatar', this.file);
         }
-        formData.append('description', this.dataToChange.description);
-        formData.append('base_info', this.dataToChange.baseInfo);
+        formData.append('description', this.description);
+        formData.append('base_info', this.baseInfo);
         axios.patch(`teams/${this.$route.params.teamID}/`, formData).then(
           (response) => {
 
