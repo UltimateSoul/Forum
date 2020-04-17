@@ -36,6 +36,8 @@ class NotificationTextMixin(NotificationChoices, NotificationPurposes):
     ACCEPTED_TEAM_REQUEST = """Congratulations {username}!
     Your team request into {team_name} was accepted!"""
     REJECTED_TEAM_REQUEST = """Your team request into {team_name} was rejected."""
+    SUCCESSFUL_COINS_PURCHASE = """Congratulations {username}!
+    You've successfully purchased {amount} coins! Have a good day :D"""
 
     @staticmethod
     def get_notification_text(notification, **kwargs):

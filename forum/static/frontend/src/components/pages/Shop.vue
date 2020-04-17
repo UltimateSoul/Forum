@@ -11,7 +11,7 @@
         <div id="card-element" class="form-control">
 
         </div>
-        <b-button @click="submitPayment" variant="success">Submit</b-button>
+        <b-button :disabled="loading" @click="submitPayment" variant="success">Submit</b-button>
       </div>
     </modal>
     <div style="background: url('http://0.0.0.0:5000/static/images/golden_coins.jpg'); height: 556px">
@@ -41,9 +41,10 @@
         </b-col>
         <b-col>
           <h3>10000 Coins</h3>
-          <b-button :disabled="loading" @click="createPaymentIntent(10000)">Buy</b-button>
+          <b-button @click="createPaymentIntent(10000)">Buy</b-button>
         </b-col>
       </b-row>
+      <b-button :disabled="loading" @click="loading = !loading">Test Disabled State</b-button>
     </div>
   </div>
 </template>
@@ -87,7 +88,6 @@
       },
       hidePaymentModal() {
         this.$modal.hide('paymentModal')
-        this.$router.push({name: 'home'});
       },
       includeStripe(URL, callback) {
         let documentTag = document, tag = 'script',
@@ -111,6 +111,7 @@
       },
       submitPayment() {
         this.loading = true;
+        let vueInstance = this;
         this.stripe.confirmCardPayment(this.secret, {
             payment_method: {
               card: this.card
@@ -119,13 +120,16 @@
           .then(function (result) {
             if (result.error) {
               console.log('errors: ', result.error) // ToDo: notify user
-              this.loading = false
+              vueInstance.loading = false
+              vueInstance.hidePaymentModal()
 
             } else {
              if (result.paymentIntent.status === 'succeeded') {
-              console.log('succeeded payment')  // ToDo: notify user
-               this.loading = false
+              console.log('succeeded payment')
+
              }
+             vueInstance.loading = false
+             vueInstance.hidePaymentModal()
             }
           });
       }

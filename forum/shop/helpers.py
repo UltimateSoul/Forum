@@ -1,3 +1,4 @@
+from core.models import UserNotification
 from shop import constants
 
 
@@ -26,7 +27,16 @@ def calculate_coins_for_user(user, amount):
                   constants.CENTS_FOR_2000_COINS: constants.COINS_2000,
                   constants.CENTS_FOR_5000_COINS: constants.COINS_5000,
                   constants.CENTS_FOR_10000_COINS: constants.COINS_10000}
-
     coins_amount = dependency.get(amount)
     user.coins += coins_amount
     user.save()
+    notification_message = UserNotification.get_notification_text(
+        UserNotification.SUCCESSFUL_COINS_PURCHASE,
+        username=user.username,
+        amount=coins_amount
+    )
+    UserNotification.objects.create(
+        user=user,
+        message=notification_message,
+        notification_type=UserNotification.SUCCESS
+    )

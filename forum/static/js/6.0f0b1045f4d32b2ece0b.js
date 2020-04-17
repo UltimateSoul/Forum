@@ -1,2 +1,0 @@
-webpackJsonp([6],{"/oPF":function(e,t){},KCKD:function(e,t,n){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var r={render:function(){this.$createElement;this._self._c;return this._m(0)},staticRenderFns:[function(){var e=this.$createElement,t=this._self._c||e;return t("div",[t("h1",[this._v("Shop")])])}]};var i=n("VU/8")({name:"Shop"},r,!1,function(e){n("/oPF")},"data-v-8d2d5f4e",null);t.default=i.exports}});
-//# sourceMappingURL=6.0f0b1045f4d32b2ece0b.js.map
