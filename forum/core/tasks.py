@@ -56,7 +56,7 @@ def send_team_request_state_email(team_request_id):
             user=user,
             purpose=UserNotification.REJECTED_TEAM_REQUEST_PURPOSE,
             message=notification_message,
-            notification_type=UserNotification.SUCCESS
+            notification_type=UserNotification.WARNING
         )
     email = EmailMessage(
         email_subject, message, from_email=settings.FROM_EMAIL, to=[user.email]

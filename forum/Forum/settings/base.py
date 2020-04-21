@@ -46,6 +46,9 @@ MIDDLEWARE = [
 ]
 
 CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = [
+#     'https://api.stripe.com'
+# ]
 
 ROOT_URLCONF = 'Forum.urls'
 

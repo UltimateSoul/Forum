@@ -13,7 +13,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
-    username = "Test Username"
+    username = "Test_Username"
     email = "test@email.com"
     game_nickname = "Test Game Nickname"
     gender = 'MALE'

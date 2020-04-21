@@ -6,6 +6,7 @@ from rest_framework.authtoken.models import Token
 
 from api.models import Topic, Like, Comment, Post
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
+from core.models import UserNotification
 from users.models import UserTeamRequest, Team
 from users.tests.factories import UserFactory, AnotherUserFactory, TeamFactory, RankFactory, TeamMemberFactory, \
     UserTeamRequestFactory
@@ -482,6 +483,11 @@ class TestUserTeamRequestViewSet(APITestCase):
         data = {'team': self.team.id}
         response = self.client.post(reverse('api:user-team-requests-list'), data=data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        notification = UserNotification.objects.last()
+        notification_message = UserNotification.get_notification_text(
+            UserNotification.TEAM_REQUEST_WAS_SENT_WITH_DEACTIVATED_EMAIL, username=usual_user.username
+        )
+        self.assertEqual(notification.message, notification_message)
 
     def test_request_created_once(self):
         """Tests that request for user created only once"""
