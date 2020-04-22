@@ -1,6 +1,15 @@
 <template>
   <div>
     <div>
+      <modal name="notifications-modal" :clickToClose="false">
+        <div class="m-5 text-center">
+          <div v-for="notification in notifications">
+            <h1>{{notification.type}} {{notification.status}}</h1>
+            <h5>{{notification.message}}</h5>
+          </div>
+          <b-button @click="hideNotificationsEmail" variant="success">Ok</b-button>
+        </div>
+      </modal>
       <div class="button-control">
         <b-button v-if="!hasTeam" @click="goToCreateTeam" variant="outline-primary">Create Team</b-button>
         <b-button v-else variant="outline-primary" @click="goToMyTeam">Visit my team</b-button>
@@ -28,8 +37,7 @@
     name: "Teams",
     data() {
       return {
-        hasTeam: false,
-        myTeamID: null,
+        notifications: [],
         fields: ['avatar', 'name', 'owner', 'total_members', 'created_at'],
         teams: []
       }
@@ -37,63 +45,82 @@
     created() {
       let vueInstance = this;
       this.$store.dispatch('fetchUser')
-      .then(
-        () => {
-          vueInstance.getTeamForUser();
-        }
-      );
-      this.getData();
+        .then(
+          () => {
+            vueInstance.getData();
+          }
+        );
     },
     methods: {
       getData() {
+
         return axios.get('teams/').then(
           (response) => {
+            let notification = {}
             switch (response.status) {
               case 200:
                 this.teams = response.data.results;
                 break;
               case 204:
-                break;
-              case 400:
-                break;
-              case 500:
+                notification = {
+                  message: response.data,
+                  type: 'error',
+                  status: response.status
+                }
+                this.showNotificationsEmail()
                 break;
             }
           }
         ).catch(
           (error) => {
-          }
-        )
-      },
-      getTeamForUser() {
-        return axios.get('teams/get_team_for_user/').then(
-          (response) => {
-            switch (response.status) {
-              case 200:
-                this.hasTeam = Boolean(response.data.team_id);
-                if (this.hasTeam) {
-                  this.myTeamID = response.data.team_id
+            let notification = {}
+            switch (error.response.status) {
+              case 400:
+                notification = {
+                  message: error.response.data.detail,
+                  type: 'error',
+                  status: error.response.status
                 }
+                this.showNotificationsEmail()
+
                 break;
-              case 404:
-                this.hasTeam = false
+              case 403:
+
+                notification = {
+                  message: error.response.data.detail,
+                  type: 'error',
+                  status: error.response.status
+                }
+                this.showNotificationsEmail()
+
+                break
+              case 500:
+                notification = {
+                  message: error.response.data.detail,
+                  type: 'error',
+                  status: error.response.status
+                }
+                this.showNotificationsEmail()
                 break;
             }
+            this.notifications.push(notification)
           }
-        )
-        .catch(
-          (error) => {
-            console.log(error)
-        }
         )
       },
       goToMyTeam() {
         this.$router.push({
           name: 'team',
           params: {
-            teamID: this.myTeamID
+            teamID: this.getTeamID
           }
         })
+      },
+      showNotificationsEmail() {
+        this.$modal.show('notifications-modal')
+      },
+      hideNotificationsEmail() {
+        this.$modal.hide('notifications-modal')
+        this.$router.push({name: 'home'});
       },
       goToCreateTeam() {
         this.$router.push({
@@ -112,7 +139,11 @@
     computed: {
       ...mapGetters([
         'isMainUser',
-        'getUserData'
+        'getUserData',
+        'hasTeam',
+        'isTeamOwner',
+        'getTeam',
+        'getTeamID'
       ]),
     },
     filters: {

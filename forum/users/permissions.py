@@ -52,3 +52,10 @@ class IsAbleToDelete(permissions.BasePermission):
         if request.method == 'DELETE':
             return user.is_moderator or user.is_superuser
         return True
+
+
+class EmailConfirmationRequired(permissions.BasePermission):
+    message = 'Only users with confirmed email can visit this page.'
+
+    def has_permission(self, request, view):
+        return request.user.email_confirmed

@@ -17,7 +17,7 @@ from core.mixins import NotificationTextMixin
 from core.models import UserNotification
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
-from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete
+from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete, EmailConfirmationRequired
 from users.serializers import UserSerializer, RestrictedUserSerializer, TeamSerializer, \
     RankSerializer, UserTeamRequestSerializer, CreateUserTeamRequestSerializer
 from .helpers.permissions import check_ability_to_edit, check_ability_to_delete
@@ -209,6 +209,7 @@ class UsersViewSet(ModelViewSet):
 class TeamViewSet(ModelViewSet):
     serializer_class = TeamSerializer
     queryset = Team.objects.all()
+    permission_classes = [IsAuthenticated, EmailConfirmationRequired]
 
     def get_queryset(self):
         if 'name' in self.request.GET:
@@ -259,7 +260,7 @@ class RanksViewSet(ModelViewSet):
 class TeamRequestViewSet(ModelViewSet):
     queryset = UserTeamRequest.objects.filter(approved=False, email_was_send=False)
     serializer_class = UserTeamRequestSerializer
-    permission_classes = [IsAuthenticated, IsTeamOwner, IsAbleToDelete]
+    permission_classes = [IsAuthenticated, IsTeamOwner, IsAbleToDelete, EmailConfirmationRequired]
 
     def get_permissions(self):
         """

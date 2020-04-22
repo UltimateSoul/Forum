@@ -408,6 +408,8 @@ class TestTeamViewSet(APITestCase):
 class TestUserTeamRequestViewSet(APITestCase):
     def setUp(self) -> None:
         self.user = UserFactory()
+        self.user.email_confirmed = True
+        self.user.save()
         token = Token.objects.get(user=self.user)
         self.client.credentials(
             HTTP_AUTHORIZATION=f'Token {token.key}')

@@ -23,6 +23,9 @@ const getters = {
   isLogged(state) {
     return state.user.isLogged;
   },
+  getTeamID(state) {
+    return state.user.teamID
+  },
 
   getUserData(state) {
     let user = state.user;
