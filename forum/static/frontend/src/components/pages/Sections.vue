@@ -54,12 +54,10 @@
   import BugsSvg from '../SVG/Bugs'
   import ConversationSvg from '../SVG/Conversation'
   import EntertainmentSvg from '../SVG/Entertainment'
-  import Conversation from "./Conversation";
 
   export default {
     name: "Sections",
     components: {
-      Conversation,
       bugsSvg: BugsSvg,
       ideasSvg: IdeasSvg,
       conversationSvg: ConversationSvg,

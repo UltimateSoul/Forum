@@ -44,6 +44,9 @@ class Topic(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, related_name='topics')
     section = models.CharField(max_length=13, choices=SECTION_CHOICES, default=CONVERSATION)
 
+    removed_by_moderator = models.BooleanField(default=False)
+    removed_at = models.DateTimeField(null=True, blank=True)
+
     is_pinned = models.BooleanField(default=False)
     likes = GenericRelation(Like)
 

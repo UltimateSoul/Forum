@@ -9,6 +9,24 @@
     <h1>{{topic.title}}</h1>
     <hr>
     <h5>{{topic.description}}</h5>
+    <modal name="deleteModal">
+      <div class="m-5 text-center">
+        <h1>
+          Are you sure?
+        </h1>
+        <h4>
+          Are you really sure that you want to delete this topic? All you actions will be recorded.
+        </h4>
+        <b-row>
+          <b-col>
+            <b-button variant="dark" @click="hideDeleteModal">Cancel</b-button>
+          </b-col>
+          <b-col>
+            <b-button variant="dark" @click="moderatorDeleteTopic">Delete</b-button>
+          </b-col>
+        </b-row>
+      </div>
+    </modal>
     <div>
       <b-card no-body class="overflow-hidden">
         <b-row no-gutters>
@@ -25,13 +43,38 @@
             </b-card-body>
           </b-col>
         </b-row>
-        Likes: {{topic.totalLikes}}
-        <b-button variant="primary"
-                  :pressed="topic.isLiked"
-                  @click="likeOrUnlikeTopicClick()"
-                  :id="'like-topic-button-' + topicID">
-          {{ topic.isLiked ? 'Unlike' : 'Like' }}
-        </b-button>
+        <b-row>
+          <b-col>
+            Likes: {{topic.totalLikes}}
+          </b-col>
+          <b-col>
+            <div v-if="isModerator">
+              <b-button v-b-toggle.collapse-1 variant="primary">Moderator Actions</b-button>
+              <b-collapse id="collapse-1" class="mt-2">
+                <b-card>
+                  <b-row>
+                    <b-col>
+                      <div @click="showDeleteModal">
+                        <delete-topic-button></delete-topic-button>
+                      </div>
+                    </b-col>
+                    <b-col>
+                      <edit-topic-button></edit-topic-button>
+                    </b-col>
+                  </b-row>
+                </b-card>
+              </b-collapse>
+            </div>
+          </b-col>
+          <b-col>
+            <b-button variant="primary"
+                      :pressed="topic.isLiked"
+                      @click="likeOrUnlikeTopicClick()"
+                      :id="'like-topic-button-' + topicID">
+              {{ topic.isLiked ? 'Unlike' : 'Like' }}
+            </b-button>
+          </b-col>
+        </b-row>
       </b-card>
       <div class="button-control" v-if="isMainUser(author.pk)">
         <b-button @click="editTopic">Edit</b-button>
@@ -140,6 +183,8 @@
 </template>
 
 <script>
+  import DeleteTopicButton from '../../SVG/DeleteTopicButton'
+  import EditTopicButton from '../../SVG/EditTopicButton'
   import axios from 'axios'
   import {mapGetters} from 'vuex';
   import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -157,7 +202,9 @@
           description: "",
           body: "",
           totalLikes: 0,
-          isLiked: false
+          isLiked: false,
+          removedByModerator: false,
+          removedAt: null
         },
         author: {
           avatar: '',
@@ -179,9 +226,13 @@
       this.getTopicData();
       this.getTopicPosts(this.currentPage)
     },
+    components: {
+      DeleteTopicButton,
+      EditTopicButton
+    },
     watch: {
       '$route'(to, from) {
-        this.getTopicData();
+        this.getTopicData()
         this.getTopicPosts(this.currentPage);
       },
       'currentPage'() {
@@ -190,7 +241,7 @@
     },
     methods: {
       getTopicData() {
-        axios.get('topics/' + this.topicID + '/').then(
+        return axios.get('topics/' + this.topicID + '/').then(
           (response) => {
             this.topic.title = response.data.title;
             this.topic.description = response.data.description;
@@ -202,6 +253,42 @@
             this.author.username = response.data.author.username;
             this.author.pk = response.data.author.pk;
             this.title = response.data.title;
+            this.removedByModerator = response.data.removed_by_moderator;
+            this.removedAt = response.data.removed_at;
+          }
+        ).catch(
+          (error) => {
+            this.$router.push({name: 'home'})
+          }
+        )
+      },
+      showDeleteModal() {
+        this.$modal.show('deleteModal')
+      },
+      hideDeleteModal() {
+        this.$modal.hide('deleteModal')
+      },
+      moderatorDeleteTopic() {
+        const now = Math.floor(Date.now() / 1000)
+        const data = {
+          removed_by_moderator: true,
+          removed_at: now,
+        }
+        axios.patch(`topics/${this.topicID}/`, data).then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.hideDeleteModal()
+            }
+          }
+        ).catch(
+          (error) => {
+            switch (error.response.status) {
+              case 403:
+                break
+              default:
+                break
+            }
           }
         )
       },
@@ -349,7 +436,8 @@
     computed: {
       ...mapGetters([
         'isMainUser',
-        'getUserData'
+        'getUserData',
+        'isModerator',
       ]),
       getCommentsButtonText() {
         return buttonID => {

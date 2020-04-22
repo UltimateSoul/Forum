@@ -36,6 +36,7 @@ class UserSerializer(serializers.ModelSerializer):
                   "violations",
                   "description",
                   "email",
+                  "is_moderator",
                   "has_team",
                   "team_id",
                   "is_team_owner",

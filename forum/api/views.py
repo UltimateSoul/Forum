@@ -37,7 +37,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
     paginator = LimitOffsetPagination()
     serializer_class = TopicSerializer
     permission_classes = [IsAuthenticated, IsAbleToDelete]
-    queryset = Topic.objects.all()
+    queryset = Topic.objects.filter(removed_by_moderator=False)
     lookup_url_kwarg = 'topic_id'
 
     def create(self, request, *args, **kwargs):  # noqa
@@ -81,7 +81,7 @@ class TopicViewSet(ModelViewSet, LikedMixin):
     @action(methods=['GET'], detail=False, url_name='by-section', url_path='by-section')
     def topics_by_section(self, request, *args, **kwargs):  # noqa
         section = request.GET.get('section')
-        topics = Topic.objects.filter(section=section.upper())
+        topics = self.queryset.filter(section=section.upper())
         queryset = self.paginator.paginate_queryset(topics, request)
         serializer = TopicSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -154,7 +154,7 @@ class UsersViewSet(ModelViewSet):
     queryset = User.objects.all()
 
     def perform_update(self, serializer):
-        self.request.user.prepare_to_save(data=self.request.data)
+        self.request.user.prepare_to_save(request=self.request)
         serializer.save()
 
     def get_object(self):

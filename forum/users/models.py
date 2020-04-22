@@ -1,6 +1,7 @@
 import datetime
 from django.conf import settings
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sites.shortcuts import get_current_site
 from django.db import models
 
 from django.utils import timezone
@@ -107,9 +108,22 @@ class User(AbstractUser):
     def get_age(self):
         return timezone.now() - self.birth_date
 
-    def prepare_to_save(self, data):
+    def prepare_to_save(self, request):
+        data = request.data
         if self.avatar and data.get('avatar'):
             self.avatar.delete()
+        if self.email != data.get('email'):
+            from users.tokens import account_activation_token
+            from core.tasks import send_confirmation_email
+            self.email_confirmed = False
+            email_token = account_activation_token.make_token(self)
+            domain = get_current_site(request).domain
+            send_confirmation_email.delay(
+                user_pk=self.pk,
+                domain=domain,
+                token=email_token,
+                user_email=data.get('email')
+            )
 
 
 class Team(models.Model):

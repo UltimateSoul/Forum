@@ -3,13 +3,11 @@
     <b-container>
       <b-card
         :title="user.username"
-        :img-src="user.avatar"
-        img-alt="Image"
-        img-top
         tag="article"
         class="mb-2"
         v-if="!isEditing"
       >
+        <v-img width="250px" class="mx-auto" height="250px" :src="user.avatar"></v-img>
         <b-card-text>
           Game Nickname: {{user.game_nickname}}
         </b-card-text>

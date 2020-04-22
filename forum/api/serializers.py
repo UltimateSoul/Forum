@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from api import services
+from api.fields import TimestampField
 from api.models import MiniChatMessage, Topic, Post, Comment
 from users.serializers import RestrictedUserSerializer, UserSerializer
 
@@ -45,10 +46,14 @@ class CreateTopicSerializer(serializers.ModelSerializer):
 class EditTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
+    removed_at = TimestampField()
+    body = serializers.CharField(required=False)
+    description = serializers.CharField(required=False)
+    section = serializers.IntegerField(required=False)
 
     class Meta:
         model = Topic
-        fields = ['author', 'body', 'description', 'section']
+        fields = ['author', 'body', 'description', 'section', 'removed_by_moderator', 'removed_at']
 
 
 class MiniChatMessageSerializer(serializers.ModelSerializer):

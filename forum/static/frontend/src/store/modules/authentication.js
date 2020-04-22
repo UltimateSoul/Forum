@@ -26,6 +26,9 @@ const getters = {
   getTeamID(state) {
     return state.user.teamID
   },
+  isModerator(state) {
+    return state.user.isModerator
+  },
 
   getUserData(state) {
     let user = state.user;
@@ -40,6 +43,7 @@ const getters = {
       gender: user.gender,
       hasTeam: user.hasTeam,
       teamID: user.teamID,
+      isModerator: user.isModerator,
       isTeamOwner: user.isTeamOwner,
     };
   },
@@ -53,7 +57,7 @@ const actions = {
   login(context, data) {
     return axios.post('http://0.0.0.0:5000/authentication/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
-          sessionStorage.setItem('auth_token', response.data.token);
+          localStorage.setItem('auth_token', response.data.token);
           context.commit('setAuthToken');
           context.dispatch('fetchUser')
         }
@@ -73,7 +77,7 @@ const actions = {
     return axios.post('http://0.0.0.0:5000/authentication/register/', registrationData,)
       .then((response) => {
         let auth_token = response.data.auth_token;
-        sessionStorage.setItem('auth_token', auth_token);
+        localStorage.setItem('auth_token', auth_token);
         context.commit('setAuthToken');
         context.dispatch('fetchUser')
       })
@@ -82,11 +86,11 @@ const actions = {
 
 const mutations = {
   setAuthToken(state) {
-    state.user.isLogged = Boolean(sessionStorage.getItem('auth_token'));
-    axios.defaults.headers.post['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-    axios.defaults.headers.get['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-    axios.defaults.headers.delete['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
-    axios.defaults.headers.patch['Authorization'] = 'Token ' + sessionStorage.getItem('auth_token');
+    state.user.isLogged = Boolean(localStorage.getItem('auth_token'));
+    axios.defaults.headers.post['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
+    axios.defaults.headers.get['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
+    axios.defaults.headers.delete['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
+    axios.defaults.headers.patch['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
   },
   setUserData(state, userData) {
     state.user.userID = userData.pk;
@@ -99,9 +103,10 @@ const mutations = {
     state.user.hasTeam = userData.has_team;
     state.user.teamID = userData.team_id;
     state.user.isTeamOwner = userData.is_team_owner;
+    state.user.isModerator = userData.is_moderator;
   },
   logout(state) {
-    sessionStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_token');
     state.user.isLogged = false;
   }
 };

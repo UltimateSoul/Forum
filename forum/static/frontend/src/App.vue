@@ -46,7 +46,7 @@
       }
     },
     created() {
-      let token = sessionStorage.getItem('auth_token');
+      let token = localStorage.getItem('auth_token');
       if (Boolean(token)) {
         this.$store.commit('setAuthToken');
         this.$store.dispatch('fetchUser')
