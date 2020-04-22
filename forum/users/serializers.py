@@ -63,6 +63,7 @@ class RestrictedUserSerializer(serializers.ModelSerializer):
                   "popularity",
                   "game_nickname",
                   "violations",
+                  "id",
                   "description"]
 
 

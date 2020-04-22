@@ -33,7 +33,14 @@
           <b-col md="2">
             <b-card-img :src="author.avatar" class="rounded-1"></b-card-img>
             <h5>{{author.username}}</h5>
-            <h5>{{author.gameNickName}}</h5>
+            <hr>
+            <b-row>
+              <b-col @click="profileClick(author.pk)">
+                <Profile></Profile>
+              </b-col>
+              <b-col></b-col>
+              <b-col></b-col>
+            </b-row>
           </b-col>
           <b-col md="10">
             <b-card-body>
@@ -43,23 +50,24 @@
             </b-card-body>
           </b-col>
         </b-row>
+        <hr>
         <b-row>
-          <b-col>
-            Likes: {{topic.totalLikes}}
-          </b-col>
+          <b-col></b-col>
           <b-col>
             <div v-if="isModerator">
-              <b-button v-b-toggle.collapse-1 variant="primary">Moderator Actions</b-button>
+              <b-button v-b-toggle.collapse-1 variant="dark">Moderator Actions</b-button>
               <b-collapse id="collapse-1" class="mt-2">
                 <b-card>
                   <b-row>
                     <b-col>
-                      <div @click="showDeleteModal">
+                      <div class="clickable" @click="showDeleteModal">
                         <delete-topic-button></delete-topic-button>
                       </div>
                     </b-col>
                     <b-col>
-                      <edit-topic-button></edit-topic-button>
+                      <div class="clickable" @click="editTopic">
+                        <edit-topic-button></edit-topic-button>
+                      </div>
                     </b-col>
                   </b-row>
                 </b-card>
@@ -67,12 +75,13 @@
             </div>
           </b-col>
           <b-col>
-            <b-button variant="primary"
+            <b-button variant="dark"
                       :pressed="topic.isLiked"
-                      @click="likeOrUnlikeTopicClick()"
+                      @click="likeOrUnlikeTopicClick"
                       :id="'like-topic-button-' + topicID">
               {{ topic.isLiked ? 'Unlike' : 'Like' }}
             </b-button>
+            {{topic.totalLikes}}
           </b-col>
         </b-row>
       </b-card>
@@ -90,26 +99,34 @@
             <b-row no-gutters>
               <b-col md="2">
                 <b-card-img :src="post.author.avatar" class="rounded-1"></b-card-img>
-                {{ post.author.usernam }}
+                <h5>{{ post.author.username }}</h5>
+                <hr>
+                <b-row>
+                  <b-col @click="profileClick(post.author.id)">
+                    <Profile></Profile>
+                  </b-col>
+                  <b-col></b-col>
+                  <b-col></b-col>
+                </b-row>
               </b-col>
               <b-col md="10">
-                <b-card-body :title="post.author.username">
+                <b-card-body>
                   <div class="html-text" v-html="post.body"></div>
                 </b-card-body>
               </b-col>
-              Likes: {{post.total_likes}}
             </b-row>
             <div class="button-control">
-              <b-button variant="primary"
+              <b-button variant="dark"
                         :pressed="post.is_liked"
                         @click="likeOrUnlikePostClick(post.id, post.is_liked)"
                         :id="'like-post-button-' + post.id">
                 {{ post.is_liked ? 'Unlike' : 'Like' }}
               </b-button>
+              {{post.total_likes}}
             </div>
           </b-card>
           <div class="button-control">
-            <b-button variant="primary"
+            <b-button variant="dark"
                       :class="buttonsEngine['button-'+post.id].isOpen ? null : 'collapsed'"
                       :aria-expanded="buttonsEngine['button-'+post.id].isOpen ? 'true' : 'false'"
                       :aria-controls="'collaps-' + post.id"
@@ -124,9 +141,18 @@
                 <b-row no-gutters>
                   <b-col md="2">
                     <b-card-img :src="comment.author.avatar" class="rounded-1"></b-card-img>
+                    <h5>{{comment.author.username}}</h5>
+                    <hr>
+                    <b-row>
+                      <b-col @click="profileClick(post.author.id)">
+                        <Profile></Profile>
+                      </b-col>
+                      <b-col></b-col>
+                      <b-col></b-col>
+                    </b-row>
                   </b-col>
                   <b-col md="10">
-                    <b-card-body :title="comment.author.username">
+                    <b-card-body>
                       <b-card-text>
                         <div class="html-text" v-html="comment.body"></div>
                       </b-card-text>
@@ -135,9 +161,8 @@
                 </b-row>
                 Likes: {{comment.total_likes}}
                 <div class="button-control">
-
                   <b-button :pressed="comment.is_liked"
-                            variant="primary"
+                            variant="dark"
                             @click="likeOrUnlikeCommentClick(comment.id, comment.is_liked)"
                             :id="'like-comment-button-' + comment.id">
                     {{ comment.is_liked ? 'Unlike' : 'Like' }}
@@ -151,7 +176,7 @@
                         v-model="editorComment"
                         :config="editorConfig">
               </ckeditor>
-              <b-button variant="primary"
+              <b-button variant="dark"
                         @click="saveComment(post.id)"
                         :id="'button-comment' + post.id">
                 Post
@@ -167,7 +192,7 @@
                   :config="editorConfig">
         </ckeditor>
         <div class="button-control">
-          <b-button @click="savePost" variant="primary">
+          <b-button @click="savePost" variant="dark">
             Post
           </b-button>
         </div>
@@ -185,6 +210,7 @@
 <script>
   import DeleteTopicButton from '../../SVG/DeleteTopicButton'
   import EditTopicButton from '../../SVG/EditTopicButton'
+  import Profile from '../../SVG/Profile'
   import axios from 'axios'
   import {mapGetters} from 'vuex';
   import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -228,7 +254,8 @@
     },
     components: {
       DeleteTopicButton,
-      EditTopicButton
+      EditTopicButton,
+      Profile,
     },
     watch: {
       '$route'(to, from) {
@@ -261,6 +288,14 @@
             this.$router.push({name: 'home'})
           }
         )
+      },
+      profileClick(userID) {
+        this.$router.push({
+          name: 'user-profile',
+          params: {
+            id: userID
+          }
+        })
       },
       showDeleteModal() {
         this.$modal.show('deleteModal')
