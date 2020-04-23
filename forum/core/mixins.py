@@ -42,3 +42,16 @@ class NotificationTextMixin(NotificationChoices, NotificationPurposes):
     @staticmethod
     def get_notification_text(notification, **kwargs):
         return notification.format(**kwargs)
+
+
+class ActionLogMessages:
+
+    TEAM_DELETION_BY_MODERATOR = """
+    Team author: {author} {author_id}
+    Deletion Date: {deletion_date}
+    Moderator: {moderator} {moderator_id}
+    """
+
+    @staticmethod
+    def get_action_message(action_message, **kwargs):
+        return action_message.format(**kwargs)

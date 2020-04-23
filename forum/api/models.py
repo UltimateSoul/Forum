@@ -5,6 +5,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
+from core.models import ModeratorLog
+
 
 class Like(models.Model):
 
@@ -52,9 +54,6 @@ class Topic(models.Model):
 
     def total_likes(self):
         return self.likes.count()
-
-    def get_absolute_url(self):
-        return f"sections/{self.section}/{self.id}-1/"
 
     @property
     def posts_quantity(self):

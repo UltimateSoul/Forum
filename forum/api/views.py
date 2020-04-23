@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.views.generic import TemplateView
 from rest_framework import status
 from rest_framework.decorators import action
@@ -14,7 +16,7 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
 from django.contrib.auth import get_user_model
 
 from core.mixins import NotificationTextMixin
-from core.models import UserNotification
+from core.models import UserNotification, ModeratorLog
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest
 from users.permissions import IsTeamOwnerRankPermission, IsTeamOwner, IsAbleToDelete, EmailConfirmationRequired
@@ -52,9 +54,29 @@ class TopicViewSet(ModelViewSet, LikedMixin):
         if is_able_to_edit:
             serializer = EditTopicSerializer(topic, data=request.data)
             serializer.is_valid(raise_exception=True)
-            serializer.save()
+            self.perform_update(serializer)
             return Response(status=status.HTTP_200_OK, data={'topic_id': topic.id})
         return Response(status=status.HTTP_403_FORBIDDEN)
+
+    def perform_update(self, serializer):
+        if self.request.data.get('removed_by_moderator'):
+            topic_author = self.get_object().author
+            moderator = self.request.user
+            action_message = ModeratorLog.get_action_message(
+                ModeratorLog.TEAM_DELETION_BY_MODERATOR,
+                author=topic_author.username,
+                author_id=topic_author.id,
+                deletion_date=datetime.now().strftime("%m/%d/%Y, %H:%M:%S"),
+                moderator=moderator.username,
+                moderator_id=moderator.id
+
+            )
+            ModeratorLog.objects.create(
+                user=moderator,
+                action=action_message
+            )
+
+        serializer.save()
 
     def destroy(self, request, *args, **kwargs):  # noqa
         topic = self.get_object()
@@ -234,14 +256,6 @@ class TeamViewSet(ModelViewSet):
         if self.request.user.id == instance.owner.id:
             instance.delete()
 
-    @action(methods=['GET'], detail=False)
-    def get_team_for_user(self, *args, **kwargs):  # noqa
-        """Returns team for user if it has team"""
-        user = self.request.user
-        team = Team.objects.filter(owner=user).first()
-        if not team:
-            team = get_object_or_404(self.queryset, members__user=user)
-        return Response(data={'team_id': team.id})
 
 
 class RanksViewSet(ModelViewSet):

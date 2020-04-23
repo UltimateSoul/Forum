@@ -314,6 +314,12 @@
             switch (response.status) {
               case 200:
                 this.hideDeleteModal()
+                this.$router.push({
+                  name: 'conversation',
+                  params: {
+                    section: this.$route.params.section
+                  }
+                })
             }
           }
         ).catch(

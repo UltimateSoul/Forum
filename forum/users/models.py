@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 
 from api.models import Topic, Comment, Post, MiniChatMessage
+from core.models import ModeratorLog
 from users.helpers import constants
 from users.helpers.helpers import user_directory_path, team_directory_path
 

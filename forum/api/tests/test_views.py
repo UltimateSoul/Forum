@@ -309,7 +309,7 @@ class TestRanksViewSet(APITestCase):
 
 class TestTeamViewSet(APITestCase):
     def setUp(self) -> None:
-        self.user = UserFactory()
+        self.user = UserFactory(email_confirmed=True)
         token = Token.objects.get(user=self.user)
         self.client.credentials(
             HTTP_AUTHORIZATION=f'Token {token.key}')
@@ -317,14 +317,15 @@ class TestTeamViewSet(APITestCase):
 
     def test_get_teams(self):
         """Tests that users can successfully fetch data about teams"""
-        owner2 = AnotherUserFactory()
-        owner3 = AnotherUserFactory(username='team owner 3', email='teamowner3@gmail.com')
+        owner2 = AnotherUserFactory(email_confirmed=True)
+        owner3 = AnotherUserFactory(username='team owner 3', email='teamowner3@gmail.com', email_confirmed=True,)
         TeamFactory(owner=owner2, name='second team')
         TeamFactory(owner=owner3, name='third team')
 
         usual_user = UserFactory(
             username='usualuser',
-            email='default@email.com'
+            email='default@email.com',
+            email_confirmed=True,
         )
         token = Token.objects.get(user=usual_user)
         self.client.credentials(
@@ -336,7 +337,7 @@ class TestTeamViewSet(APITestCase):
 
     def test_create_new_team(self):
         """Tests that users without team can create them"""
-        default_user = AnotherUserFactory()
+        default_user = AnotherUserFactory(email_confirmed=True)
         token = Token.objects.get(user=default_user)
         self.client.credentials(
             HTTP_AUTHORIZATION=f'Token {token.key}')
@@ -371,38 +372,6 @@ class TestTeamViewSet(APITestCase):
         team = Team.objects.get(id=self.team.id)
         self.assertEqual(team.name, data['name'])
         self.assertEqual(team.description, data['description'])
-
-    def test_get_team_for_user(self):
-        """Tests get-team-for-user action functionality"""
-
-        response = self.client.get(reverse('api:teams-get-team-for-user'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('team_id'), self.team.id)
-
-        user_without_team = AnotherUserFactory()
-        token = Token.objects.get(user=user_without_team)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
-
-        response = self.client.get(reverse('api:teams-get-team-for-user'))
-        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-
-        team_member = TeamMemberFactory(
-            user=UserFactory(
-                username='Team Member',
-                email='teammember@gmail.com',
-                game_nickname='team_member',
-            ),
-            team=TeamFactory(
-                name='Soul Eaters',
-                description='We`ll destroy all the souls. And the age of darkness will come'
-            ),
-            rank=RankFactory(name='Weak Soul')
-        )
-        token = Token.objects.get(user=team_member.user)
-        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
-        response = self.client.get(reverse('api:teams-get-team-for-user'))
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data.get('team_id'), team_member.team.id)
 
 
 class TestUserTeamRequestViewSet(APITestCase):

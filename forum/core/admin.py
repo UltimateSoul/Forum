@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from core.models import UserNotification
+from core.models import UserNotification, ModeratorLog
 
 
 @admin.register(UserNotification)
@@ -15,3 +15,17 @@ class UserNotificationAdmin(admin.ModelAdmin):
     @staticmethod
     def message_preview(obj):
         return obj.message[:50]
+
+
+@admin.register(ModeratorLog)
+class ModeratorLogAdmin(admin.ModelAdmin):
+
+    list_display = ('moderator', 'action_preview', 'created_at')
+
+    @staticmethod
+    def moderator(obj):
+        return obj.user.username
+
+    @staticmethod
+    def action_preview(obj):
+        return obj.action[:50]

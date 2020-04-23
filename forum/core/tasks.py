@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -9,6 +9,7 @@ from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
 from Forum import celery_app
+from api.models import Topic
 from core.models import UserNotification
 from users.helpers import constants
 from users.models import UserTeamRequest, TeamMember
@@ -74,6 +75,17 @@ def calculate_coins():
     active_users = User.get_active_users()
     for active_user in active_users:
         active_user.calculate_coins()
+
+
+@periodic_task(run_every=timedelta(days=constants.DELETION_PERIOD))
+def delete_moderators_removed_topics():
+    """Finally delete topics that were removed by moderators"""
+
+    week_ago = datetime.now() - timedelta(days=7)
+    Topic.objects.filter(
+        removed_by_moderator=True,
+        removed_at__lte=week_ago
+    ).delete()
 
 
 @celery_app.task

@@ -46,10 +46,10 @@ class CreateTopicSerializer(serializers.ModelSerializer):
 class EditTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
-    removed_at = TimestampField()
+    removed_at = TimestampField(required=False)
     body = serializers.CharField(required=False)
     description = serializers.CharField(required=False)
-    section = serializers.IntegerField(required=False)
+    section = serializers.ChoiceField(Topic.SECTION_CHOICES, required=False)
 
     class Meta:
         model = Topic

@@ -1,6 +1,11 @@
+from datetime import datetime, timedelta
+
 from rest_framework.test import APITestCase
 
+from api.models import Topic
+from api.tests.factories import TopicFactory
 from core.models import UserNotification
+from core.tasks import delete_moderators_removed_topics
 from shop import constants
 from shop.helpers import calculate_coins_for_user
 from users.tests.factories import UserFactory
@@ -44,3 +49,12 @@ class TestCoreLogic(APITestCase):
         self.assertEqual(self.user.coins, constants.COINS_10000)
         self.user.coins = 0
         self.user.save()
+
+    def test_delete_moderators_removed_topics(self):
+        two_weeks_ago = datetime.now() - timedelta(days=14)
+        for index in range(5):
+            TopicFactory(removed_by_moderator=True,
+                         removed_at=two_weeks_ago)
+        delete_moderators_removed_topics()
+        existing_topics = Topic.objects.all()
+        self.assertFalse(bool(existing_topics))
