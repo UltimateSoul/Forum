@@ -1,6 +1,6 @@
 import factory
 
-from api.models import Topic, Post, Comment
+from api.models import Topic, Post, Comment, Tag
 
 
 class TopicFactory(factory.django.DjangoModelFactory):
@@ -12,6 +12,14 @@ class TopicFactory(factory.django.DjangoModelFactory):
     body = 'Test body'
     description = 'Test description'
     section = Topic.CONVERSATION
+
+
+class TagFactory(factory.django.DjangoModelFactory):
+
+    class Meta:
+        model = Tag
+
+    name = 'test tag'
 
 
 class PostFactory(factory.django.DjangoModelFactory):

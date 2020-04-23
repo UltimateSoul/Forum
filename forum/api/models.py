@@ -52,6 +52,8 @@ class Topic(models.Model):
     is_pinned = models.BooleanField(default=False)
     likes = GenericRelation(Like)
 
+    tags = models.ManyToManyField("Tag", related_name='topic')
+
     def total_likes(self):
         return self.likes.count()
 
@@ -135,3 +137,11 @@ class Comment(models.Model):
         verbose_name = 'Comment'
         verbose_name_plural = 'Comments'
         ordering = ['created_at']
+
+
+class Tag(models.Model):
+
+    name = models.CharField(max_length=255)
+
+    def __repr__(self):
+        return f'Tag - {self.name}'
