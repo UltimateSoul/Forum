@@ -9,7 +9,7 @@
       <a @click="loginClick">
         <span> {{ logText }} </span>
       </a>
-      <router-link to="/shop">
+      <router-link to="/shop" v-if="isLogged">
         <span> Shop </span>
       </router-link>
       <router-link to="/get-started">

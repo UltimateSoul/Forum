@@ -52,7 +52,7 @@
         </b-row>
         <hr>
         <b-row>
-          <b-col v-for="tag in topic.tags">
+          <b-col v-for="(tag, index) in topic.tags" :key="index">
             <div class="tag-container">
               {{tag.name}}
             </div>

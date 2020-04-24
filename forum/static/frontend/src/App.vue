@@ -45,6 +45,12 @@
         prevHeight: 0,
       }
     },
+    watch: {
+      $route (to, from){
+        this.$store.dispatch('fetchUser')
+        this.getNotifications();
+    }
+    },
     created() {
       let token = localStorage.getItem('auth_token');
       if (Boolean(token)) {
@@ -56,7 +62,7 @@
         )
       }
       if (this.$store.getters.isLogged) {
-        setInterval(this.getNotifications, 30000);
+        setInterval(this.getNotifications, 45000);
       }
     },
     methods: {
@@ -76,7 +82,7 @@
         element.style.height = 'auto';
       },
       getNotifications() {
-        axios.get('http://e7f88eea.ngrok.io/core/notifications-list/').then(
+        axios.get('http://0.0.0.0:5000/core/notifications-list/').then(
           (response) => {
             switch (response.status) {
               case 200:
@@ -87,7 +93,7 @@
         )
       },
       deleteNotification(notificationID) {
-        axios.delete(`http://e7f88eea.ngrok.io/core/delete-notification/${notificationID}/`).then(
+        axios.delete(`http://0.0.0.0:5000/core/delete-notification/${notificationID}/`).then(
           (response) => {
             switch (response.status) {
               case 204:

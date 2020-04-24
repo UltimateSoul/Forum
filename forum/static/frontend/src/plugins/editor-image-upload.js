@@ -29,7 +29,7 @@ class MyUploadAdapter {
         // integration to choose the right communication channel. This example uses
         // a POST request with JSON as a data structure but your configuration
         // could be different.
-        xhr.open( 'POST', 'http://e7f88eea.ngrok.io/media/upload_editor_images', true );
+        xhr.open( 'POST', 'http://0.0.0.0:5000/media/upload_editor_images', true );
         xhr.responseType = 'json';
     }
 

@@ -10,6 +10,7 @@ const state = {
       pk: null
     },
     members: [],
+    ranks: [],
     name: '',
     description: '',
     baseInfo: '',
@@ -21,8 +22,11 @@ const getters = {
   hasTeam(state, getters, rootState) {
     return rootState.authentication.user.hasTeam;
   },
-  isTeamOwner: (state, getters, rootState) => (teamID) => {
+  isTeamOwnerByTeamId: (state, getters, rootState) => (teamID) => {
     return rootState.authentication.user.isTeamOwner && rootState.authentication.user.teamID === +teamID
+  },
+  isTeamOwner(state, getters, rootState) {
+    return rootState.authentication.user.isTeamOwner
   },
   getTeam(state) {
     return state

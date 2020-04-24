@@ -91,7 +91,6 @@
       }
     },
     created() {
-      this.$store.dispatch('fetchUser');
       if (this.isHasTeam) {
         this.$router.push({
           name: 'home'

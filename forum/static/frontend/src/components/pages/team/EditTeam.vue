@@ -55,7 +55,7 @@
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   import axios from 'axios'
   import {mapGetters} from "vuex";
-
+  const maxTeamRanksValue = 25;
   export default {
     name: "EditTeam",
     data() {
@@ -64,11 +64,12 @@
         file: null,
         baseInfo: '',
         editor: ClassicEditor,
-        editorConfig: {}
+        editorConfig: {},
+        teamRanks: [],
       }
     },
     created() {
-      if (!this.isTeamOwner(this.$route.params.teamID)) {
+      if (!this.isTeamOwnerByTeamId(this.$route.params.teamID)) {
         this.$router.push({
           name: 'home'
         })
@@ -108,11 +109,38 @@
             }
           }
         )
+      },
+      getTeamRanks() {
+        const data = {
+          teamID: this.team.id
+        }
+        axios.get('ranks/get-team-ranks/', {
+          params: data
+        }).then(
+          (response) => {
+            switch (response.status) {
+              case 200:
+                this.ranks = response.data
+                break;
+            }
+          }
+        ).catch(
+          (error) => {
+            switch (error.response.status) {
+              case 400:
+                break;
+              case 403:
+                break;
+              case 500:
+                break;
+            }
+          }
+        )
       }
     },
     computed: {
       ...mapGetters([
-        'isTeamOwner',
+        'isTeamOwnerByTeamId',
         'getTeam',
         'getTeamName',
         'getTeamAvatar',

@@ -45,6 +45,10 @@ front_end_url_integration = [
     path('sections', HomeView.as_view()),
     path('conversation/<str:section>', HomeView.as_view()),
     path('topic-editing/<str:section>/<int:id>', HomeView.as_view()),
+    path('teams/manage-team-members', HomeView.as_view()),
+    path('teams/', HomeView.as_view()),
+    path('edit-team/<int:team_id>', HomeView.as_view()),
+    path('teams/<int:team_id>', HomeView.as_view()),
     path('shop', HomeView.as_view()),
     path('registration', HomeView.as_view()),
 ]

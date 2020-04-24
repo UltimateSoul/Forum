@@ -141,7 +141,7 @@
         'isMainUser',
         'getUserData',
         'hasTeam',
-        'isTeamOwner',
+        'isTeamOwnerByTeamId',
         'getTeam',
         'getTeamID'
       ]),

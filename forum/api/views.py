@@ -256,13 +256,12 @@ class TeamViewSet(ModelViewSet):
             instance.delete()
 
 
-
 class RanksViewSet(ModelViewSet):
     queryset = Rank.objects.all()
     serializer_class = RankSerializer
     permission_classes = [IsAuthenticated, IsTeamOwnerRankPermission]
 
-    @action(methods=['GET'], detail=False)
+    @action(methods=['GET'], detail=False, url_path='get-team-ranks')
     def get_team_ranks(self, request, *args, **kwargs):  # noqa
         team_id = request.GET.get('teamID')
         ranks = Rank.objects.filter(team__id=team_id)

@@ -49,13 +49,13 @@ const getters = {
   },
   isMainUser: state => idToCheck => {
     return state.user.userID === idToCheck;
-  }
+  },
 
 };
 
 const actions = {
   login(context, data) {
-    return axios.post('http://e7f88eea.ngrok.io/authentication/api-token-auth/', data)  // ToDo: change URL in production
+    return axios.post('http://0.0.0.0:5000/authentication/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
           localStorage.setItem('auth_token', response.data.token);
           context.commit('setAuthToken');
@@ -74,7 +74,7 @@ const actions = {
       })
   },
   register(context, registrationData) {
-    return axios.post('http://e7f88eea.ngrok.io/authentication/register/', registrationData,)
+    return axios.post('http://0.0.0.0:5000/authentication/register/', registrationData,)
       .then((response) => {
         let auth_token = response.data.auth_token;
         localStorage.setItem('auth_token', auth_token);

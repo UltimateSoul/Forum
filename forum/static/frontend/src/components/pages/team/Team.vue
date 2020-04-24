@@ -8,13 +8,12 @@
         <h5>
           Captain of this team will consider your request soon!
         </h5>
-        <b-button @click="hideUserRequestModal" variant="success">Ok</b-button>
+        <b-button @click="hideUserRequestModal" variant="dark">Ok</b-button>
       </div>
     </modal>
     <modal name="team-requests"
            :scrollable="true"
-           width="50%"
-           height="50%"
+           height="auto"
            :draggable="true">
       <div v-for="request in teamRequests">
         <b-card
@@ -33,22 +32,26 @@
     </modal>
     <b-row>
       <b-col lg="8">
-        <b-button class="float-left" v-if="isOwner" @click="goToEditTeam"
-                  variant="success">
-          Edit Team
-        </b-button>
+          <b-button class="float-left m-3" v-if="isOwner" @click="goToEditTeam"
+                    variant="dark">
+            Edit Team Info
+          </b-button>
+          <b-button class="float-left m-3" v-if="isOwner" @click="goToManageTeamMembers"
+                    variant="dark">
+            Manage team members
+          </b-button>
       </b-col>
       <b-col lg="4">
-        <b-button class="float-right" v-if="isOwner && teamRequests.length" @click="showTeamRequestModal"
-                  variant="success">
+        <b-button class="float-right m-3" v-if="isOwner && teamRequests.length" @click="showTeamRequestModal"
+                  variant="dark">
           {{ teamRequestsButtonText }}
         </b-button>
-        <b-button class="float-right" v-if="isOwner && !teamRequests.length" @click="showTeamRequestModal"
-                  variant="success" disabled>
+        <b-button class="float-right m-3" v-if="isOwner && !teamRequests.length" @click="showTeamRequestModal"
+                  variant="dark" disabled>
           {{ teamRequestsButtonText }}
         </b-button>
-        <b-button class="float-right" v-if="canJoin" @click="joinTeam"
-                  variant="success">Join Team
+        <b-button class="float-right m-3" v-if="canJoin" @click="joinTeam"
+                  variant="dark">Join Team
         </b-button>
       </b-col>
     </b-row>
@@ -63,7 +66,7 @@
         {{ team.description }}
       </h5>
       <hr>
-        <div class="html-text" v-html="team.baseInfo"></div>
+      <div class="html-text" v-html="team.baseInfo"></div>
       <hr>
       <div @click="showTeamMembers = !showTeamMembers" class="clicable">
         <h3>Team Members:</h3>
@@ -72,7 +75,7 @@
         <b-table striped hover :items="members" :fields="memberFields">
           <template v-slot:cell(avatar)="data">
             <img v-if="data.item.user.avatar" :src="data.item.user.avatar" height="100" width="100">
-            <img v-else src="http://e7f88eea.ngrok.io/static/images/default.jpg" height="100" width="100">
+            <img v-else src="http://0.0.0.0:5000/static/images/default.jpg" height="100" width="100">
             <!--            ToDo: change in prod-->
           </template>
           <template v-slot:cell(username)="data">
@@ -109,8 +112,6 @@
           id: 0,
           name: '',
         },
-        ranks: [],
-        maxRanksNumber: 15,
         members: [],
         teamRequests: [],
         memberFields: ['avatar', 'username', 'game_nickname', 'rank'],
@@ -123,7 +124,6 @@
     },
     created() {
       const vueInstance = this;
-      this.$store.dispatch('fetchUser');
       this.getData(this.$route.params.teamID).then(
         () => {
           if (vueInstance.isOwner) {
@@ -133,12 +133,10 @@
           }
         }
       );
-      this.getTeamRanks(this.$route.params.teamID);
     },
     watch: {
       '$route'(to, from) {
         this.getData(to.params.teamID);
-        this.getTeamRanks(to.params.teamID);
       }
     },
     methods: {
@@ -158,13 +156,17 @@
                   this.team.createdAt = response.data.created_at;
                   this.team.totalMembers = response.data.total_members;
                   break;
+              }
+            }
+          ).catch(
+            (error) => {
+              switch (error.response.status) {
                 case 400:
                   break;
                 case 404:
                   break;
                 case 500:
                   break;
-
               }
             }
           )
@@ -173,7 +175,16 @@
         const data = {
           approved: isAccepted
         };
-        return axios.patch(`user-team-requests/${requestID}/`, data)
+        axios.patch(`user-team-requests/${requestID}/`, data)
+          .then(
+            (response) => {
+              switch (response.status) {
+                case 200:
+                  break;
+              }
+              this.hideTeamRequestModal()
+            }
+          )
       },
       getTeamRequests(page) {
         const data = {
@@ -205,27 +216,15 @@
               case 200:
                 this.requestForUserExists = true;
                 break;
-              case 404:
-                this.requestForUserExists = false;
-                break;
               default:
                 this.requestForUserExists = false;
             }
           }
-        )
-      },
-      getTeamRanks(teamID) {
-        return axios.get('ranks/get_team_ranks/', {
-          params:
-            {teamID: teamID}
-        }).then(
-          (response) => {
-            switch (response.status) {
-              case 200:
-                this.ranks = response.data;
-                break;
-              case 400:
-                break;
+        ).catch(
+          (error) => {
+            switch (error.response.status) {
+              case 404:
+                this.requestForUserExists = false;
             }
           }
         )
@@ -271,6 +270,11 @@
           params: {
             teamID: this.$route.params.teamID
           }
+        })
+      },
+      goToManageTeamMembers() {
+        this.$router.push({
+          'name': 'manage-team-members'
         })
       }
     },

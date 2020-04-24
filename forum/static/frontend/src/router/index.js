@@ -72,6 +72,11 @@ const EditTeam = resolve => {
     resolve(require('@/components/pages/team/EditTeam'))
   })
 };
+const ManageTeamMembers = resolve => {
+  require.ensure(['@/components/pages/team/ManageTeamMembers'], () => {
+    resolve(require('@/components/pages/team/ManageTeamMembers'))
+  })
+};
 
 Vue.use(Router);
 
@@ -131,6 +136,11 @@ export default new Router({
       path: '/teams/:teamID',
       name: 'team',
       component: Team
+    },
+    {
+      path: '/teams/manage-team-members',
+      name: 'manage-team-members',
+      component: ManageTeamMembers
     },
     {
       path: '/edit-team/:teamID',

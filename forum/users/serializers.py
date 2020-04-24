@@ -118,6 +118,7 @@ class TeamSerializer(serializers.ModelSerializer):
     total_members = serializers.ReadOnlyField()
     owner = UserSerializer(required=False)
     members = TeamMemberRestrictedSerializer(read_only=True, many=True)
+    ranks = serializers.SerializerMethodField(read_only=True)
 
     def update(self, instance, validated_data):
         if validated_data.get('avatar') and instance.avatar:
@@ -126,6 +127,11 @@ class TeamSerializer(serializers.ModelSerializer):
             setattr(instance, field_name, value)
         instance.save()
         return instance
+
+    def get_ranks(self, team):
+        ranks = team.rank_set.all()
+        serializer = RankSerializer(ranks, many=True)
+        return serializer.data
 
     def validate_avatar(self, image):
         mb3 = 3145728
