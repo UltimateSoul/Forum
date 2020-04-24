@@ -9,6 +9,8 @@ class IsTeamOwnerRankPermission(permissions.BasePermission):
     def has_permission(self, request, view):
         if request.method in permissions.SAFE_METHODS:
             return True
+        if not view.kwargs.get('pk'):
+            return True
         user = request.user
         try:
             team = user.my_team

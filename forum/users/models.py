@@ -17,7 +17,6 @@ class User(AbstractUser):
                       ('FEMALE', 'Female'),
                       ('OTHER', 'Other')]
     avatar = models.ImageField(blank=True, null=True,
-                               default='static/images/default.jpg',
                                upload_to=user_directory_path)
     popularity = models.PositiveIntegerField(default=0)
     coins = models.PositiveIntegerField(default=0)
@@ -168,6 +167,7 @@ class Rank(models.Model):
     """Represents ranks of team members, each member can have rank. Captain can manage ranks."""
 
     team = models.ForeignKey(Team, null=True, blank=True, on_delete=models.CASCADE)
+    description = models.TextField(null=True, blank=True)
     name = models.CharField(max_length=255)
 
     def __repr__(self):

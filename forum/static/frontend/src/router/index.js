@@ -143,7 +143,7 @@ export default new Router({
       component: ManageTeamMembers
     },
     {
-      path: '/edit-team/:teamID',
+      path: '/edit-team/',
       name: 'edit-team',
       component: EditTeam
     },

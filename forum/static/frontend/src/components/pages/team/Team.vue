@@ -267,9 +267,6 @@
       goToEditTeam() {
         this.$router.push({
           'name': 'edit-team',
-          params: {
-            teamID: this.$route.params.teamID
-          }
         })
       },
       goToManageTeamMembers() {

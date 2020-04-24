@@ -1,6 +1,8 @@
 <template>
   <div>
+    <hr>
     <b-img height="250" width="250" :src="getTeamAvatar"></b-img>
+    <hr>
     <h1>{{ getTeamName }} Team Editing</h1>
     <div class="form-container">
       <b-form>
@@ -18,9 +20,9 @@
         <hr>
         <b-form-group label="Base information about your team" label-for="teamBaseInfo">
           <ckeditor :editor="editor"
-              class="ck-content"
-              v-model="baseInfo"
-              :config="editorConfig">
+                    class="ck-content"
+                    v-model="baseInfo"
+                    :config="editorConfig">
           </ckeditor>
           <small id="teamBaseInfoHelp" class="form-text text-muted">
             Here you can write team rules, awards etc.
@@ -39,6 +41,62 @@
             Add image that associates with your team.
           </small>
         </b-form-group>
+        <hr>
+        <div>
+          <h1 id="ranks">Ranks</h1>
+          <b-tooltip target="ranks">Your team ranks</b-tooltip>
+          <div v-if="ranks.length">
+            <b-table striped hover :items="ranks" :fields="rankFields">
+              <template v-slot:cell(index)="data">
+                {{ data.index + 1 }}
+              </template>
+              <template v-slot:cell(options)="row">
+                <b-col>
+                  <edit-topic-button id="edit-button"></edit-topic-button>
+                  <b-tooltip target="edit-button">Edit this rank</b-tooltip>
+                </b-col>
+                <b-col>
+                  <delete-topic-button id="delete-button"></delete-topic-button>
+                  <b-tooltip target="delete-button">Delete this rank</b-tooltip>
+                </b-col>
+              </template>
+            </b-table>
+          </div>
+          <div>
+            <b-form>
+              <b-form-group
+                id="input-group-1"
+                label="Rank name:"
+                label-for="rank-input-name"
+                description="Rank"
+              >
+                <b-form-input
+                  id="rank-input-name"
+                  v-model="rankInput.name"
+                  type="text"
+                  required
+                  placeholder="Enter rank name"
+                ></b-form-input>
+              </b-form-group>
+              <b-form-group
+                id="input-group-2"
+                label="Rank description:"
+                label-for="rank-input-description"
+                description="Rank"
+              >
+                <b-form-input
+                  id="rank-input-description"
+                  v-model="rankInput.description"
+                  type="text"
+                  required
+                  placeholder="Enter rank description"
+                ></b-form-input>
+              </b-form-group>
+              <b-button variant="dark" @click="addRank">Add Rank</b-button>
+            </b-form>
+          </div>
+        </div>
+        <hr>
         <div class="button-control">
           <button type="button"
                   class="btn btn-primary btn-lg"
@@ -52,9 +110,12 @@
 </template>
 
 <script>
+  import DeleteTopicButton from '../../SVG/DeleteTopicButton'
+  import EditTopicButton from '../../SVG/EditTopicButton'
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
   import axios from 'axios'
   import {mapGetters} from "vuex";
+
   const maxTeamRanksValue = 25;
   export default {
     name: "EditTeam",
@@ -63,18 +124,27 @@
         description: '',
         file: null,
         baseInfo: '',
+        rankFields: ['index', 'name', 'description', 'options'],
         editor: ClassicEditor,
         editorConfig: {},
-        teamRanks: [],
+        ranks: [],
+        rankInput: {
+          name: '',
+          description: '',
+        }
       }
     },
+    components: {
+      DeleteTopicButton,
+      EditTopicButton
+    },
     created() {
-      if (!this.isTeamOwnerByTeamId(this.$route.params.teamID)) {
-        this.$router.push({
-          name: 'home'
-        })
+      if (!this.isTeamOwner) {
+        this.$router.push({name: 'home'})
       }
-      this.$store.dispatch('getTeamData', this.$route.params.teamID).then(
+      this.$store.dispatch('fetchUser')
+      this.getTeamRanks()
+      this.$store.dispatch('getTeamData', this.$store.state.authentication.user.teamID).then(
         () => {
           this.description = this.getTeam.description
           this.baseInfo = this.getTeam.baseInfo
@@ -82,6 +152,30 @@
       )
     },
     methods: {
+      addRank() {
+        const data = {
+          name: this.rankInput.name,
+          description: this.rankInput.description,
+          team: this.$store.state.authentication.user.teamID
+        }
+        axios.post('ranks/', data).then(
+          (response) => {
+            switch (response.status) {
+              case 201:
+                this.ranks.push(data)
+            }
+          }
+        ).catch(
+          (error) => {
+
+          }
+        )
+        this.rankInput.name = ''
+        this.rankInput.description = ''
+      },
+      removeRank() {
+
+      },
       updateTeam() {
         const formData = new FormData();
         if (this.file) {
@@ -112,8 +206,9 @@
       },
       getTeamRanks() {
         const data = {
-          teamID: this.team.id
+          teamID: this.$store.state.authentication.user.teamID
         }
+        debugger
         axios.get('ranks/get-team-ranks/', {
           params: data
         }).then(
@@ -144,6 +239,7 @@
         'getTeam',
         'getTeamName',
         'getTeamAvatar',
+        'isTeamOwner',
       ]),
     }
   }

@@ -20,8 +20,7 @@
               mode="out-in"
               @beforeLeave="beforeLeave"
               @enter="enter"
-              @afterEnter="afterEnter"
-            >
+              @afterEnter="afterEnter">
               <router-view/>
             </transition>
           </div>
