@@ -76,7 +76,7 @@
         element.style.height = 'auto';
       },
       getNotifications() {
-        axios.get('http://0.0.0.0:5000/core/notifications-list/').then(
+        axios.get('http://e7f88eea.ngrok.io/core/notifications-list/').then(
           (response) => {
             switch (response.status) {
               case 200:
@@ -87,7 +87,7 @@
         )
       },
       deleteNotification(notificationID) {
-        axios.delete(`http://0.0.0.0:5000/core/delete-notification/${notificationID}/`).then(
+        axios.delete(`http://e7f88eea.ngrok.io/core/delete-notification/${notificationID}/`).then(
           (response) => {
             switch (response.status) {
               case 204:

@@ -23,7 +23,7 @@ Vue.use(Vuelidate);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;
 
-axios.defaults.baseURL = 'http://0.0.0.0:5000/api/';
+axios.defaults.baseURL = 'http://e7f88eea.ngrok.io/api/';
 if (localStorage.getItem('auth_token')){
  axios.defaults.headers.post['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
  axios.defaults.headers.get['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
