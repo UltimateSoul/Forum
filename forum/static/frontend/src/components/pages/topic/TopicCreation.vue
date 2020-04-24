@@ -44,6 +44,13 @@
               </ckeditor>
             </b-form>
             <div class="button-control">
+              <vue-tags-input
+                v-model="tag"
+                :tags="tags"
+                @tags-changed="newTags => tags = newTags"
+              />
+            </div>
+            <div class="button-control">
               <b-button v-if="$v.$invalid"
                         disabled>
                 Submit
@@ -73,7 +80,9 @@
         body: "",
         editor: ClassicEditor,
         editorConfig: {},
-        section: this.$route.params.section
+        section: this.$route.params.section,
+        tag: '',
+        tags: [],
       }
     },
     validations: {
@@ -102,12 +111,21 @@
       },
     },
     methods: {
+      addTag() {
+        this.tags.push(this.tag)
+      },
       createTopic() {
+        this.tags.forEach(
+          tag => {
+            tag["name"] = tag["text"]
+          }
+        )
         const data = {
           title: this.title,
           description: this.description,
           body: this.body,
-          section: this.section.toUpperCase()
+          section: this.section.toUpperCase(),
+          tags: this.tags
         };
         axios.post('topics/', data)
           .then((response) => {

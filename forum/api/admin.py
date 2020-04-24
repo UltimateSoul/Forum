@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from api.models import MiniChatMessage, Topic, Comment, Post, Like
+from api.models import MiniChatMessage, Topic, Comment, Post, Like, Tag
 
 
 # Register your models here.
@@ -54,3 +54,9 @@ class PostAdmin(admin.ModelAdmin):
 @admin.register(Like)
 class LikeAdmin(admin.ModelAdmin):
     list_display = ('user', 'created_at')
+
+
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('name', )
+

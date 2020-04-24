@@ -2,10 +2,17 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from api import services
 from api.fields import TimestampField
-from api.models import MiniChatMessage, Topic, Post, Comment
+from api.models import MiniChatMessage, Topic, Post, Comment, Tag
 from users.serializers import RestrictedUserSerializer, UserSerializer
 
 User = get_user_model()
+
+
+class TagSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Tag
+        fields = ['name']
 
 
 class TopicSerializer(serializers.ModelSerializer):
@@ -14,6 +21,7 @@ class TopicSerializer(serializers.ModelSerializer):
     posts_quantity = serializers.ReadOnlyField()
     total_likes = serializers.ReadOnlyField()
     is_liked = serializers.SerializerMethodField(read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
 
     class Meta:
         model = Topic
@@ -37,14 +45,28 @@ class TopicSerializer(serializers.ModelSerializer):
 class CreateTopicSerializer(serializers.ModelSerializer):
     """Create Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
+    tags = TagSerializer(many=True, required=False)
 
     class Meta:
         model = Topic
-        fields = ['title', 'author', 'body', 'description', 'section', 'id']
+        fields = ['title', 'author', 'body', 'description', 'section', 'id', 'tags']
+
+    def create(self, validated_data):
+        tags = validated_data.pop('tags')
+        instance = super(CreateTopicSerializer, self).create(validated_data)
+        if tags:
+            for tag in tags:
+                tag_obj = Tag.objects.filter(name=tag['name']).first()
+                if tag_obj:
+                    instance.tags.add(tag_obj)
+                else:
+                    instance.tags.create(name=tag['name'])
+        instance.save()
+        return instance
 
 
 class EditTopicSerializer(serializers.ModelSerializer):
-    """Create Topic Serializer"""
+    """Edit Topic Serializer"""
     author = RestrictedUserSerializer(required=False)
     removed_at = TimestampField(required=False)
     body = serializers.CharField(required=False)

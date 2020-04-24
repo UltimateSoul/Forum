@@ -129,6 +129,16 @@
     color: #2c3e50;
   }
 
+  .tag-container {
+    color: white;
+    background-color: #343a40;
+    margin: 5px;
+    padding: 5px;
+    border: solid 1px;
+    border-radius: 10px;
+    font-size: 20px;
+  }
+
   .clickable {
     cursor: pointer;
   }

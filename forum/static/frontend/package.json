@@ -15,6 +15,7 @@
     "@ckeditor/ckeditor5-dev-webpack-plugin": "^8.0.9",
     "@ckeditor/ckeditor5-image": "^18.0.0",
     "@ckeditor/ckeditor5-vue": "^1.0.1",
+    "@johmun/vue-tags-input": "^2.1.0",
     "axios": "^0.19.2",
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.12.0",

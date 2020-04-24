@@ -15,7 +15,6 @@ from api.serializers import MiniChatMessageSerializer, PostSerializer, CommentSe
     CreateTopicSerializer, CreateMiniChatMessageSerializer, EditTopicSerializer
 from django.contrib.auth import get_user_model
 
-from core.mixins import NotificationTextMixin
 from core.models import UserNotification, ModeratorLog
 from core.tasks import send_team_request_state_email
 from users.models import Team, Rank, UserTeamRequest

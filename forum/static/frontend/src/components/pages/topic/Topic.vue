@@ -52,6 +52,14 @@
         </b-row>
         <hr>
         <b-row>
+          <b-col v-for="tag in topic.tags">
+            <div class="tag-container">
+              {{tag.name}}
+            </div>
+          </b-col>
+        </b-row>
+        <hr>
+        <b-row>
           <b-col></b-col>
           <b-col>
             <div v-if="isModerator">
@@ -230,7 +238,8 @@
           totalLikes: 0,
           isLiked: false,
           removedByModerator: false,
-          removedAt: null
+          removedAt: null,
+          tags: []
         },
         author: {
           avatar: '',
@@ -271,6 +280,7 @@
         return axios.get('topics/' + this.topicID + '/').then(
           (response) => {
             this.topic.title = response.data.title;
+            this.topic.tags = response.data.tags;
             this.topic.description = response.data.description;
             this.topic.body = response.data.body;
             this.topic.totalLikes = response.data.total_likes;
