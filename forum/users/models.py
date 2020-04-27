@@ -170,6 +170,9 @@ class Rank(models.Model):
     description = models.TextField(null=True, blank=True)
     name = models.CharField(max_length=255)
 
+    class Meta:
+        unique_together = ['team', 'name']
+
     def __repr__(self):
         return f'Rank(name={self.name})'
 
