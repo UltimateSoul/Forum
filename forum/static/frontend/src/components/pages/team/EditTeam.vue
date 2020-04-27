@@ -216,7 +216,7 @@
     },
     created() {
       if (!this.isTeamOwner) {
-        this.$router.push({name: 'home'})
+        this.$router.push({name: 'teams'})
       }
       this.$store.dispatch('fetchUser')
       this.getTeamRanks()
@@ -229,7 +229,7 @@
     },
     methods: {
       addRank() {
-        const data = {
+        let data = {
           name: this.rankInput.name,
           description: this.rankInput.description,
           team: this.$store.state.authentication.user.teamID
@@ -238,6 +238,7 @@
           (response) => {
             switch (response.status) {
               case 201:
+                data.id = response.data.id
                 this.ranks.push(data)
             }
           }
