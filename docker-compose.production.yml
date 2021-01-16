@@ -11,7 +11,7 @@ services:
       - .env
     command: celery beat --app Forum.celery
     volumes:
-      - ./forum:/forum
+      - ./backend:/backend
     depends_on:
       - db
       - redis
@@ -21,7 +21,7 @@ services:
       - .env
     command: celery -A Forum worker -l info
     volumes:
-      - ./forum:/forum
+      - ./backend:/backend
     depends_on:
       - db
       - redis
@@ -32,7 +32,7 @@ services:
     ports:
     - "5000:5000"
     volumes:
-    - ./forum:/forum
+    - ./backend:/backend
     command: sh -c "rm -rf celerybeat.pid && python manage.py migrate && python manage.py runserver 0.0.0.0:5000"
     env_file:
       - .env
@@ -46,7 +46,7 @@ services:
     ports:
       - "8080:8080"
     volumes:
-    - ./forum/static/frontend:/frontend
+    - ./backend/static/frontend:/frontend
     working_dir: /frontend
     command: bash -c "npm install && npm run dev"
     depends_on:
@@ -57,7 +57,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=forum
+      - POSTGRES_DB=backend
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
   elasticsearch:

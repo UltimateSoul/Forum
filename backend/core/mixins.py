@@ -29,7 +29,7 @@ class NotificationTextMixin(NotificationChoices, NotificationPurposes):
     We've sent confirmation link to your email, please consider activating all the functionality."""
     EMAIL_CONFIRMED = """Hi {username}!
     Your email was successfully confirmed. Now you are able create and join teams and do a lot more stuff. 
-    Please enjoy our awesome forum, see you soon!"""
+    Please enjoy our awesome backend, see you soon!"""
     TEAM_REQUEST_WAS_SENT_WITH_ACTIVATED_EMAIL = """Hi {username}! Your team request was successfully created!
     We will send you email message as soon as your request will be accepted or rejected."""
     TEAM_REQUEST_WAS_SENT_WITH_DEACTIVATED_EMAIL = """Hi {username}! Your team request was successfully created!"""
