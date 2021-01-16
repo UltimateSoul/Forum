@@ -16,7 +16,7 @@ class Like(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def __rerp__(self):
+    def __repr__(self):
         return f'Like(user={self.user})'
 
     class Meta:
@@ -65,7 +65,7 @@ class Topic(models.Model):
         return self.title
 
     @classmethod
-    def get_most_popupar_topics(cls):
+    def get_most_popular_topics(cls):
         now = datetime.datetime.now()
         week_ago = now - datetime.timedelta(days=7)
         last_week_topics = cls.objects.filter(edited_at__range=(week_ago, now))

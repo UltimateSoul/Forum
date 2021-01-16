@@ -12,4 +12,5 @@ __pychache__/
 /media/
 media/
 celerybeat.pid
-celerybeat-schedule
+forum/celerybeat-schedule
+forum/static/js/

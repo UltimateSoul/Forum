@@ -2,7 +2,7 @@ from core.documents import TopicDocument
 from elasticsearch_dsl.query import Q
 
 
-def search_for_movie_title(search_string: str, section: str) -> list:
+def search_for_topic_title(search_string: str, section: str) -> list:
     """
     Searches for suggestion by given string via elasticsearch
     :param search_string:
