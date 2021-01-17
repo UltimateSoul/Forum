@@ -5,19 +5,19 @@ services:
   - docker
 
 before_install:
-  - docker build -t ultimatesoul/forum-backend .
+  - docker build -t ultimate1soul/forum-backend .
 
 script:
-  - docker run ultimatesoul/forum-backend python manage.py test --verbosity=2
+  - docker run ultimate1soul/forum-backend python manage.py test --verbosity=2
 
 
 after_success:
-  - docker build -t ultimatesoul/forum-backend .
-  - docker build -t ultimatesoul/forum-frontend ./frontend
-  - docker build -t ultimatesoul/forum-nginx ./nginx
+  - docker build -t ultimate1soul/forum-backend .
+  - docker build -t ultimate1soul/forum-frontend ./frontend
+  - docker build -t ultimate1soul/forum-nginx ./nginx
   # Log in to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
   # Take those images and push them to docker hub
-  - docker push ultimatesoul/forum-backend
-  - docker push ultimatesoul/forum-frontend
-  - docker push ultimatesoul/forum-nginx
+  - docker push ultimate1soul/forum-backend
+  - docker push ultimate1soul/forum-frontend
+  - docker push ultimate1soul/forum-nginx
