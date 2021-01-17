@@ -10,6 +10,7 @@ before_install:
 script:
   - docker run ultimatesoul/forum-backend python manage.py test --verbosity=2
 
+
 after_success:
   - docker build -t ultimatesoul/forum-backend .
   - docker build -t ultimatesoul/forum-frontend ./frontend
