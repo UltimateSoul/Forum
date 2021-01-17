@@ -153,7 +153,7 @@
         })
       },
       getSuggestions(v) {
-        axios.get('backend/core/search-topics/', {
+        axios.get('core/search-topics/', {
           params: {
             query: this.elasticSearch.search,
             section: this.$route.params.section

@@ -81,18 +81,19 @@
         element.style.height = 'auto';
       },
       getNotifications() {
-        axios.get('backend/core/notifications-list/').then(
+        axios.get('core/notifications-list/').then(
           (response) => {
             switch (response.status) {
               case 200:
                 this.notifications = response.data;
+                console.log(`Notifications: ${this.notifications}`)
                 break;
             }
           }
         )
       },
       deleteNotification(notificationID) {
-        axios.delete(`backend/core/delete-notification/${notificationID}/`).then(
+        axios.delete(`core/delete-notification/${notificationID}/`).then(
           (response) => {
             switch (response.status) {
               case 204:

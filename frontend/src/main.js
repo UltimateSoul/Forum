@@ -23,7 +23,7 @@ Vue.use(Vuelidate);
 Vue.use(BootstrapVue);
 Vue.config.productionTip = false;
 
-axios.defaults.baseURL = 'backend/api/';
+axios.defaults.baseURL = 'backend/';
 if (localStorage.getItem('auth_token')){
  axios.defaults.headers.post['Authorization'] = 'Token ' + localStorage.getItem('auth_token');
  axios.defaults.headers.get['Authorization'] = 'Token ' + localStorage.getItem('auth_token');

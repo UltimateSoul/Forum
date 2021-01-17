@@ -69,7 +69,7 @@
     methods: {
       createPaymentIntent(coinsAmount) {
         const data = {amount: coinsAmount}
-        axios.post('backend/shop/create-payment-intent/', data).then(
+        axios.post('shop/create-payment-intent/', data).then(
           (response) => {
             switch (response.status) {
               case 201:

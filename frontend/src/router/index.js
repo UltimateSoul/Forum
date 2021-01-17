@@ -173,10 +173,6 @@ export default new Router({
       name: 'registration',
       component: Registration
     },
-    // {
-    //   path: '*',
-    //   redirect: {name: 'home'}
-    // }
   ],
   mode: 'history'
 })

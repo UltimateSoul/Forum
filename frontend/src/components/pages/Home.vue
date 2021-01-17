@@ -72,7 +72,7 @@
       },
       getPopularTopics() {
         this.loading = true
-        axios.get('backend/core/get-popular-topics/').then(
+        axios.get('core/get-popular-topics/').then(
           (response) => {
             switch (response.status) {
               case 200:
