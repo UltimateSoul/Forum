@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.authtoken.models import Token
 
-from api.models import Topic, Like, Comment, Post
+from api.models import Topic, Like, Comment, Post, Tag
 from api.tests.factories import TopicFactory, PostFactory, CommentFactory
 from core.models import UserNotification
 from users.models import UserTeamRequest, Team
@@ -90,7 +90,8 @@ class TestTopicViewSet(APITestCase):
             'title': 'Test Topic',
             'description': 'Test topic description',
             'body': 'Test topic body',
-            'section': 'CONVERSATION'
+            'section': 'CONVERSATION',
+            'tags': 'test'
         }
         response = self.client.post(reverse('api:topics-list'), data)
         self.assertTrue(response.status_code == status.HTTP_201_CREATED)

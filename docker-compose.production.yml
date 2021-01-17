@@ -38,6 +38,7 @@ services:
       - db
       - redis
   backend:
+    container_name: backend
     build:
       context: .
     restart: always

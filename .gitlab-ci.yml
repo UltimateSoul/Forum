@@ -1,0 +1,15 @@
+services:
+  - docker
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  before_script:
+    - docker build -t ultimatesoul/forum-app .
+  script:
+    - docker run ultimatesoul/forum-app python manage.py test
+  tags:
+    - python-3.8

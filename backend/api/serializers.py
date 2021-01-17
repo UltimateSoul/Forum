@@ -52,7 +52,7 @@ class CreateTopicSerializer(serializers.ModelSerializer):
         fields = ['title', 'author', 'body', 'description', 'section', 'id', 'tags']
 
     def create(self, validated_data):
-        tags = validated_data.pop('tags')
+        tags = validated_data.get('tags')
         instance = super(CreateTopicSerializer, self).create(validated_data)
         if tags:
             for tag in tags:
