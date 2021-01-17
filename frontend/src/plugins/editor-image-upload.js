@@ -29,7 +29,7 @@ class MyUploadAdapter {
         // integration to choose the right communication channel. This example uses
         // a POST request with JSON as a data structure but your configuration
         // could be different.
-        xhr.open( 'POST', 'backend:/media/upload_editor_images', true );
+        xhr.open( 'POST', 'backend/media/upload_editor_images', true );
         xhr.responseType = 'json';
     }
 

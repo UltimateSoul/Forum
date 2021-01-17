@@ -55,7 +55,7 @@ const getters = {
 
 const actions = {
   login(context, data) {
-    return axios.post('backend:/authentication/api-token-auth/', data)  // ToDo: change URL in production
+    return axios.post('backend/authentication/api-token-auth/', data)  // ToDo: change URL in production
       .then((response) => {
           localStorage.setItem('auth_token', response.data.token);
           context.commit('setAuthToken');
@@ -74,7 +74,7 @@ const actions = {
       })
   },
   register(context, registrationData) {
-    return axios.post('backend:/authentication/register/', registrationData,)
+    return axios.post('backend/authentication/register/', registrationData,)
       .then((response) => {
         let auth_token = response.data.auth_token;
         localStorage.setItem('auth_token', auth_token);

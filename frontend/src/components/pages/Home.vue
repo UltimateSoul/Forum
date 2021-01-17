@@ -4,7 +4,7 @@
         <b-card no-body class="overflow-hidden special-card" style="max-width: 540px;">
           <b-row no-gutters>
             <b-col md="6">
-              <b-card-img :src="user.avatar ? user.avatar : 'backend:/static/images/default.jpg'" alt="Image" class="rounded-0"></b-card-img>
+              <b-card-img :src="user.avatar ? user.avatar : 'backend/static/images/default.jpg'" alt="Image" class="rounded-0"></b-card-img>
             </b-col>
             <b-col md="6">
               <b-card-body :title="user.username">
@@ -34,7 +34,7 @@
                  :items="popularTopics"
                  :fields="fields">
           <template v-slot:cell(avatar)="data">
-            <img :src="data.item.author.avatar ? data.item.author.avatar : 'backend:/static/images/default.jpg'" height="100" width="100">
+            <img :src="data.item.author.avatar ? data.item.author.avatar : 'backend/static/images/default.jpg'" height="100" width="100">
           </template>
           <template v-slot:cell(created_at)="data">
             {{ data.item.created_at | getDateFormat }}
@@ -72,7 +72,7 @@
       },
       getPopularTopics() {
         this.loading = true
-        axios.get('backend:/core/get-popular-topics/').then(
+        axios.get('backend/core/get-popular-topics/').then(
           (response) => {
             switch (response.status) {
               case 200:
