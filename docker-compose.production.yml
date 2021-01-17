@@ -22,8 +22,6 @@ services:
     env_file:
       - .env
     command: celery beat --app Forum.celery
-    volumes:
-      - ./backend:/app
     depends_on:
       - db
       - redis
@@ -32,8 +30,6 @@ services:
     env_file:
       - .env
     command: celery -A Forum worker -l info
-    volumes:
-      - ./backend:/app
     depends_on:
       - db
       - redis

@@ -12,4 +12,4 @@ build:
   script:
     - docker run ultimatesoul/forum-app python manage.py test
   tags:
-    - python-3.8
+    - 0b99b47b
