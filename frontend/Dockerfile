@@ -1,15 +1,15 @@
-FROM node:alpine
+# build stage
+FROM node:13.10.1-stretch as build_stage
 
 WORKDIR /app
-
-COPY ./package.json ./
-
+COPY ./package*.json ./
 RUN npm install
-
 COPY . .
 RUN npm run build
 
-FROM nginx
+# production stage
+FROM nginx as production_stage
 EXPOSE 3000
 COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=0 /frontend/dist /ust/share/nginx/html
+COPY --from=build_stage /app/dist /usr/share/nginx/html
+CMD ["nginx", "-g", "daemon off;"]

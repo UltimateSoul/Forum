@@ -14,7 +14,7 @@
         <b-button :disabled="loading" @click="submitPayment" variant="success">Submit</b-button>
       </div>
     </modal>
-    <div style="background: url('http://0.0.0.0:5000/static/images/golden_coins.jpg'); height: 556px">
+    <div style="background: url('backend:/static/images/golden_coins.jpg'); height: 556px">
       <b-row>
         <b-col>
           <h3>500 Coins</h3>
@@ -69,7 +69,7 @@
     methods: {
       createPaymentIntent(coinsAmount) {
         const data = {amount: coinsAmount}
-        axios.post('http://0.0.0.0:5000/shop/create-payment-intent/', data).then(
+        axios.post('backend:/shop/create-payment-intent/', data).then(
           (response) => {
             switch (response.status) {
               case 201:

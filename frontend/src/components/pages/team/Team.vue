@@ -75,7 +75,7 @@
         <b-table striped hover :items="members" :fields="memberFields">
           <template v-slot:cell(avatar)="data">
             <img v-if="data.item.user.avatar" :src="data.item.user.avatar" height="100" width="100">
-            <img v-else src="http://0.0.0.0:5000/static/images/default.jpg" height="100" width="100">
+            <img v-else src="backend:/static/images/default.jpg" height="100" width="100">
             <!--            ToDo: change in prod-->
           </template>
           <template v-slot:cell(username)="data">
