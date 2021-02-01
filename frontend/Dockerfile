@@ -8,8 +8,9 @@ COPY . .
 RUN npm run build
 
 # production stage
-FROM nginx as production_stage
-EXPOSE 3000
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY --from=build_stage /app/dist /usr/share/nginx/html
-CMD ["nginx", "-g", "daemon off;"]
+FROM nginx:1.19.6-alpine as production_stage
+
+COPY ./default.conf /etc/nginx/conf.d/default.conf
+COPY --from=build_stage /app/dist /usr/share/nginx/html/
+
+CMD ["nginx-debug", "-g", "daemon off;"]
